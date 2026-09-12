@@ -99,6 +99,7 @@ create table public.habits (
 );
 select public.own_rows('public.habits');
 select public.auto_touch('public.habits');
+create unique index habits_title_uniq on public.habits (user_id, title);
 create index habits_aspiration_idx on public.habits (aspiration_id);
 
 create table public.habit_logs (

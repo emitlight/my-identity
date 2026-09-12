@@ -125,7 +125,9 @@ begin
            and g.period_end is not null and g.period_end < p_today
 
         union all
-        -- 2주 안에 마감
+        -- 한 달 안에 마감.
+        -- 2주로 잡으면 분기 목표가 "18일 남음" 상태에서 아무 신호 없이
+        -- 지나간다. 노션에서 TOPCIT 이 정확히 그렇게 마감을 넘겼다.
         select 2,
                jsonb_build_object(
                  'kind', 'due_soon',
@@ -135,7 +137,7 @@ begin
           from public.goals g
          where g.user_id = uid and g.status = 'active'
            and g.period_end is not null
-           and g.period_end >= p_today and g.period_end <= p_today + 14
+           and g.period_end >= p_today and g.period_end <= p_today + 30
 
         union all
         -- 기한 없이 오래 조용한 목표.

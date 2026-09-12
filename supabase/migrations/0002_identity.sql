@@ -21,6 +21,9 @@ create table public.roles (
 );
 select public.own_rows('public.roles');
 select public.auto_touch('public.roles');
+-- 같은 이름의 역할이 둘 있는 것은 의미가 없다. 이관 스크립트를 두 번
+-- 돌렸을 때 조용히 중복되는 것을 막는 역할도 한다.
+create unique index roles_name_uniq on public.roles (user_id, name);
 
 -- ------------------------------------------------------------
 -- core_values — 판단 기준. 회고 화면에 상시 노출된다.
@@ -37,6 +40,7 @@ create table public.core_values (
 );
 select public.own_rows('public.core_values');
 select public.auto_touch('public.core_values');
+create unique index core_values_title_uniq on public.core_values (user_id, title);
 
 -- ------------------------------------------------------------
 -- goals — 정량 목표. 연 → 분기 → 월 계층.
@@ -97,6 +101,7 @@ create table public.aspirations (
 );
 select public.own_rows('public.aspirations');
 select public.auto_touch('public.aspirations');
+create unique index aspirations_title_uniq on public.aspirations (user_id, title);
 
 -- ------------------------------------------------------------
 -- aspiration_refs — 레퍼런스 (되고 싶은 모습)
