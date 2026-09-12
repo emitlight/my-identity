@@ -1,0 +1,153 @@
+@import "tailwindcss";
+
+/* 한국어 UI 본문. 네트워크가 막히면 시스템 폰트로 자연히 떨어진다. */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
+/* ============================================================
+   디자인 토큰
+   설계서(docs/DESIGN.md)의 팔레트를 그대로 쓴다.
+   accent(petrol teal) = 구조 / signal(burnt orange) = 알림·서피싱.
+   두 색의 역할을 섞지 않는 것이 이 UI 의 유일한 색 규칙이다.
+   ============================================================ */
+:root {
+  --paper:       #F4F3F7;
+  --surface:     #FFFFFF;
+  --surface-2:   #FAFAFC;
+  --ink:         #17171F;
+  --muted:       #67657A;
+  --faint:       #8E8C9E;
+  --line:        #E2E0E9;
+  --line-soft:   #EDEBF1;
+
+  --accent:      #0B5E63;
+  --accent-soft: #E3EFEF;
+  --on-accent:   #FFFFFF;
+
+  --signal:      #B9511F;
+  --signal-soft: #FAEBE1;
+
+  --danger:      #B3261E;
+  --ok:          #2F7D4F;
+
+  /* 역할 기본색. 사용자가 바꾸면 roles.color 가 이를 덮는다. */
+  --role-1: #3A7CA5;
+  --role-2: #7161D1;
+  --role-3: #41916B;
+  --role-4: #C2703F;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:       #121118;
+    --surface:     #1B1A23;
+    --surface-2:   #22212C;
+    --ink:         #ECEBF2;
+    --muted:       #9C9AAD;
+    --faint:       #7A7889;
+    --line:        #2F2D3B;
+    --line-soft:   #262532;
+
+    --accent:      #5FBDC0;
+    --accent-soft: #173234;
+    --on-accent:   #0B1F20;
+
+    --signal:      #E88B54;
+    --signal-soft: #33231A;
+
+    --danger:      #F2857C;
+    --ok:          #63B98C;
+
+    --role-1: #63A6CE;
+    --role-2: #9B8DEA;
+    --role-3: #63B98C;
+    --role-4: #DE9463;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:       #121118;
+  --surface:     #1B1A23;
+  --surface-2:   #22212C;
+  --ink:         #ECEBF2;
+  --muted:       #9C9AAD;
+  --faint:       #7A7889;
+  --line:        #2F2D3B;
+  --line-soft:   #262532;
+
+  --accent:      #5FBDC0;
+  --accent-soft: #173234;
+  --on-accent:   #0B1F20;
+
+  --signal:      #E88B54;
+  --signal-soft: #33231A;
+
+  --danger:      #F2857C;
+  --ok:          #63B98C;
+
+  --role-1: #63A6CE;
+  --role-2: #9B8DEA;
+  --role-3: #63B98C;
+  --role-4: #DE9463;
+}
+
+/* @theme inline 이어야 토큰이 값으로 복사되지 않고 var() 참조로 남아
+   런타임 테마 전환이 동작한다. */
+@theme inline {
+  --color-paper:       var(--paper);
+  --color-surface:     var(--surface);
+  --color-surface-2:   var(--surface-2);
+  --color-ink:         var(--ink);
+  --color-muted:       var(--muted);
+  --color-faint:       var(--faint);
+  --color-line:        var(--line);
+  --color-line-soft:   var(--line-soft);
+  --color-accent:      var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent:   var(--on-accent);
+  --color-signal:      var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  --color-danger:      var(--danger);
+  --color-ok:          var(--ok);
+
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
+               BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
+               system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+/* ============================================================
+   기본
+   ============================================================ */
+* { -webkit-tap-highlight-color: transparent; }
+
+html {
+  color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* PWA 로 설치했을 때 노치·홈 인디케이터를 피한다. */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior-y: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 숫자가 세로로 정렬되어야 하는 곳 (시각, 스트릭, 금액) */
+.tnum { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
