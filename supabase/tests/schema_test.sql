@@ -166,3 +166,38 @@ begin
     case when jsonb_array_length(snap->'alerts') = 3 then 'PASS'
          else 'FAIL (' || jsonb_array_length(snap->'alerts') || ')' end);
 end $$;
+
+\echo ''
+\echo '=== 맥락 서피싱 ==='
+do $$
+declare me uuid := '11111111-1111-1111-1111-111111111111'; cid uuid; snap jsonb;
+begin
+  insert into public.collections (user_id, slug, name, kind, default_view)
+  values (me, 'places-t', '저장된 장소', 'place', 'map') returning id into cid;
+
+  insert into public.collection_items (user_id, collection_id, title, region, status) values
+    (me, cid, '성심당', '대전', 'wishlist'),
+    (me, cid, '태평소국밥', '대전', 'wishlist'),
+    (me, cid, '이미 가본 집', '대전', 'visited'),
+    (me, cid, '서울 어딘가', '서울', 'wishlist');
+
+  insert into public.surfacing_rules (user_id, collection_id, label, trigger)
+  values (me, cid, '일정 지역 장소', '{"type":"event_region"}'::jsonb);
+
+  -- 오늘 대전 일정
+  insert into public.events (user_id, title, starts_at, all_day, region)
+  values (me, '대전 출장', now(), true, '대전');
+
+  perform set_config('request.jwt.claim.sub', me::text, true);
+  snap := public.today_snapshot(current_date);
+
+  raise notice '%', format('%-28s %s', '지역 매칭 카드 등장',
+    case when snap->'alerts' @> '[{"kind":"surface"}]'::jsonb then 'PASS' else 'FAIL' end);
+  raise notice '%', format('%-28s %s', '미방문만 센다 (2곳)',
+    case when (snap->'alerts')::text like '%2군데%' then 'PASS'
+         else 'FAIL: ' || (select a->>'body' from jsonb_array_elements(snap->'alerts') a
+                            where a->>'kind' = 'surface' limit 1) end);
+  raise notice '%', format('%-28s %s', '서피싱이 맨 위',
+    case when snap->'alerts'->0->>'kind' = 'surface' then 'PASS'
+         else 'FAIL: ' || (snap->'alerts'->0->>'kind') end);
+end $$;

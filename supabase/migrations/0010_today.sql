@@ -154,6 +154,59 @@ begin
            and g.period_end is null
            and g.stale_after_days is not null
            and g.last_activity_at < now() - make_interval(days => g.stale_after_days)
+
+        union all
+        -- ── 맥락 서피싱 ────────────────────────────────────────
+        -- 노션으로 불가능한 유일한 것. 저장해둔 자료가 읽히기를
+        -- 기다리지 않고, 오늘 일정의 지역에 맞춰 스스로 올라온다.
+        --
+        --   캘린더에 "대전 출장"  →  대전에 저장해둔 미방문 맛집 3곳
+        --
+        -- rank 0 이라 경고 중 가장 위에 온다. 기한 경고보다 위인 이유는
+        -- 이것만이 '지금 바로 쓸 수 있는' 정보이기 때문이다.
+        select 0,
+               jsonb_build_object(
+                 'kind', 'surface',
+                 'title', '오늘 ' || x.region || '이네요',
+                 'body', x.cname || ' · 아직 안 가본 곳 ' || x.cnt || '군데',
+                 'href', '/collections/' || x.cslug || '?region=' || x.region)
+          from (
+            select ev.region,
+                   c.name as cname,
+                   c.slug as cslug,
+                   (select count(*) from public.collection_items ci
+                     where ci.collection_id = c.id
+                       and ci.region = ev.region
+                       and ci.status = 'wishlist') as cnt
+              from public.surfacing_rules sr
+              join public.collections c on c.id = sr.collection_id
+              join public.events ev
+                on ev.user_id = uid
+               and ev.region is not null
+               and ev.starts_at >= from_ts and ev.starts_at < to_ts
+             where sr.user_id = uid and sr.enabled
+               and sr.trigger->>'type' = 'event_region'
+             group by ev.region, c.id, c.name, c.slug
+          ) x
+         where x.cnt > 0
+
+        union all
+        -- 요일 트리거 — "토요일 아침엔 골프장"
+        select 0,
+               jsonb_build_object(
+                 'kind', 'surface',
+                 'title', c.name,
+                 'body', '저장해둔 ' || y.cnt || '곳',
+                 'href', '/collections/' || c.slug)
+          from public.surfacing_rules sr
+          join public.collections c on c.id = sr.collection_id
+          join lateral (
+            select count(*) as cnt from public.collection_items ci
+             where ci.collection_id = c.id
+          ) y on y.cnt > 0
+         where sr.user_id = uid and sr.enabled
+           and sr.trigger->>'type' = 'day_of_week'
+           and (sr.trigger->'days') @> to_jsonb(extract(dow from p_today)::int)
       ) a
     ), '[]'::jsonb)
   ) into result;

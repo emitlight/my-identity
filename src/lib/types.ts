@@ -109,3 +109,62 @@ export interface TodayAlert {
   body: string;
   href: string;
 }
+
+// ---------- 컬렉션 ----------
+
+export type FieldType = "text" | "number" | "bool" | "select";
+
+/** collections.schema 의 필드 정의. 입력 폼과 필터가 여기서 생성된다. */
+export interface SchemaField {
+  key: string;
+  label: string;
+  type: FieldType;
+  options?: string[];
+  filterable?: boolean;
+}
+
+export type CollectionKind = "place" | "media" | "product" | "person" | "generic";
+export type CollectionView = "map" | "list" | "card" | "magazine";
+export type ItemStatus = "wishlist" | "visited" | "owned" | "dropped";
+
+export interface Collection {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  cover_url: string | null;
+  kind: CollectionKind;
+  schema: { fields: SchemaField[] };
+  default_view: CollectionView;
+  sort_order: number;
+}
+
+export interface CollectionItem {
+  id: string;
+  collection_id: string;
+  title: string;
+  subtitle: string | null;
+  summary: string | null;
+  body: string | null;
+  cover_url: string | null;
+  images: string[];
+  tags: string[];
+  rating: number | null;
+  status: ItemStatus;
+  address: string | null;
+  region: string | null;
+  lat: number | null;
+  lng: number | null;
+  url: string | null;
+  data: Record<string, unknown>;
+  visited_at: string | null;
+  created_at: string;
+}
+
+export const ITEM_STATUS_LABEL: Record<ItemStatus, string> = {
+  wishlist: "안 가봄",
+  visited: "가봄",
+  owned: "가지고 있음",
+  dropped: "접음",
+};
