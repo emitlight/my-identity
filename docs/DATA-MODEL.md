@@ -40,6 +40,45 @@ Postgres (Supabase). 모든 테이블에 `user_id uuid` + RLS `user_id = auth.ui
 
 > `metric_current`는 `metric_logs`에서 자동 집계 → 진척도가 **손으로 갱신되지 않는다.** 손으로 갱신하는 순간 안 하게 된다.
 
+### `aspirations` — 추구미 ★
+되고 싶은 모습. **정량 목표(`goals`)와 분리된 테이블**이다 — 숫자로 끝나지 않고 증거로 쌓이기 때문에 수명 주기가 완전히 다르다.
+
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| id | uuid PK | |
+| role_id | uuid FK→roles | nullable (삶 전체의 추구미일 수 있다) |
+| title | text | `미니멀한 우드톤 작업 공간`, `아침 6시의 사람` |
+| domain | enum | `space` `routine` `style` `body` `work` `relationship` |
+| statement | text | 한 문장 선언 — *"나는 ~한 사람이다"* |
+| description | text | Markdown |
+| cover_url | text | 대표 레퍼런스 |
+| status | enum | `active` `achieved` `archived` |
+| capture_cadence | enum | `monthly` `quarterly` `off` — **증거 사진 요청 주기** |
+| last_captured_at | timestamptz | 다음 요청 시점 계산용 |
+| started_at | date | |
+
+### `aspiration_refs` — 레퍼런스
+`id · aspiration_id · image_url · source_url · caption · **why** · sort_order`
+
+> **`why`가 이 테이블의 핵심 컬럼이다.** *"조명이 낮고 따뜻해서"*, *"물건이 다 수납 안에 들어가 있어서"* — 이미지만 모으면 핀터레스트가 되고 아무것도 바뀌지 않는다. 실제로 소파를 고를 때 꺼내 쓰는 건 사진이 아니라 이 문장이다. UI에서 `why` 없이 저장 불가로 막는다.
+
+### `aspiration_evidence` — 증거
+| 컬럼 | 타입 | 설명 |
+|---|---|---|
+| id | uuid PK | |
+| aspiration_id | uuid FK | |
+| date | date | |
+| kind | enum | `photo` `log` `milestone` |
+| image_url | text | Supabase Storage |
+| angle_key | text | **같은 앵글끼리 묶는 키** — Before/Now 자동 정렬 |
+| note | text | |
+
+`angle_key`가 있어야 *"3개월 전 내 책상 / 지금 내 책상"* 을 자동으로 나란히 놓을 수 있다. 사진을 찍을 때 이전 사진을 반투명 가이드로 겹쳐 보여주면 앵글이 자연히 맞는다.
+
+### `habits` ← 추구미 연결
+`habits`에 `aspiration_id uuid FK` 추가. *"아침 6시의 사람"* 아래에 `6시 기상` · `밤 11시 취침` 습관이 걸리고, **스트릭이 그대로 추구미의 진척 신호**가 된다. 별도 진척도 컬럼을 두지 않는다 — 손으로 갱신하는 숫자는 반드시 방치된다.
+
+
 ---
 
 ## Layer 2 — Domains
@@ -66,7 +105,7 @@ Postgres (Supabase). 모든 테이블에 `user_id uuid` + RLS `user_id = auth.ui
 `status='inbox'`가 **빠른 캡처의 기본값**이다. 분류를 강요하지 않는 구조.
 
 ### `habits` / `habit_logs`
-- `habits`: `id · role_id · title · cadence(daily|weekly|custom) · target_per_period · color · active`
+- `habits`: `id · role_id · **aspiration_id** · title · cadence(daily|weekly|custom) · target_per_period · color · active`
 - `habit_logs`: `id · habit_id · date · value · note` — `(habit_id, date)` 유니크. 스트릭은 쿼리로 계산.
 
 ### `events` — 일정
@@ -157,7 +196,7 @@ Google Calendar 양방향 동기화는 Phase 3.
 
 ### `notification_rules`
 `id · kind · schedule(cron) · channel(webpush|email) · config jsonb · enabled`
-기본 규칙: 아침 브리핑 / 일정 리마인더 / 습관 미체크 / 저녁 회고 / 주간 리뷰
+기본 규칙: 아침 브리핑 / 일정 리마인더 / 습관 미체크 / 저녁 회고 / 주간 리뷰 / **증거 사진 요청**(`aspirations.capture_cadence` 기준) / **루틴 이탈 시 레퍼런스 재노출**
 
 ### `notifications` — 발송 이력
 `id · title · body · url · kind · reason · status(queued|sent|failed) · sent_at · read_at · clicked_at`
