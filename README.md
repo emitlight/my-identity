@@ -32,6 +32,7 @@
 | [ROADMAP.md](docs/ROADMAP.md) | Phase 1~4 · 완료 기준 |
 | [DECISIONS.md](docs/DECISIONS.md) | **판단 기록** — 동의 / 형태 변경 / 반대한 것과 그 근거 |
 | [NOTION-AUDIT.md](docs/NOTION-AUDIT.md) | **노션 실사** — 17개 항목 분석 · 근본 원인 · 마이그레이션 매핑 |
+| [SETUP.md](docs/SETUP.md) | **배포 안내** — Supabase · 구글 로그인 · Vercel · 알림 · 폰 설치 |
 
 ---
 
@@ -53,6 +54,16 @@ Next.js 15 · TypeScript · Tailwind + shadcn/ui · Supabase (Postgres · Auth �
 - [x] DB 스키마 8종 + RLS + 검증 (`scripts/test-db.sh`)
 - [x] 인증 · 미들웨어 · 이메일 허용목록 · 디자인 토큰
 - [x] 한국어 자연어 일정 파서 + 검증 37종
-- [ ] 캘린더 UI · Today 화면 · 빠른 캡처
-- [ ] PWA · 웹 푸시 · 크론
+- [x] Today · 캘린더 · 할 일 화면, 빠른 캡처
+- [x] PWA · 웹 푸시 · 알림 크론 (GitHub Actions)
+- [ ] 배포 (→ [SETUP.md](docs/SETUP.md))
 - [ ] 노션 데이터 이관
+
+## 검증
+
+```bash
+npx tsc --noEmit                                             # 타입
+node --experimental-strip-types src/lib/parse-event.test.ts  # 자연어 파서 37종
+sudo bash scripts/test-db.sh                                 # 스키마 · RLS · Today 스냅샷
+npx next build                                               # 빌드
+```

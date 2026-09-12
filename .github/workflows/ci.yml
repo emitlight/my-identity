@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: 타입 검사
+        run: npx tsc --noEmit
+      - name: 자연어 파서 검증
+        run: node --experimental-strip-types src/lib/parse-event.test.ts
+      - name: 스키마 · RLS 검증
+        run: sudo bash scripts/test-db.sh
+      - name: 빌드
+        run: npx next build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"

@@ -115,3 +115,54 @@ end $$;
 select coalesce(string_agg(c.relname, ', '), '없음 · PASS')
 from pg_class c join pg_namespace n on n.oid = c.relnamespace
 where n.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity;
+
+\echo ''
+\echo '=== Today 스냅샷 · 스트릭 ==='
+do $$
+declare hid uuid; snap jsonb; me uuid := '11111111-1111-1111-1111-111111111111';
+begin
+  -- 연속 3일 체크 후 하루 건너뛰고 2일
+  insert into public.habits (user_id, title) values (me, '스트릭 테스트') returning id into hid;
+  insert into public.habit_logs (user_id, habit_id, logged_on) values
+    (me, hid, current_date),
+    (me, hid, current_date - 1),
+    (me, hid, current_date - 2),
+    (me, hid, current_date - 5);
+  raise notice '%', format('%-28s %s', '스트릭 = 3 (갭 무시)',
+    case when public.habit_streak(hid, current_date) = 3 then 'PASS'
+         else 'FAIL (' || public.habit_streak(hid, current_date) || ')' end);
+
+  -- 오늘 미체크여도 어제까지의 스트릭은 유지되어야 한다
+  delete from public.habit_logs where habit_id = hid and logged_on = current_date;
+  raise notice '%', format('%-28s %s', '오늘 미체크시 스트릭 2',
+    case when public.habit_streak(hid, current_date) = 2 then 'PASS'
+         else 'FAIL (' || public.habit_streak(hid, current_date) || ')' end);
+end $$;
+
+do $$
+declare snap jsonb; me uuid := '11111111-1111-1111-1111-111111111111';
+begin
+  -- 기한이 지난 목표와 조용한 목표를 하나씩
+  insert into public.goals (user_id, title, horizon, period_end, status)
+    values (me, 'Microsoft 자격증', 'quarter', current_date - 60, 'active');
+  insert into public.goals (user_id, title, horizon, period_end, status)
+    values (me, 'TOPCIT 900점', 'quarter', current_date + 10, 'active');
+  insert into public.goals (user_id, title, horizon, period_end, status, stale_after_days)
+    values (me, '로스쿨', 'life', null, 'active', 30);
+  update public.goals set last_activity_at = now() - interval '90 days' where title = '로스쿨';
+
+  perform set_config('request.jwt.claim.sub', me::text, true);
+  snap := public.today_snapshot(current_date);
+
+  raise notice '%', format('%-28s %s', 'Today 스냅샷 생성',
+    case when snap ? 'alerts' then 'PASS' else 'FAIL' end);
+  raise notice '%', format('%-28s %s', '기한 초과 경고 감지',
+    case when snap->'alerts' @> '[{"kind":"overdue"}]'::jsonb then 'PASS' else 'FAIL' end);
+  raise notice '%', format('%-28s %s', '마감 임박 경고 감지',
+    case when snap->'alerts' @> '[{"kind":"due_soon"}]'::jsonb then 'PASS' else 'FAIL' end);
+  raise notice '%', format('%-28s %s', '방치 목표 감지',
+    case when snap->'alerts' @> '[{"kind":"stale"}]'::jsonb then 'PASS' else 'FAIL' end);
+  raise notice '%', format('%-28s %s', '경고 3건 전부',
+    case when jsonb_array_length(snap->'alerts') = 3 then 'PASS'
+         else 'FAIL (' || jsonb_array_length(snap->'alerts') || ')' end);
+end $$;
