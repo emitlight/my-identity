@@ -29,13 +29,14 @@ psql -q -c "insert into auth.users (id, email) values
   ('11111111-1111-1111-1111-111111111111','seed@test.local');"
 
 # 시드의 대상 계정만 테스트 계정으로 바꿔 실행
-sed "s/hayoung.lee@softcamp.co.kr/seed@test.local/" \
-  "$ROOT/supabase/seed/0001_from_notion.sql" > "$TMP/seed.sql"
+for f in "$ROOT"/supabase/seed/*.sql; do
+  sed "s/hayoung.lee@softcamp.co.kr/seed@test.local/" "$f" > "$TMP/$(basename "$f")"
+done
 
 echo "→ 1회차 실행"
-psql -q -v ON_ERROR_STOP=1 -f "$TMP/seed.sql"
+for f in "$TMP"/*.sql; do psql -q -v ON_ERROR_STOP=1 -f "$f"; done
 echo "→ 2회차 실행 (중복되면 안 됨)"
-psql -q -v ON_ERROR_STOP=1 -f "$TMP/seed.sql"
+for f in "$TMP"/*.sql; do psql -q -v ON_ERROR_STOP=1 -f "$f"; done
 
 echo
 psql -t -v ON_ERROR_STOP=1 <<'SQL' | grep -v '^\s*$'
@@ -46,10 +47,13 @@ from (
   union all select '목표',       count(*), 10 from public.goals
   union all select '습관',       count(*), 4  from public.habits
   union all select '추구미',     count(*), 5  from public.aspirations
-  union all select '컬렉션',     count(*), 5  from public.collections
+  union all select '컬렉션',     count(*), 7  from public.collections
   union all select '컬렉션항목', count(*), 18 from public.collection_items
   union all select '할 일',      count(*), 10 from public.tasks
   union all select '서피싱규칙', count(*), 2  from public.surfacing_rules
+  union all select '관심사',     count(*), 20 from public.interests
+  union all select '메모',       count(*), 1  from public.notes
+  union all select '프로필 생일', count(*), 1  from public.profiles where birth_date is not null
   union all select '알림규칙',   count(*), 8  from public.notification_rules
 ) s;
 SQL

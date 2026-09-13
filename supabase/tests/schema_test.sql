@@ -201,3 +201,26 @@ begin
     case when snap->'alerts'->0->>'kind' = 'surface' then 'PASS'
          else 'FAIL: ' || (snap->'alerts'->0->>'kind') end);
 end $$;
+
+\echo ''
+\echo '=== 관심사 · 마지막 활동 ==='
+do $$
+declare me uuid := '11111111-1111-1111-1111-111111111111'; hid uuid; n int; unlinked int;
+begin
+  select id into hid from public.habits where user_id = me and title = '6시 기상';
+  insert into public.interests (user_id, title, area, habit_id)
+  values (me, '아침 루틴', 'lifelog', hid);
+  insert into public.interests (user_id, title, area)
+  values (me, '아직 말뿐인 것', 'workout');
+
+  perform set_config('request.jwt.claim.sub', me::text, true);
+
+  select count(*) into n from public.interests_view() where last_active is not null;
+  raise notice '%', format('%-28s %s', '연결된 관심사는 활동 있음',
+    case when n >= 1 then 'PASS' else 'FAIL' end);
+
+  select count(*) into unlinked from public.interests_view()
+   where linked = false and last_active is null;
+  raise notice '%', format('%-28s %s', '연결 없으면 활동 null',
+    case when unlinked >= 1 then 'PASS' else 'FAIL' end);
+end $$;

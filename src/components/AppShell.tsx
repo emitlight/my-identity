@@ -27,12 +27,14 @@ export function AppShell({
             <p className="mt-0.5 text-[13px] text-muted tnum">{subtitle}</p>
           ) : null}
         </div>
-        <Link
-          href="/settings"
-          className="shrink-0 text-[12.5px] text-faint hover:text-muted"
-        >
-          설정
-        </Link>
+        <span className="flex shrink-0 items-center gap-3">
+          <Link href="/identity" className="text-[12.5px] text-faint hover:text-muted">
+            나
+          </Link>
+          <Link href="/settings" className="text-[12.5px] text-faint hover:text-muted">
+            설정
+          </Link>
+        </span>
       </header>
 
       <main className="flex-1 pb-28">{children}</main>

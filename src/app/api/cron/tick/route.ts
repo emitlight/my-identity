@@ -12,6 +12,9 @@ const TICK_WINDOW_MIN = 10;
 interface Profile {
   id: string;
   timezone: string;
+  birth_date: string | null;
+  career_started_at: string | null;
+  company: string | null;
 }
 
 interface Rule {
@@ -39,7 +42,9 @@ export async function POST(request: NextRequest) {
   const now = new Date();
   const log: Record<string, number> = { users: 0, queued: 0, sent: 0, skipped: 0 };
 
-  const { data: profiles } = await admin.from("profiles").select("id, timezone");
+  const { data: profiles } = await admin
+    .from("profiles")
+    .select("id, timezone, birth_date, career_started_at, company");
 
   for (const profile of (profiles ?? []) as Profile[]) {
     log.users++;
@@ -48,6 +53,38 @@ export async function POST(request: NextRequest) {
     const todayISO = format(localNow, "yyyy-MM-dd", { timeZone: tz });
     const minutesNow = localNow.getHours() * 60 + localNow.getMinutes();
     const dow = localNow.getDay();
+
+    // 생일과 근속 기념일. 규칙 행 없이 매일 아침에 한 번만 본다.
+    // 노션에서는 생년월일이 소개글 안의 문장이라 아무 일도 일어나지
+    // 않았다. 날짜 컬럼으로 옮긴 덕에 여기서 쓸 수 있다.
+    if (localNow.getHours() === 8 && localNow.getMinutes() < TICK_WINDOW_MIN) {
+      const md = todayISO.slice(5);
+
+      if (profile.birth_date?.slice(5) === md) {
+        await queue(admin, profile.id, {
+          kind: "anniversary",
+          title: "생일 축하합니다",
+          body: "오늘 하루는 조금 덜 부지런해도 됩니다",
+          url: "/identity",
+          reason: "오늘이 생일",
+          dedupe: `birthday:${todayISO}`,
+        }, log);
+      }
+
+      if (profile.career_started_at && profile.career_started_at.slice(5) === md) {
+        const years = Number(todayISO.slice(0, 4)) - Number(profile.career_started_at.slice(0, 4));
+        if (years > 0) {
+          await queue(admin, profile.id, {
+            kind: "anniversary",
+            title: `${profile.company ?? "회사"} ${years}주년`,
+            body: "지난 1년에 무엇이 남았는지 한 줄 적어둘까요",
+            url: "/review",
+            reason: "입사 기념일",
+            dedupe: `work-anniversary:${todayISO}`,
+          }, log);
+        }
+      }
+    }
 
     const { data: rules } = await admin
       .from("notification_rules")
