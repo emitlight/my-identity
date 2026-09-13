@@ -203,3 +203,98 @@
 ```
 
 노션이 3개월간 하지 않은 말을, 첫 로그인 30초 안에 한다. 이게 증명이다.
+
+---
+
+## 6. 완전 이관 (2026-09-13)
+
+1차 이관에서 데이터베이스 두 개만 옮기고 **My Identity 페이지 본문을 통째로 빠뜨렸다.**
+2차에서 자기소개·관심사를 채웠고, 3차에서 나머지를 마저 옮겼다.
+
+### 노션 트리 전체
+
+```
+My Identity
+├─ 콜아웃 › Dlgkdud (자기소개)           → profiles (birth_date · bio …)
+│   └─ My Expertise (전문영역 3 + PM 표)  → notes (고정) + tasks
+├─ 인용구                                 → core_values
+├─ 🧠 Lifelog 9 · 💰 Finance 3            → interests
+│  🏃 Workout 3 · 🌐 Language 5           → interests
+│  🔮 Future Wishlist 5                   → aspirations
+├─ 비전보드 DB 12행                       → goals 6 · habits 4 · projects 1 · collection_items 3
+└─ 커리어 DB 5행                          → goals 5
+
+(같은 내용의 중복 페이지)
+├─ 무제 페이지 f9e2ed18…                  → 자기소개와 동일, 별도 이관 없음
+└─ Dlgkdud 페이지 3782ed18…               → 자기소개와 동일, 별도 이관 없음
+
+메모 (별도 최상위 페이지)
+├─ 버킷리스트 with M 4항목                → collections/bucket + surfacing_rules
+└─ 개인 할 일 1                           → tasks + collection_items
+```
+
+### 3차에서 추가로 찾은 누락분
+
+| 항목 | 어디에 있었나 | 어디로 |
+|---|---|---|
+| **5월 연휴 가족여행** | 비전보드 (여가 · 2분기 · 5월) | `projects` + 하위 할 일 3 |
+| └ 항공·숙소 3월 말까지 확정 | 그 안의 텍스트 | `tasks` (마감 2027-03-31) |
+| └ 3일 일정표 · 지역 맛집 찾기 | 그 안의 텍스트 | `tasks` — 맥락 서피싱과 직결 |
+| 복용 전후 컨디션 기록 | 종합비타민의 텍스트 | `tasks` |
+| "뇌의 힘 기르기" | 읽기의 텍스트 | `interests.note` |
+| 버킷리스트 with M | 별도 `메모` 페이지 | `collections/bucket` 4항목 |
+| 철학 콘서트 1·2·3 | 별도 `메모` 페이지 | `tasks` + `collection_items` |
+
+---
+
+## 7. 중복 통합
+
+노션에는 같은 정보가 산문과 목록, 페이지와 DB에 나뉘어 있었다.
+**원칙: 한 정보는 한 곳에만 산다. 여러 곳에서 필요하면 FK 로 잇는다.**
+두 곳에 두면 한쪽은 반드시 낡고, 어느 쪽이 맞는지 모르게 되면 둘 다 안 보게 된다.
+
+| 중복 | 곳 | 통합 결과 |
+|---|---|---|
+| 자기소개 | **3곳** (콜아웃 · 무제 페이지 · Dlgkdud 페이지) | `profiles` 1곳 |
+| 취미·언어·다녀온 나라 | 2곳 (소개 산문 + 컬럼 목록) | `interests`·`collections`. **소개 산문에서는 제거**하고 출생·학력·전공·커리어만 남김 |
+| 성경 읽기 | 2곳 (Lifelog + 비전보드 루틴) | `habits` 1개 ← `interests` 가 참조 |
+| 플레이리스트·음악 큐레이션 | 2곳 | `habits` 1개 ← `interests` |
+| 읽기 | 2곳 (Lifelog + 비전보드 여가) | `habits` 1개, 목적은 `interests.note` |
+| 골프 | 2곳 (Workout + 소개 산문) | `interests` 1개 → 골프장 컬렉션 |
+| 미래 취미 | 2곳 (소개 산문 + Future Wishlist) | `aspirations` 5 |
+| 저축·자산 | 2곳 (Finance + 비전보드 유동현금) | `goals` 2 (5억 → 3천만원 계층) ← `interests` |
+| 쇼핑 | 2곳 (Finance + 비전보드 아이템) | 위시리스트 컬렉션 ← `interests` |
+
+### 최종 수량
+
+| | 수 |
+|---|---|
+| 역할 · 핵심가치 | 5 · 1 |
+| 목표 (계층 포함) | 10 |
+| 프로젝트 · 할 일 | 1 · 15 |
+| 습관 · 추구미 | 4 · 5 |
+| 관심사 | 21 |
+| 컬렉션 · 항목 | 8 · 23 |
+| 서피싱 규칙 | 3 |
+
+---
+
+## 8. 아직 결정이 필요한 것 — `옛날 DB`
+
+별도 최상위 페이지 `옛날 DB` 아래에 최소 15페이지가 있다.
+
+```
+옛날 DB
+├─ About Me ├ 아이템 · short_term_goal · 소비활동(ultimate)
+│           └ long_term_plan(+profit) · Brunch Story
+├─ Projects · Career · 기타 학습 자료
+├─ Certifications › Certification Tracker DB
+└─ 2024 하계 일경험 - JIT
+```
+
+이름이 "옛날"이고 마지막 편집이 6월이라 아카이브로 보인다.
+**판단: 자격증만 선별 이관을 권한다.** `Certification Tracker` 는 진행 중인
+TOPCIT·Microsoft 자격증 목표와 직접 이어지는 살아 있는 데이터다.
+나머지(2024 하계 일경험, 옛 Projects)는 지금 쓰이지 않는다.
+
+사용자 확인 대기 중.

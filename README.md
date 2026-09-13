@@ -57,7 +57,9 @@ Next.js 15 · TypeScript · Tailwind + shadcn/ui · Supabase (Postgres · Auth �
 - [x] Today · 캘린더 · 할 일 화면, 빠른 캡처
 - [x] PWA · 웹 푸시 · 알림 크론 (GitHub Actions)
 - [ ] 배포 (→ [SETUP.md](docs/SETUP.md))
-- [ ] 노션 데이터 이관
+- [x] 노션 데이터 이관 (My Identity 트리 전체 + 메모 페이지)
+- [x] 목표 · 나 화면, 맥락 서피싱
+- [ ] `옛날 DB` 선별 이관 (사용자 확인 대기)
 
 ## 검증
 

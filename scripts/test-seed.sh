@@ -47,11 +47,12 @@ from (
   union all select '목표',       count(*), 10 from public.goals
   union all select '습관',       count(*), 4  from public.habits
   union all select '추구미',     count(*), 5  from public.aspirations
-  union all select '컬렉션',     count(*), 7  from public.collections
-  union all select '컬렉션항목', count(*), 18 from public.collection_items
-  union all select '할 일',      count(*), 10 from public.tasks
-  union all select '서피싱규칙', count(*), 2  from public.surfacing_rules
-  union all select '관심사',     count(*), 20 from public.interests
+  union all select '컬렉션',     count(*), 8  from public.collections
+  union all select '컬렉션항목', count(*), 23 from public.collection_items
+  union all select '할 일',      count(*), 15 from public.tasks
+  union all select '서피싱규칙', count(*), 3  from public.surfacing_rules
+  union all select '관심사',     count(*), 21 from public.interests
+  union all select '프로젝트',   count(*), 1  from public.projects
   union all select '메모',       count(*), 1  from public.notes
   union all select '프로필 생일', count(*), 1  from public.profiles where birth_date is not null
   union all select '알림규칙',   count(*), 8  from public.notification_rules

@@ -4,6 +4,7 @@ const NAV = [
   { href: "/", label: "오늘", key: "today" },
   { href: "/calendar", label: "캘린더", key: "calendar" },
   { href: "/tasks", label: "할 일", key: "tasks" },
+  { href: "/goals", label: "목표", key: "goals" },
   { href: "/collections", label: "컬렉션", key: "collections" },
 ];
 
