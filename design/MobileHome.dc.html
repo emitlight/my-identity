@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap">
+  <style>
+    body{margin:0}
+    a{color:#7B2C36;text-decoration:none}
+    a:hover{color:#5A1F27}
+    *{box-sizing:border-box}
+    .tap{transition:opacity .2s}
+    .tap:active{opacity:.7}
+  </style>
+</helmet>
+
+<div style="width:390px;background:#FAF7F3;color:#17120F;font-family:'IBM Plex Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;font-weight:300">
+
+  <!-- ══════════ 제호 ══════════ -->
+  <div style="padding:26px 20px 0">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between">
+      <div style="font-family:'Bodoni Moda',serif;font-weight:700;font-size:21px;letter-spacing:.16em;line-height:1">MY IDENTITY</div>
+      <div style="font-size:9.5px;letter-spacing:.16em;color:#837568;text-transform:uppercase;padding-bottom:2px">No.247</div>
+    </div>
+    <div style="margin-top:9px;height:2px;background:#17120F"></div>
+    <div style="margin-top:9px;display:flex;align-items:baseline;justify-content:space-between">
+      <span style="font-family:'Gowun Batang',serif;font-size:13px">2026년 9월 15일 화요일</span>
+      <span style="font-size:10px;letter-spacing:.14em;color:#837568;text-transform:uppercase">대전 · 맑음</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 오늘 스트립 ══════════ -->
+  <div style="margin-top:18px;padding:0 20px">
+    <div style="border:1px solid #DDD4C8;background:#F7F3EE">
+
+      <!-- 다음 일정 -->
+      <div style="padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #E6DED3">
+        <span style="font-family:'Bodoni Moda',serif;font-size:15px;color:#17120F;width:42px;flex:0 0 42px">15:00</span>
+        <span style="flex:1;min-width:0;font-size:14.5px">커리큘럼 리뷰</span>
+        <span style="font-family:'Bodoni Moda',serif;font-size:11.5px;color:#7B2C36;white-space:nowrap">2시간 뒤</span>
+      </div>
+
+      <!-- 할 일 -->
+      <div style="padding:12px 16px 14px;border-bottom:1px solid #E6DED3">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:9.5px;letter-spacing:.2em;color:#837568;text-transform:uppercase">오늘 할 일</span>
+          <span style="font-family:'Bodoni Moda',serif;font-size:11.5px;color:#837568">{{doneLabel}}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0">
+          <sc-for list="{{tasks}}" as="t" hint-placeholder-count="3">
+            <div class="tap" onClick="{{t.toggle}}" style="min-height:44px;display:flex;gap:12px;align-items:center;cursor:pointer">
+              <span style="width:18px;height:18px;flex:0 0 18px;border:1px solid {{t.boxBorder}};background:{{t.boxFill}};border-radius:2px;display:flex;align-items:center;justify-content:center">
+                <sc-if value="{{t.done}}" hint-placeholder-val="{{true}}">
+                  <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.7 6.7 9 1.2" stroke="#FAF7F3" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </sc-if>
+              </span>
+              <span style="flex:1;font-size:14.5px;line-height:1.4;color:{{t.color}};text-decoration:{{t.deco}}">{{t.title}}</span>
+              <sc-if value="{{t.late}}" hint-placeholder-val="{{true}}">
+                <span style="font-size:10.5px;letter-spacing:.1em;color:#7B2C36;text-transform:uppercase;white-space:nowrap">지남</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- 습관 -->
+      <div style="padding:12px 16px 14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:9.5px;letter-spacing:.2em;color:#837568;text-transform:uppercase">습관</span>
+          <span style="font-family:'Bodoni Moda',serif;font-size:11.5px;color:#837568">{{habitLabel}}</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <sc-for list="{{habits}}" as="h" hint-placeholder-count="4">
+            <div class="tap" onClick="{{h.toggle}}" style="flex:1;min-height:56px;cursor:pointer;border:1px solid {{h.border}};background:{{h.bg}};padding:9px 8px;display:flex;flex-direction:column;justify-content:space-between;gap:6px">
+              <span style="font-size:11.5px;line-height:1.3;color:{{h.color}}">{{h.short}}</span>
+              <span style="font-family:'Bodoni Moda',serif;font-size:11px;color:{{h.streakColor}}">{{h.streak}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ 커버 스토리 ══════════ -->
+  <article class="tap" style="margin-top:26px;position:relative;height:492px;overflow:hidden;background:#2A1410;cursor:pointer">
+    <img src="cover.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,10,8,.30) 0%,rgba(18,10,8,.20) 34%,rgba(18,10,8,.92) 100%)"></div>
+    <div style="position:absolute;right:20px;top:22px;text-align:right">
+      <div style="font-family:'Bodoni Moda',serif;font-size:52px;line-height:.9;color:#FAF7F3">03</div>
+      <div style="font-size:9px;letter-spacing:.18em;color:#D9A06B;text-transform:uppercase;margin-top:4px">안 가본 곳</div>
+    </div>
+    <div style="position:absolute;left:20px;right:20px;bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:22px;height:1px;background:#D9A06B"></span>
+        <span style="font-size:9.5px;letter-spacing:.22em;color:#D9A06B;text-transform:uppercase">오늘의 특집</span>
+      </div>
+      <h1 style="margin:12px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:46px;line-height:1.05;color:#FAF7F3;letter-spacing:-.01em">오늘, 대전</h1>
+      <p style="margin:11px 0 0;font-size:14.5px;line-height:1.62;color:#E5D9CD;font-weight:300">출장 일정이 잡혀 있습니다. 저장해두고 아직 가보지 않은 곳이 세 군데.</p>
+      <div style="margin-top:16px;display:flex;gap:7px;flex-wrap:wrap">
+        <span style="font-family:'Gowun Batang',serif;font-size:13px;color:#FAF7F3;border:1px solid rgba(250,247,243,.45);padding:6px 13px;border-radius:999px">성심당 본점</span>
+        <span style="font-family:'Gowun Batang',serif;font-size:13px;color:#FAF7F3;border:1px solid rgba(250,247,243,.45);padding:6px 13px;border-radius:999px">태평소국밥</span>
+        <span style="font-family:'Gowun Batang',serif;font-size:13px;color:#FAF7F3;border:1px solid rgba(250,247,243,.45);padding:6px 13px;border-radius:999px">오씨칼국수</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- ══════════ 마감 ══════════ -->
+  <div style="margin-top:22px;padding:0 20px">
+    <div style="border-top:1px solid #DDD4C8;border-bottom:1px solid #DDD4C8;display:flex;flex-direction:column">
+      <sc-for list="{{deadlines}}" as="d" hint-placeholder-count="2">
+        <div style="min-height:52px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #E6DED3">
+          <span style="font-family:'Bodoni Moda',serif;font-size:25px;color:{{d.tone}};line-height:1;width:44px;flex:0 0 44px">{{d.num}}</span>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:9px;letter-spacing:.18em;color:#837568;text-transform:uppercase">{{d.unit}}</span>
+            <span style="font-size:14px">{{d.title}}</span>
+          </span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ══════════ 이번 호에서 ══════════ -->
+  <div style="margin-top:36px;padding:0 20px;display:flex;align-items:baseline;gap:14px">
+    <h2 style="margin:0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:23px">이번 호에서</h2>
+    <span style="flex:1;height:1px;background:#DDD4C8"></span>
+  </div>
+
+  <!-- 큰 기사 -->
+  <article class="tap" style="margin-top:18px;padding:0 20px;cursor:pointer">
+    <div style="position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;background:#E8E0D6">
+      <img src="interior.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+      <span style="position:absolute;left:0;top:16px;background:#FAF7F3;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:6px 12px 6px 14px">추구미</span>
+    </div>
+    <h3 style="margin:15px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:27px;line-height:1.18;letter-spacing:-.005em">내 공간이 나를 닮아 있으면</h3>
+    <p style="margin:9px 0 0;font-size:14px;line-height:1.66;color:#6B5E52">우드톤 작업 공간. 레퍼런스 넉 장을 모아뒀고, 이번 달 책상 사진을 찍을 차례입니다.</p>
+    <div style="margin-top:11px;display:flex;align-items:center;gap:9px">
+      <span style="width:5px;height:5px;border-radius:50%;background:#C2703F"></span>
+      <span style="font-family:'Bodoni Moda',serif;font-size:11.5px;letter-spacing:.06em;color:#A89A8B">REFERENCE 4</span>
+    </div>
+  </article>
+
+  <!-- 2열 -->
+  <div style="margin-top:32px;padding:0 20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px">
+    <article class="tap" style="cursor:pointer">
+      <div style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#E8E0D6">
+        <img src="travel.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        <span style="position:absolute;left:0;top:12px;background:#FAF7F3;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;padding:5px 9px 5px 11px">버킷리스트</span>
+      </div>
+      <h3 style="margin:11px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:17px;line-height:1.25">부산, 서면 그리고 저녁</h3>
+      <div style="margin-top:7px;display:flex;align-items:center;gap:7px">
+        <span style="width:4px;height:4px;border-radius:50%;background:#8E6BB8"></span>
+        <span style="font-family:'Bodoni Moda',serif;font-size:10.5px;letter-spacing:.06em;color:#A89A8B">D-7</span>
+      </div>
+    </article>
+    <article class="tap" style="cursor:pointer">
+      <div style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#E8E0D6">
+        <img src="golf.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        <span style="position:absolute;left:0;top:12px;background:#FAF7F3;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;padding:5px 9px 5px 11px">운동</span>
+      </div>
+      <h3 style="margin:11px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:17px;line-height:1.25">라운딩이 조용해진 지 8개월</h3>
+      <div style="margin-top:7px;display:flex;align-items:center;gap:7px">
+        <span style="width:4px;height:4px;border-radius:50%;background:#C2703F"></span>
+        <span style="font-family:'Bodoni Moda',serif;font-size:10.5px;letter-spacing:.06em;color:#A89A8B">8 MO</span>
+      </div>
+    </article>
+    <article class="tap" style="cursor:pointer">
+      <div style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#E8E0D6">
+        <img src="books.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        <span style="position:absolute;left:0;top:12px;background:#FAF7F3;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;padding:5px 9px 5px 11px">읽기</span>
+      </div>
+      <h3 style="margin:11px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:17px;line-height:1.25">사피엔스 다음은 철학 콘서트</h3>
+      <div style="margin-top:7px;display:flex;align-items:center;gap:7px">
+        <span style="width:4px;height:4px;border-radius:50%;background:#8E6BB8"></span>
+        <span style="font-family:'Bodoni Moda',serif;font-size:10.5px;letter-spacing:.06em;color:#A89A8B">1 / 2</span>
+      </div>
+    </article>
+    <article class="tap" style="cursor:pointer">
+      <div style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#E8E0D6">
+        <img src="film.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        <span style="position:absolute;left:0;top:12px;background:#FAF7F3;font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;padding:5px 9px 5px 11px">본 것</span>
+      </div>
+      <h3 style="margin:11px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:17px;line-height:1.25">카사블랑카, 그리고 고전으로</h3>
+      <div style="margin-top:7px;display:flex;align-items:center;gap:7px">
+        <span style="width:4px;height:4px;border-radius:50%;background:#8E6BB8"></span>
+        <span style="font-family:'Bodoni Moda',serif;font-size:10.5px;letter-spacing:.06em;color:#A89A8B">2</span>
+      </div>
+    </article>
+  </div>
+
+  <div style="height:38px"></div>
+
+  <!-- ══════════ 탭 바 ══════════ -->
+  <nav style="position:sticky;bottom:0;background:rgba(250,247,243,.96);border-top:1px solid #DDD4C8;display:flex">
+    <sc-for list="{{tabs}}" as="tb" hint-placeholder-count="5">
+      <div class="tap" onClick="{{tb.pick}}" style="flex:1;min-height:56px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+        <span style="width:14px;height:1px;background:{{tb.bar}}"></span>
+        <span style="font-size:11.5px;color:{{tb.color}}">{{tb.label}}</span>
+      </div>
+    </sc-for>
+  </nav>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":390,"height":1980}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    this.state = { tasks:[false,false,false], habits:[true,false,false,false], tab:0 };
+  }
+
+  renderVals(){
+    const TASKS = [
+      { t:'15초 자기소개 준비', late:true },
+      { t:'SHIELD Gate 브리핑 초안', late:false },
+      { t:'TOPCIT 기출 1회분', late:false },
+    ];
+    const HABITS = [
+      { s:'종합비타민', k:'12' },
+      { s:'필사',       k:'4' },
+      { s:'읽기',       k:'—' },
+      { s:'음악',       k:'—' },
+    ];
+    const TABS = ['오늘','캘린더','할 일','목표','컬렉션'];
+
+    const tasks = TASKS.map((x, i) => {
+      const done = this.state.tasks[i];
+      return {
+        title:x.t, late:x.late && !done, done,
+        color: done ? '#A89A8B' : '#17120F',
+        deco: done ? 'line-through' : 'none',
+        boxFill: done ? '#7B2C36' : 'transparent',
+        boxBorder: done ? '#7B2C36' : '#C9BCAD',
+        toggle: () => {
+          const n = this.state.tasks.slice(); n[i] = !n[i];
+          this.setState({ tasks:n });
+        },
+      };
+    });
+
+    const habits = HABITS.map((h, i) => {
+      const done = this.state.habits[i];
+      return {
+        short:h.s, streak:h.k, done,
+        bg: done ? '#7B2C36' : 'transparent',
+        border: done ? '#7B2C36' : '#DDD4C8',
+        color: done ? '#FAF7F3' : '#17120F',
+        streakColor: done ? 'rgba(250,247,243,.72)' : '#A89A8B',
+        toggle: () => {
+          const n = this.state.habits.slice(); n[i] = !n[i];
+          this.setState({ habits:n });
+        },
+      };
+    });
+
+    const tabs = TABS.map((label, i) => ({
+      label,
+      color: this.state.tab === i ? '#17120F' : '#A89A8B',
+      bar:   this.state.tab === i ? '#7B2C36' : 'transparent',
+      pick:  () => this.setState({ tab:i }),
+    }));
+
+    return {
+      tasks, habits, tabs,
+      doneLabel: this.state.tasks.filter(Boolean).length + ' / 3',
+      habitLabel: this.state.habits.filter(Boolean).length + ' / 4',
+      deadlines: [
+        { num:'17',  unit:'일 남음', title:'TOPCIT 900점',        tone:'#7B2C36' },
+        { num:'109', unit:'일 남음', title:'유동현금 3,000만원',   tone:'#17120F' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

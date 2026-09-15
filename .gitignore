@@ -11,3 +11,6 @@ npm-debug.log*
 .vercel
 next-env.d.ts
 tsconfig.tsbuildinfo
+
+# 디자인 캔버스 번들 — 작업 파일에서 다시 만든다 (design/README.md 참고)
+design/my-identity-dashboard.html

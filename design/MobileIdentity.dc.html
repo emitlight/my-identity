@@ -1,0 +1,219 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap">
+  <style>
+    body{margin:0}
+    a{color:#7B2C36;text-decoration:none}
+    a:hover{color:#5A1F27}
+    *{box-sizing:border-box}
+    .tap{transition:opacity .2s}
+    .tap:active{opacity:.7}
+  </style>
+</helmet>
+
+<div style="width:390px;background:#FAF7F3;color:#17120F;font-family:'IBM Plex Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;font-weight:300">
+
+  <!-- 제호 -->
+  <div style="padding:26px 20px 0">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between">
+      <span style="font-family:'Bodoni Moda',serif;font-weight:700;font-size:15px;letter-spacing:.16em">MY IDENTITY</span>
+      <span style="font-size:9.5px;letter-spacing:.18em;color:#837568;text-transform:uppercase">프로필</span>
+    </div>
+    <div style="margin-top:9px;height:2px;background:#17120F"></div>
+  </div>
+
+  <!-- 커버 초상 -->
+  <section style="position:relative;margin-top:20px;height:340px;overflow:hidden;background:#2B241C">
+    <img src="interior.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block">
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,17,12,.22) 0%,rgba(22,17,12,.86) 82%)"></div>
+    <div style="position:absolute;left:20px;right:20px;bottom:22px">
+      <div style="font-size:9.5px;letter-spacing:.24em;color:#D9C8AE;text-transform:uppercase">Lee Hayoung</div>
+      <h1 style="margin:9px 0 0;font-family:'Gowun Batang',serif;font-weight:400;font-size:44px;line-height:1.05;color:#FAF7F3">이하영</h1>
+      <p style="margin:9px 0 0;font-size:13.5px;color:#D9C8AE;line-height:1.55">(주)소프트캠프 · 기술교육 플랫폼 운영 · 보안 솔루션 기술지원</p>
+    </div>
+  </section>
+
+  <!-- 숫자 -->
+  <div style="padding:0 20px">
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid #DDD4C8">
+      <sc-for list="{{facts}}" as="fa" hint-placeholder-count="3">
+        <div style="padding:20px 0 18px;border-right:1px solid #E6DED3">
+          <div style="font-family:'Bodoni Moda',serif;font-size:30px;line-height:1">{{fa.n}}</div>
+          <div style="margin-top:5px;font-size:9.5px;letter-spacing:.16em;color:#837568;text-transform:uppercase">{{fa.k}}</div>
+          <div style="margin-top:2px;font-size:11.5px;color:#A89A8B">{{fa.sub}}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- 기준 · 풀 인용 -->
+  <section style="padding:34px 20px 32px;border-bottom:1px solid #DDD4C8">
+    <div style="font-size:9.5px;letter-spacing:.22em;color:#7B2C36;text-transform:uppercase">기준</div>
+    <blockquote style="margin:14px 0 0;font-family:'Gowun Batang',serif;font-size:25px;line-height:1.45;letter-spacing:-.005em">생각하는 대로 살지 않으면<br>사는 대로 생각하게 된다</blockquote>
+  </section>
+
+  <!-- 추구미 -->
+  <section style="padding:32px 20px 0">
+    <div style="display:flex;align-items:baseline;gap:14px">
+      <h2 style="margin:0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:23px">추구미</h2>
+      <span style="flex:1;height:1px;background:#DDD4C8"></span>
+      <span style="font-family:'Bodoni Moda',serif;font-size:11.5px;color:#A89A8B">5</span>
+    </div>
+
+    <article class="tap" style="margin-top:18px;cursor:pointer">
+      <div style="position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:#E8E0D6">
+        <img src="interior.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        <div style="position:absolute;left:0;right:0;bottom:0;padding:18px;background:linear-gradient(180deg,transparent,rgba(22,17,12,.86))">
+          <div style="font-family:'Gowun Batang',serif;font-size:21px;color:#FAF7F3;line-height:1.3">인테리어 및 공간 스타일링</div>
+          <div style="margin-top:5px;font-size:12.5px;color:#D9C8AE">내 공간이 나를 닮아 있으면 좋겠다</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px">
+        <span style="font-family:'Bodoni Moda',serif;font-size:11.5px;letter-spacing:.06em;color:#A89A8B">REFERENCE 4</span>
+        <span style="width:3px;height:3px;border-radius:50%;background:#DDD4C8"></span>
+        <span style="font-size:11.5px;color:#7B2C36">이번 달 책상 사진 차례</span>
+      </div>
+    </article>
+
+    <div style="margin-top:20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px">
+      <article class="tap" style="cursor:pointer">
+        <div style="position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;background:#E8E0D6">
+          <img src="travel.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+        <div style="margin-top:9px;font-family:'Gowun Batang',serif;font-size:15.5px;line-height:1.3">전원생활</div>
+        <div style="margin-top:4px;font-size:11.5px;color:#A89A8B">언젠가 흙을 밟으며</div>
+      </article>
+      <article class="tap" style="cursor:pointer">
+        <div style="position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;background:#E8E0D6">
+          <img src="golf.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+        <div style="margin-top:9px;font-family:'Gowun Batang',serif;font-size:15.5px;line-height:1.3">서핑</div>
+        <div style="margin-top:4px;font-size:11.5px;color:#A89A8B">바다에서 노는 사람</div>
+      </article>
+      <article class="tap" style="cursor:pointer">
+        <div style="position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;background:#E8E0D6">
+          <img src="music.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+        <div style="margin-top:9px;font-family:'Gowun Batang',serif;font-size:15.5px;line-height:1.3">재즈 피아노</div>
+        <div style="margin-top:4px;font-size:11.5px;color:#A89A8B">Berklee 를 손으로</div>
+      </article>
+      <article class="tap" style="cursor:pointer">
+        <div style="position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;background:#E8E0D6">
+          <img src="daejeon.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+        <div style="margin-top:9px;font-family:'Gowun Batang',serif;font-size:15.5px;line-height:1.3">제철음식 탐방</div>
+        <div style="margin-top:4px;font-size:11.5px;color:#A89A8B">계절을 먹는 사람</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 관심사 · 거울 -->
+  <section style="padding:36px 20px 0">
+    <div style="display:flex;align-items:baseline;gap:14px">
+      <h2 style="margin:0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:23px">관심사</h2>
+      <span style="flex:1;height:1px;background:#DDD4C8"></span>
+      <span style="font-family:'Bodoni Moda',serif;font-size:11.5px;color:#A89A8B">21</span>
+    </div>
+    <p style="margin:12px 0 0;font-size:12.5px;line-height:1.6;color:#A89A8B">선 길이가 최근 활동입니다. 짧을수록 조용하다는 뜻이에요.</p>
+
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:24px">
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+        <div>
+          <div style="font-size:9.5px;letter-spacing:.2em;color:#7B2C36;text-transform:uppercase">{{g.name}}</div>
+          <div style="margin-top:10px;display:flex;flex-direction:column">
+            <sc-for list="{{g.rows}}" as="r" hint-placeholder-count="4">
+              <div style="min-height:44px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #EFE8DF">
+                <span style="font-family:'Gowun Batang',serif;font-size:16px;color:{{r.ink}};width:104px;flex:0 0 104px">{{r.title}}</span>
+                <span style="flex:1;height:2px;background:#EFE8DF;position:relative;overflow:hidden">
+                  <span style="position:absolute;left:0;top:0;bottom:0;width:{{r.bar}};background:{{r.tone}}"></span>
+                </span>
+                <span style="font-size:11px;color:{{r.metaInk}};width:76px;flex:0 0 76px;text-align:right">{{r.meta}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <div style="height:44px"></div>
+
+  <nav style="position:sticky;bottom:0;background:rgba(250,247,243,.96);border-top:1px solid #DDD4C8;display:flex">
+    <sc-for list="{{tabs}}" as="tb" hint-placeholder-count="5">
+      <div class="tap" onClick="{{tb.pick}}" style="flex:1;min-height:56px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+        <span style="width:14px;height:1px;background:{{tb.bar}}"></span>
+        <span style="font-size:11.5px;color:{{tb.color}}">{{tb.label}}</span>
+      </div>
+    </sc-for>
+  </nav>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":390,"height":2120}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { tab:4 }; }
+
+  renderVals(){
+    const TABS = ['오늘','캘린더','할 일','목표','나'];
+
+    // 최근 활동 → 선 길이. 오래될수록 짧아지고 옅어진다.
+    const row = (title, days, note) => {
+      const pct = days === null ? 0 : Math.max(6, Math.round(100 * Math.pow(0.5, days / 45)));
+      const quiet = days === null || days > 60;
+      return {
+        title,
+        bar: pct + '%',
+        tone: days === null ? '#E0D6C8' : quiet ? '#C9BCAD' : '#7B2C36',
+        ink: quiet ? '#A89A8B' : '#17120F',
+        metaInk: days === null ? '#C2703F' : quiet ? '#A89A8B' : '#6B5E52',
+        meta: note,
+      };
+    };
+
+    return {
+      tabs: TABS.map((label, i) => ({
+        label,
+        color: this.state.tab === i ? '#17120F' : '#A89A8B',
+        bar:   this.state.tab === i ? '#7B2C36' : 'transparent',
+        pick:  () => this.setState({ tab:i }),
+      })),
+
+      facts: [
+        { n:'29',  k:'만 나이',  sub:'생일까지 4일' },
+        { n:'631', k:'근속',     sub:'1년 8개월' },
+        { n:'15',  k:'다녀온 도시', sub:'7개국' },
+      ],
+
+
+      groups: [
+        { name:'일상 취미', rows:[
+          row('소설 읽기', 0,    '오늘'),
+          row('저장된 장소', 3,  '3일 전'),
+          row('고전 영화', null, '기록 없음'),
+          row('반려동물 케어', null, '연결 안 됨'),
+        ]},
+        { name:'운동', rows:[
+          row('골프', 240,      '8개월 전'),
+          row('수영', null,     '연결 안 됨'),
+          row('필라테스', null, '연결 안 됨'),
+        ]},
+        { name:'언어', rows:[
+          row('영어', 2,        '2일 전'),
+          row('스페인어', null, '언젠가'),
+          row('체코어', null,   '언젠가'),
+        ]},
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap">
+  <style>
+    body{margin:0}
+    a{color:#7B2C36;text-decoration:none}
+    a:hover{color:#5A1F27}
+    *{box-sizing:border-box}
+    .tile{transition:transform .35s cubic-bezier(.2,.7,.3,1), box-shadow .35s}
+    .tile:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(23,18,15,.16)}
+    .tile:hover .zoom{transform:scale(1.06)}
+    .zoom{transition:transform .7s cubic-bezier(.2,.7,.3,1)}
+    .sw{transition:background .2s,color .2s,border-color .2s}
+  </style>
+</helmet>
+
+<div style="width:1440px;min-height:1000px;background:#FAF7F3;color:#17120F;font-family:'IBM Plex Sans KR','Apple SD Gothic Neo',system-ui,sans-serif;font-weight:300;padding:40px 56px 64px">
+
+  <!-- 상단 -->
+  <div style="display:flex;align-items:baseline;justify-content:space-between;padding-bottom:13px;border-bottom:2px solid #17120F">
+    <div style="display:flex;align-items:baseline;gap:16px">
+      <span style="font-family:'Bodoni Moda',serif;font-weight:700;font-size:15px;letter-spacing:.16em">MY IDENTITY</span>
+      <span style="width:1px;height:12px;background:#DDD4C8"></span>
+      <span style="font-size:10.5px;letter-spacing:.2em;color:#837568;text-transform:uppercase">컬렉션</span>
+    </div>
+    <span style="font-family:'Gowun Batang',serif;font-size:13px;color:#837568">2026년 9월 15일</span>
+  </div>
+
+  <!-- 컬렉션 헤더 -->
+  <header style="margin-top:38px;display:flex;align-items:flex-end;justify-content:space-between;gap:48px">
+    <div style="max-width:620px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="width:26px;height:1px;background:#7B2C36"></span>
+        <span style="font-size:10px;letter-spacing:.24em;color:#7B2C36;text-transform:uppercase">Collection No.01</span>
+      </div>
+      <h1 style="margin:14px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:56px;line-height:1.05;letter-spacing:-.015em">저장된 장소</h1>
+      <p style="margin:14px 0 0;font-size:16px;line-height:1.7;color:#6B5E52;max-width:52ch">맛집과 공간을 모아두는 서가입니다. 지역을 적어두면 그 지역 일정이 잡히는 날 아침에 알아서 올라옵니다.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:18px">
+      <div style="display:flex;align-items:baseline;gap:28px">
+        <span style="text-align:right">
+          <span style="display:block;font-family:'Bodoni Moda',serif;font-size:42px;line-height:1">{{total}}</span>
+          <span style="display:block;font-size:9.5px;letter-spacing:.18em;color:#837568;text-transform:uppercase;margin-top:3px">저장</span>
+        </span>
+        <span style="text-align:right">
+          <span style="display:block;font-family:'Bodoni Moda',serif;font-size:42px;line-height:1;color:#7B2C36">{{unseen}}</span>
+          <span style="display:block;font-size:9.5px;letter-spacing:.18em;color:#7B2C36;text-transform:uppercase;margin-top:3px">안 가봄</span>
+        </span>
+      </div>
+      <div style="display:flex;gap:7px">
+        <sc-for list="{{views}}" as="v" hint-placeholder-count="3">
+          <div class="sw" onClick="{{v.pick}}" style="cursor:pointer;min-height:36px;display:flex;align-items:center;padding:0 16px;border:1px solid {{v.border}};background:{{v.bg}};color:{{v.color}};font-size:12.5px;letter-spacing:.04em">{{v.label}}</div>
+        </sc-for>
+      </div>
+    </div>
+  </header>
+
+  <!-- 필터 -->
+  <div style="margin-top:30px;display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px solid #DDD4C8">
+    <sc-for list="{{filters}}" as="fl" hint-placeholder-count="5">
+      <div class="sw" onClick="{{fl.pick}}" style="cursor:pointer;min-height:34px;display:flex;align-items:center;padding:0 15px;border-radius:999px;border:1px solid {{fl.border}};background:{{fl.bg}};color:{{fl.color}};font-size:12.5px">{{fl.label}}</div>
+    </sc-for>
+    <span style="flex:1"></span>
+    <span style="font-family:'Bodoni Moda',serif;font-size:12px;color:#A89A8B;letter-spacing:.06em">{{shownLabel}}</span>
+  </div>
+
+  <!-- ══════ 매거진 ══════ -->
+  <sc-if value="{{isMag}}" hint-placeholder-val="{{true}}">
+    <div style="margin-top:40px;display:flex;flex-direction:column;gap:56px">
+      <sc-if value="{{show_a}}" hint-placeholder-val="{{true}}">
+        <article class="tile" style="cursor:pointer;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:52px;align-items:center">
+          <div style="position:relative;width:100%;aspect-ratio:5/4;overflow:hidden;background:#E8E0D6;order:0">
+            <img class="zoom" src="daejeon.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;left:0;top:20px;background:#FAF7F3;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:7px 13px 7px 15px">대전</span>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:11px">
+              <span style="font-family:'Bodoni Moda',serif;font-size:12px;letter-spacing:.14em;color:#A89A8B">No.01</span>
+              <span style="width:20px;height:1px;background:#DDD4C8"></span>
+              <span style="font-size:10px;letter-spacing:.2em;color:#7B2C36;text-transform:uppercase">안 가봄</span>
+            </div>
+            <h2 style="margin:15px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:38px;line-height:1.14;letter-spacing:-.01em;text-wrap:balance">성심당 본점</h2>
+            <p style="margin:14px 0 0;font-size:15.5px;line-height:1.72;color:#6B5E52;max-width:44ch">튀김소보로로 알려진 대전의 상징. 저장만 해두고 아직 한 번도 가보지 않았습니다. 이번 출장이 기회예요.</p>
+            <div style="margin-top:22px;display:flex;gap:26px;padding-top:16px;border-top:1px solid #DDD4C8">
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">가격대</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">1만 이하</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">주차</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">없음</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">대표</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">튀김소보로</span>
+                </span>
+            </div>
+          </div>
+        </article>
+      </sc-if>
+      <sc-if value="{{show_b}}" hint-placeholder-val="{{true}}">
+        <article class="tile" style="cursor:pointer;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:52px;align-items:center">
+          <div style="position:relative;width:100%;aspect-ratio:5/4;overflow:hidden;background:#E8E0D6;order:2">
+            <img class="zoom" src="film.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;left:0;top:20px;background:#FAF7F3;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:7px 13px 7px 15px">서울</span>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:11px">
+              <span style="font-family:'Bodoni Moda',serif;font-size:12px;letter-spacing:.14em;color:#A89A8B">No.02</span>
+              <span style="width:20px;height:1px;background:#DDD4C8"></span>
+              <span style="font-size:10px;letter-spacing:.2em;color:#41916B;text-transform:uppercase">가봤음</span>
+            </div>
+            <h2 style="margin:15px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:38px;line-height:1.14;letter-spacing:-.01em;text-wrap:balance">광화문 미진</h2>
+            <p style="margin:14px 0 0;font-size:15.5px;line-height:1.72;color:#6B5E52;max-width:44ch">면이 툭툭 끊기는 게 좋다. 점심시간은 피할 것. — 20일 전에 남기신 한 줄입니다.</p>
+            <div style="margin-top:22px;display:flex;gap:26px;padding-top:16px;border-top:1px solid #DDD4C8">
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">평점</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">4.5</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">방문</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">1회</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">대표</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">메밀국수</span>
+                </span>
+            </div>
+          </div>
+        </article>
+      </sc-if>
+      <sc-if value="{{show_c}}" hint-placeholder-val="{{true}}">
+        <article class="tile" style="cursor:pointer;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:52px;align-items:center">
+          <div style="position:relative;width:100%;aspect-ratio:5/4;overflow:hidden;background:#E8E0D6;order:0">
+            <img class="zoom" src="travel.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;left:0;top:20px;background:#FAF7F3;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:7px 13px 7px 15px">대전</span>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:11px">
+              <span style="font-family:'Bodoni Moda',serif;font-size:12px;letter-spacing:.14em;color:#A89A8B">No.03</span>
+              <span style="width:20px;height:1px;background:#DDD4C8"></span>
+              <span style="font-size:10px;letter-spacing:.2em;color:#7B2C36;text-transform:uppercase">안 가봄</span>
+            </div>
+            <h2 style="margin:15px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:38px;line-height:1.14;letter-spacing:-.01em;text-wrap:balance">태평소국밥</h2>
+            <p style="margin:14px 0 0;font-size:15.5px;line-height:1.72;color:#6B5E52;max-width:44ch">주차가 되는 곳. 대전에서 아침으로 열어두기 좋습니다.</p>
+            <div style="margin-top:22px;display:flex;gap:26px;padding-top:16px;border-top:1px solid #DDD4C8">
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">가격대</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">1만 이하</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">주차</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">가능</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">예약</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">불필요</span>
+                </span>
+            </div>
+          </div>
+        </article>
+      </sc-if>
+      <sc-if value="{{show_d}}" hint-placeholder-val="{{true}}">
+        <article class="tile" style="cursor:pointer;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:52px;align-items:center">
+          <div style="position:relative;width:100%;aspect-ratio:5/4;overflow:hidden;background:#E8E0D6;order:2">
+            <img class="zoom" src="interior.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;left:0;top:20px;background:#FAF7F3;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;padding:7px 13px 7px 15px">대전</span>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:11px">
+              <span style="font-family:'Bodoni Moda',serif;font-size:12px;letter-spacing:.14em;color:#A89A8B">No.04</span>
+              <span style="width:20px;height:1px;background:#DDD4C8"></span>
+              <span style="font-size:10px;letter-spacing:.2em;color:#7B2C36;text-transform:uppercase">안 가봄</span>
+            </div>
+            <h2 style="margin:15px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:38px;line-height:1.14;letter-spacing:-.01em;text-wrap:balance">오씨칼국수</h2>
+            <p style="margin:14px 0 0;font-size:15.5px;line-height:1.72;color:#6B5E52;max-width:44ch">대전 중구. 아직 정보를 채우지 않으셨습니다.</p>
+            <div style="margin-top:22px;display:flex;gap:26px;padding-top:16px;border-top:1px solid #DDD4C8">
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">가격대</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">1만 이하</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">주차</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">없음</span>
+                </span>
+                <span style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:9px;letter-spacing:.18em;color:#A89A8B;text-transform:uppercase">예약</span>
+                  <span style="font-family:'Gowun Batang',serif;font-size:15px">—</span>
+                </span>
+            </div>
+          </div>
+        </article>
+      </sc-if>
+            </div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <!-- ══════ 그리드 ══════ -->
+  <sc-if value="{{isGrid}}" hint-placeholder-val="{{true}}">
+    <div style="margin-top:36px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:26px">
+      <sc-if value="{{show_a}}" hint-placeholder-val="{{true}}">
+        <article class="tile" style="cursor:pointer">
+          <div style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#E8E0D6">
+            <img class="zoom" src="daejeon.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;left:0;top:14px;background:#FAF7F3;font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:5px 10px 5px 12px">대전</span>
+          </div>
+          <h3 style="margin:13px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:20px;line-height:1.22">성심당 본점</h3>
+          <div style="margin-top:7px;display:flex;align-items:center;gap:8px">
+            <span style="width:4px;height:4px;border-radius:50%;background:#7B2C36"></span>
+            <span style="font-size:11.5px;color:#A89A8B">안 가봄</span>
+          </div>
+        </article>
+      </sc-if>
+      <sc-if value="{{show_b}}" hint-placeholder-val="{{true}}">
+        <article class="tile" style="cursor:pointer">
+          <div style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#E8E0D6">
+            <img class="zoom" src="film.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;left:0;top:14px;background:#FAF7F3;font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:5px 10px 5px 12px">서울</span>
+          </div>
+          <h3 style="margin:13px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:20px;line-height:1.22">광화문 미진</h3>
+          <div style="margin-top:7px;display:flex;align-items:center;gap:8px">
+            <span style="width:4px;height:4px;border-radius:50%;background:#41916B"></span>
+            <span style="font-size:11.5px;color:#A89A8B">가봤음</span>
+          </div>
+        </article>
+      </sc-if>
+      <sc-if value="{{show_c}}" hint-placeholder-val="{{true}}">
+        <article class="tile" style="cursor:pointer">
+          <div style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#E8E0D6">
+            <img class="zoom" src="travel.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;left:0;top:14px;background:#FAF7F3;font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:5px 10px 5px 12px">대전</span>
+          </div>
+          <h3 style="margin:13px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:20px;line-height:1.22">태평소국밥</h3>
+          <div style="margin-top:7px;display:flex;align-items:center;gap:8px">
+            <span style="width:4px;height:4px;border-radius:50%;background:#7B2C36"></span>
+            <span style="font-size:11.5px;color:#A89A8B">안 가봄</span>
+          </div>
+        </article>
+      </sc-if>
+      <sc-if value="{{show_d}}" hint-placeholder-val="{{true}}">
+        <article class="tile" style="cursor:pointer">
+          <div style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;background:#E8E0D6">
+            <img class="zoom" src="interior.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+            <span style="position:absolute;left:0;top:14px;background:#FAF7F3;font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:5px 10px 5px 12px">대전</span>
+          </div>
+          <h3 style="margin:13px 0 0;font-family:'Bodoni Moda','Gowun Batang',serif;font-weight:400;font-size:20px;line-height:1.22">오씨칼국수</h3>
+          <div style="margin-top:7px;display:flex;align-items:center;gap:8px">
+            <span style="width:4px;height:4px;border-radius:50%;background:#7B2C36"></span>
+            <span style="font-size:11.5px;color:#A89A8B">안 가봄</span>
+          </div>
+        </article>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ══════ 목록 ══════ -->
+  <sc-if value="{{isList}}" hint-placeholder-val="{{true}}">
+    <div style="margin-top:22px;display:flex;flex-direction:column">
+      <sc-if value="{{show_a}}" hint-placeholder-val="{{true}}">
+        <div class="tile" style="cursor:pointer;min-height:64px;display:flex;align-items:center;gap:22px;padding:14px 4px;border-bottom:1px solid #E6DED3">
+          <span style="font-family:'Bodoni Moda',serif;font-size:13px;color:#A89A8B;width:34px;flex:0 0 34px">No.01</span>
+          <span style="width:56px;height:56px;flex:0 0 56px;overflow:hidden;background:#E8E0D6">
+            <img src="daejeon.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+          </span>
+          <span style="font-family:'Gowun Batang',serif;font-size:19px;flex:1;min-width:0">성심당 본점</span>
+          <span style="font-size:13px;color:#837568;width:110px;flex:0 0 110px">카페</span>
+          <span style="font-size:13px;color:#837568;width:90px;flex:0 0 90px">대전</span>
+          <span style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#7B2C36;width:96px;flex:0 0 96px;text-align:right">안 가봄</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{show_b}}" hint-placeholder-val="{{true}}">
+        <div class="tile" style="cursor:pointer;min-height:64px;display:flex;align-items:center;gap:22px;padding:14px 4px;border-bottom:1px solid #E6DED3">
+          <span style="font-family:'Bodoni Moda',serif;font-size:13px;color:#A89A8B;width:34px;flex:0 0 34px">No.02</span>
+          <span style="width:56px;height:56px;flex:0 0 56px;overflow:hidden;background:#E8E0D6">
+            <img src="film.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+          </span>
+          <span style="font-family:'Gowun Batang',serif;font-size:19px;flex:1;min-width:0">광화문 미진</span>
+          <span style="font-size:13px;color:#837568;width:110px;flex:0 0 110px">한식</span>
+          <span style="font-size:13px;color:#837568;width:90px;flex:0 0 90px">서울</span>
+          <span style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#41916B;width:96px;flex:0 0 96px;text-align:right">가봤음</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{show_c}}" hint-placeholder-val="{{true}}">
+        <div class="tile" style="cursor:pointer;min-height:64px;display:flex;align-items:center;gap:22px;padding:14px 4px;border-bottom:1px solid #E6DED3">
+          <span style="font-family:'Bodoni Moda',serif;font-size:13px;color:#A89A8B;width:34px;flex:0 0 34px">No.03</span>
+          <span style="width:56px;height:56px;flex:0 0 56px;overflow:hidden;background:#E8E0D6">
+            <img src="travel.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+          </span>
+          <span style="font-family:'Gowun Batang',serif;font-size:19px;flex:1;min-width:0">태평소국밥</span>
+          <span style="font-size:13px;color:#837568;width:110px;flex:0 0 110px">한식</span>
+          <span style="font-size:13px;color:#837568;width:90px;flex:0 0 90px">대전</span>
+          <span style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#7B2C36;width:96px;flex:0 0 96px;text-align:right">안 가봄</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{show_d}}" hint-placeholder-val="{{true}}">
+        <div class="tile" style="cursor:pointer;min-height:64px;display:flex;align-items:center;gap:22px;padding:14px 4px;border-bottom:1px solid #E6DED3">
+          <span style="font-family:'Bodoni Moda',serif;font-size:13px;color:#A89A8B;width:34px;flex:0 0 34px">No.04</span>
+          <span style="width:56px;height:56px;flex:0 0 56px;overflow:hidden;background:#E8E0D6">
+            <img src="interior.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+          </span>
+          <span style="font-family:'Gowun Batang',serif;font-size:19px;flex:1;min-width:0">오씨칼국수</span>
+          <span style="font-size:13px;color:#837568;width:110px;flex:0 0 110px">한식</span>
+          <span style="font-size:13px;color:#837568;width:90px;flex:0 0 90px">대전</span>
+          <span style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#7B2C36;width:96px;flex:0 0 96px;text-align:right">안 가봄</span>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    this.state = { view:'magazine', filter:'all' };
+  }
+
+  renderVals(){
+    const ALL = [
+      { title:'성심당 본점', img:'daejeon.jpg', region:'대전', kind:'카페', visited:false,
+        body:'튀김소보로로 알려진 대전의 상징. 저장만 해두고 아직 한 번도 가보지 않았습니다. 이번 출장이 기회예요.',
+        specs:[{k:'가격대',v:'1만 이하'},{k:'주차',v:'없음'},{k:'대표',v:'튀김소보로'}] },
+      { title:'광화문 미진', img:'film.jpg', region:'서울', kind:'한식', visited:true,
+        body:'면이 툭툭 끊기는 게 좋다. 점심시간은 피할 것. — 20일 전에 남기신 한 줄입니다.',
+        specs:[{k:'평점',v:'4.5'},{k:'방문',v:'1회'},{k:'대표',v:'메밀국수'}] },
+      { title:'태평소국밥', img:'travel.jpg', region:'대전', kind:'한식', visited:false,
+        body:'주차가 되는 곳. 대전에서 아침으로 열어두기 좋습니다.',
+        specs:[{k:'가격대',v:'1만 이하'},{k:'주차',v:'가능'},{k:'예약',v:'불필요'}] },
+      { title:'오씨칼국수', img:'interior.jpg', region:'대전', kind:'한식', visited:false,
+        body:'대전 중구. 아직 정보를 채우지 않으셨습니다.',
+        specs:[{k:'가격대',v:'1만 이하'},{k:'주차',v:'없음'},{k:'예약',v:'—'}] },
+    ];
+
+    const F = [
+      { id:'all',    label:'전체' },
+      { id:'unseen', label:'안 가본 곳' },
+      { id:'대전',    label:'대전' },
+      { id:'서울',    label:'서울' },
+      { id:'한식',    label:'한식' },
+    ];
+    const V = [
+      { id:'magazine', label:'매거진' },
+      { id:'grid',     label:'그리드' },
+      { id:'list',     label:'목록' },
+    ];
+
+    const f = this.state.filter;
+    // 카드가 리터럴 마크업이라(이미지가 그래야 인라인된다) 걸러내기는
+    // 항목마다 boolean 을 계산해 sc-if 로 가린다.
+    const vis = (x) =>
+      f === 'all' ? true :
+      f === 'unseen' ? !x.visited :
+      f === x.region || f === x.kind;
+    const shown = ALL.filter(vis);
+
+    return {
+      show_a: vis(ALL[0]), show_b: vis(ALL[1]),
+      show_c: vis(ALL[2]), show_d: vis(ALL[3]),
+      total: ALL.length,
+      unseen: ALL.filter((x) => !x.visited).length,
+      shownLabel: shown.length + ' / ' + ALL.length,
+      isMag:  this.state.view === 'magazine',
+      isGrid: this.state.view === 'grid',
+      isList: this.state.view === 'list',
+      views: V.map((v) => ({
+        label: v.label,
+        bg:     this.state.view === v.id ? '#17120F' : 'transparent',
+        color:  this.state.view === v.id ? '#FAF7F3' : '#6B5E52',
+        border: this.state.view === v.id ? '#17120F' : '#DDD4C8',
+        pick: () => this.setState({ view: v.id }),
+      })),
+      filters: F.map((x) => ({
+        label: x.label,
+        bg:     f === x.id ? '#F3E6E5' : 'transparent',
+        color:  f === x.id ? '#7B2C36' : '#6B5E52',
+        border: f === x.id ? '#E0C9C7' : '#DDD4C8',
+        pick: () => this.setState({ filter: x.id }),
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>
