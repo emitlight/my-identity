@@ -29,6 +29,12 @@
   --danger:      #B3261E;
   --ok:          #2F7D4F;
 
+  /* 사진 위 글자. 지면이 밝든 어둡든 사진 위는 늘 어둡게 깔리므로
+     라이트·다크에서 같은 값을 쓴다. */
+  --on-dark:      #FAF7F3;
+  --on-dark-dim:  #D9C8AE;
+  --on-dark-line: rgba(250,247,243,.45);
+
   /* 역할 기본색. 사용자가 바꾸면 roles.color 가 이를 덮는다. */
   --role-1: #3A7CA5;
   --role-2: #7161D1;
@@ -108,6 +114,7 @@
   --color-signal-soft: var(--signal-soft);
   --color-danger:      var(--danger);
   --color-ok:          var(--ok);
+  --color-on-dark:     var(--on-dark);
 
   --font-sans: "Pretendard Variable", Pretendard, -apple-system,
                BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
@@ -150,4 +157,58 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+
+/* ============================================================
+   조판
+   매거진 판형의 공통 클래스. 부품(components/editorial.tsx)이 이걸 쓴다.
+   ============================================================ */
+
+/** 제호 */
+.masthead {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: .15em;
+  color: var(--ink);
+}
+
+/** 표제 — 라틴은 디스플레이 페이스, 한글은 명조로 갈라진다 */
+.display {
+  font-family: var(--font-display), var(--font-display-ko);
+  font-weight: 400;
+  letter-spacing: -.008em;
+  text-wrap: balance;
+}
+
+/** 러버릭 · 작은 대문자 라벨 */
+.kicker {
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/** 본문 안의 명조 — 인용, 칩, 스펙 값 */
+.serif { font-family: var(--font-display-ko); }
+
+/** 숫자 — 디스플레이 페이스의 숫자꼴을 쓴다 */
+.num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 지면이 살아 있게 하는 최소한의 움직임 ───────────────────
+   스크롤 트리거 애니메이션은 쓰지 않는다. 첫 화면이 비어 보이고,
+   매일 여는 화면에서 매번 기다리게 된다. */
+.tile { transition: transform .35s cubic-bezier(.2,.7,.3,1), box-shadow .35s; }
+@media (hover: hover) {
+  .tile:hover { transform: translateY(-5px); }
+  .tile:hover .zoom { transform: scale(1.055); }
+}
+.zoom { transition: transform .7s cubic-bezier(.2,.7,.3,1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tile, .zoom { transition: none !important; transform: none !important; }
 }

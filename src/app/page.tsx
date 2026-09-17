@@ -1,14 +1,40 @@
-import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { QuickCapture } from "@/components/QuickCapture";
-import { TaskRow } from "@/components/TaskRow";
-import { HabitRow } from "@/components/HabitRow";
-import { Card, SectionLabel, Empty, RoleDot } from "@/components/ui";
-import { todayISO, hhmm, monthDay, weekday, untilLabel, TZ } from "@/lib/date";
+import { TodayRail } from "@/components/TodayRail";
+import {
+  CoverStory,
+  DeadlineBand,
+  FeedCard,
+  Kicker,
+  SectionRule,
+} from "@/components/editorial";
+import { todayISO, monthDay, weekday, daysUntil, TZ } from "@/lib/date";
 import type { CalendarEvent, Habit, Role, Task, TodayAlert } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+interface FeedRow {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+  cover_url: string | null;
+  kind: string;
+  total: number;
+  unseen: number;
+  last_active: string | null;
+}
+
+interface AspirationRow {
+  id: string;
+  title: string;
+  statement: string | null;
+  cover_url: string | null;
+  refs: number;
+  evidence: number;
+  due_capture: boolean;
+}
 
 interface Snapshot {
   today: string;
@@ -19,21 +45,19 @@ interface Snapshot {
   inbox_count: number;
   habits: (Habit & { done_today: boolean; streak: number })[];
   alerts: TodayAlert[];
+  feed: FeedRow[];
+  aspiration: AspirationRow | null;
 }
 
-/**
- * 경고는 심각도를 형태로 구분한다.
- * 셋 다 같은 색으로 칠하면 한눈에 무엇이 급한지 안 읽히고,
- * 그러면 전부 무시하게 된다.
- */
-const ALERT_STYLE: Record<
-  TodayAlert["kind"],
-  { label: string; filled: boolean; strong: boolean }
-> = {
-  overdue:  { label: "기한 지남",   filled: true,  strong: true },
-  due_soon: { label: "마감 임박",   filled: false, strong: true },
-  stale:    { label: "조용함",      filled: false, strong: false },
-  surface:  { label: "오늘의 맥락", filled: true,  strong: true },
+const RUBRIC: Record<string, string> = {
+  places: "저장된 장소",
+  golf: "운동",
+  countries: "여행",
+  wishlist: "위시리스트",
+  music: "음악",
+  watch: "본 것",
+  books: "읽기",
+  bucket: "버킷리스트",
 };
 
 export default async function TodayPage() {
@@ -48,175 +72,186 @@ export default async function TodayPage() {
   if (error) {
     return (
       <AppShell active="today" title="오늘">
-        <Card className="p-5">
-          <p className="text-[14.5px] text-danger">
-            데이터를 불러오지 못했습니다.
-          </p>
-          <p className="mt-2 text-[13px] leading-relaxed text-muted">
-            마이그레이션이 아직 적용되지 않았을 수 있습니다.
-            <br />
-            <code className="text-[12px]">supabase/migrations</code> 를 프로젝트에
+        <div className="max-w-[52ch]">
+          <h2 className="display text-[26px]">지면을 불러오지 못했습니다</h2>
+          <p className="mt-3 text-[14.5px] leading-relaxed text-muted">
+            마이그레이션이 아직 적용되지 않았을 수 있습니다.{" "}
+            <code className="text-[13px]">supabase/migrations</code> 를 순서대로
             적용한 뒤 새로고침해 주세요.
           </p>
-        </Card>
+        </div>
       </AppShell>
     );
   }
 
   const snap = data as Snapshot;
   const now = new Date();
-  const roleColor = new Map(snap.roles.map((r) => [r.id, r.color]));
+  const dateline = `${monthDay(now)} ${weekday(now)}요일`;
 
-  const dateLabel = `${monthDay(now)} ${weekday(now)}요일`;
-  const timed = snap.events.filter((e) => !e.all_day);
-  const allDay = snap.events.filter((e) => e.all_day);
-  const upcoming = timed.find((e) => new Date(e.starts_at) >= now);
+  // ── 표지 기사 고르기 ───────────────────────────────────────
+  // 오늘 가장 흥미로운 것이 표지가 된다. 맥락 서피싱이 있으면 그것이,
+  // 없으면 기한이 지난 것이, 그것도 없으면 추구미가 표지로 온다.
+  // "오늘 할 일 없음"만 뜨는 표지는 아무것도 말해주지 않는다.
+  const surface = snap.alerts.find((a) => a.kind === "surface");
+  const overdue = snap.alerts.find((a) => a.kind === "overdue");
+  const band = snap.alerts.filter((a) => a !== surface && a !== overdue);
+
+  const cover =
+    surface
+      ? {
+          kicker: "오늘의 특집",
+          headline: surface.title,
+          standfirst: surface.body,
+          href: surface.href,
+          seed: surface.title,
+          number: firstNumber(surface.body),
+          numberLabel: "안 가본 곳",
+          // 서피싱된 항목 자체의 사진이 먼저다. 없으면 컬렉션 표지로 내려간다.
+          image:
+            surface.image ??
+            snap.feed.find((f) => surface.href.includes(f.slug))?.cover_url,
+          chips: surface.chips ?? undefined,
+        }
+      : overdue
+        ? {
+            kicker: "확인이 필요합니다",
+            headline: overdue.title,
+            standfirst: overdue.body,
+            href: overdue.href,
+            seed: overdue.title,
+            number: firstNumber(overdue.body),
+            numberLabel: "일 경과",
+            image: null,
+            chips: undefined,
+          }
+        : snap.aspiration
+          ? {
+              kicker: snap.aspiration.due_capture ? "이번 달 기록할 차례" : "추구미",
+              headline: snap.aspiration.title,
+              standfirst:
+                snap.aspiration.statement ??
+                `레퍼런스 ${snap.aspiration.refs}장 · 기록 ${snap.aspiration.evidence}장`,
+              href: `/identity`,
+              seed: snap.aspiration.title,
+              number: String(snap.aspiration.refs),
+              numberLabel: "레퍼런스",
+              image: snap.aspiration.cover_url,
+              chips: undefined,
+            }
+          : null;
 
   return (
-    <AppShell active="today" title="오늘" subtitle={dateLabel}>
-      <div className="flex flex-col gap-6">
+    <AppShell
+      active="today"
+      title="오늘"
+      dateline={dateline}
+      rail={
+        <TodayRail
+          events={snap.events}
+          tasks={snap.tasks}
+          habits={snap.habits}
+          roles={snap.roles}
+          inboxCount={snap.inbox_count}
+          now={now}
+        />
+      }
+    >
+      <div className="flex flex-col gap-10 lg:gap-14">
         <QuickCapture />
 
-        {snap.alerts.length > 0 ? (
-          <section className="flex flex-col gap-2">
-            <SectionLabel right={`${snap.alerts.length}건`}>확인이 필요합니다</SectionLabel>
-            {snap.alerts.map((a, i) => {
-              const s = ALERT_STYLE[a.kind];
-              return (
-                <Card key={i} tone={s.filled ? "signal" : "plain"} className="px-4 py-3">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="min-w-0 text-[14.5px] font-medium text-ink">
-                      {a.title}
-                    </span>
-                    <span
-                      className={
-                        "shrink-0 text-[11px] font-medium tracking-wide " +
-                        (s.strong ? "text-signal" : "text-faint")
-                      }
-                    >
-                      {s.label}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-[13px] text-muted tnum">{a.body}</p>
-                </Card>
-              );
-            })}
-          </section>
+        {cover ? (
+          <CoverStory
+            kicker={cover.kicker}
+            headline={cover.headline}
+            standfirst={cover.standfirst}
+            chips={cover.chips}
+            number={cover.number}
+            numberLabel={cover.numberLabel}
+            href={cover.href}
+            image={cover.image}
+            seed={cover.seed}
+          />
         ) : null}
 
-        <section className="flex flex-col gap-2">
-          <SectionLabel right={upcoming ? untilLabel(upcoming.starts_at, now) : undefined}>
-            {upcoming ? "다음 일정" : "오늘 일정"}
-          </SectionLabel>
-
-          {snap.events.length === 0 ? (
-            snap.next_event ? (
-              <Card className="px-4 py-3.5">
-                <p className="text-[13px] text-faint">오늘은 일정이 없습니다</p>
-                <div className="mt-2 flex items-baseline gap-2.5">
-                  <span className="text-[12.5px] tnum text-muted">
-                    {monthDay(snap.next_event.starts_at)}
-                  </span>
-                  <span className="min-w-0 text-[14.5px]">{snap.next_event.title}</span>
-                </div>
-              </Card>
-            ) : (
-              <Card>
-                <Empty>일정이 없습니다. 위에 한 줄로 적어보세요.</Empty>
-              </Card>
-            )
-          ) : (
-            <Card className="divide-y divide-line-soft">
-              {allDay.map((e) => (
-                <EventRow key={e.id} event={e} color={roleColor.get(e.role_id ?? "")} />
-              ))}
-              {timed.map((e) => (
-                <EventRow
-                  key={e.id}
-                  event={e}
-                  color={roleColor.get(e.role_id ?? "")}
-                  past={new Date(e.starts_at) < now}
-                />
-              ))}
-            </Card>
-          )}
-        </section>
-
-        <section className="flex flex-col gap-2">
-          <SectionLabel right={snap.tasks.length ? `${snap.tasks.length}개` : undefined}>
-            오늘 할 일
-          </SectionLabel>
-          {snap.tasks.length === 0 ? (
-            <Card>
-              <Empty>오늘 할 일이 없습니다.</Empty>
-            </Card>
-          ) : (
-            <Card className="divide-y divide-line-soft">
-              {snap.tasks.map((t) => (
-                <TaskRow
-                  key={t.id}
-                  task={t}
-                  roleColor={roleColor.get(t.role_id ?? "")}
-                  overdue={!!t.due_at && new Date(t.due_at) < now}
-                />
-              ))}
-            </Card>
-          )}
-
-          {snap.inbox_count > 0 ? (
-            <Link
-              href="/tasks?filter=inbox"
-              className="px-1 text-[12.5px] text-faint hover:text-muted"
-            >
-              정리 안 된 인박스 {snap.inbox_count}개 →
-            </Link>
-          ) : null}
-        </section>
-
-        {snap.habits.length > 0 ? (
-          <section className="flex flex-col gap-2">
-            <SectionLabel
-              right={`${snap.habits.filter((h) => h.done_today).length} / ${snap.habits.length}`}
-            >
-              습관
-            </SectionLabel>
-            <Card className="divide-y divide-line-soft">
-              {snap.habits.map((h) => (
-                <HabitRow
-                  key={h.id}
-                  id={h.id}
-                  title={h.title}
-                  doneToday={h.done_today}
-                  streak={h.streak}
-                />
-              ))}
-            </Card>
-          </section>
+        {band.length ? (
+          <DeadlineBand
+            items={band.map((a) => ({
+              num: firstNumber(a.body) ?? "—",
+              unit: a.kind === "due_soon" ? "일 남음" : "일째 조용",
+              title: a.title,
+              urgent: a.kind === "due_soon" && (Number(firstNumber(a.body)) || 99) <= 14,
+            }))}
+          />
         ) : null}
+
+        {snap.feed.length ? (
+          <section className="flex flex-col gap-6">
+            <SectionRule right="내가 모아둔 것들">이번 호에서</SectionRule>
+
+            <div className="grid grid-cols-2 gap-5 lg:grid-cols-3 lg:gap-8">
+              {snap.aspiration ? (
+                <FeedCard
+                  rubric="추구미"
+                  headline={snap.aspiration.title}
+                  standfirst={snap.aspiration.statement ?? undefined}
+                  meta={
+                    snap.aspiration.due_capture
+                      ? "기록할 차례"
+                      : `REFERENCE ${snap.aspiration.refs}`
+                  }
+                  dot="var(--role-4)"
+                  href="/identity"
+                  image={snap.aspiration.cover_url}
+                  seed={snap.aspiration.title}
+                />
+              ) : null}
+
+              {snap.feed.map((f) => (
+                <FeedCard
+                  key={f.id}
+                  rubric={RUBRIC[f.slug] ?? f.name}
+                  headline={f.name}
+                  standfirst={standfirst(f)}
+                  meta={meta(f)}
+                  dot={null}
+                  href={`/collections/${f.slug}`}
+                  image={f.cover_url}
+                  seed={f.slug}
+                />
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="flex flex-col gap-4">
+            <SectionRule>이번 호에서</SectionRule>
+            <p className="max-w-[46ch] text-[14.5px] leading-relaxed text-muted">
+              아직 모아둔 자료가 없습니다. 컬렉션을 만들면 여기가 지면으로 채워집니다.
+            </p>
+            <Kicker tone="quiet">컬렉션 →</Kicker>
+          </section>
+        )}
       </div>
     </AppShell>
   );
 }
 
-function EventRow({
-  event,
-  color,
-  past,
-}: {
-  event: CalendarEvent;
-  color?: string | null;
-  past?: boolean;
-}) {
-  return (
-    <div className={"flex items-baseline gap-3 px-3 py-2.5 " + (past ? "opacity-45" : "")}>
-      <span className="w-[42px] shrink-0 text-[12.5px] tnum text-muted">
-        {event.all_day ? "종일" : hhmm(event.starts_at)}
-      </span>
-      <span className="min-w-0 flex-1 text-[14.5px] leading-snug">{event.title}</span>
-      {event.region ? (
-        <span className="shrink-0 text-[11.5px] text-faint">{event.region}</span>
-      ) : null}
-      <RoleDot color={color} />
-    </div>
-  );
+/** "3일 남음", "43일 경과", "아직 안 가본 곳 3군데" 에서 첫 숫자만 */
+function firstNumber(text: string | null | undefined): string | undefined {
+  return text?.match(/\d+/)?.[0];
+}
+
+function standfirst(f: FeedRow): string | undefined {
+  if (f.total === 0) return "아직 비어 있습니다";
+  if (f.unseen > 0) return `${f.total}곳 중 ${f.unseen}곳은 아직 안 가봤습니다`;
+  return `${f.total}개를 모아뒀습니다`;
+}
+
+function meta(f: FeedRow): string | undefined {
+  if (!f.last_active) return f.total ? undefined : "비어 있음";
+  const days = -daysUntil(f.last_active.slice(0, 10));
+  if (days <= 0) return "오늘";
+  if (days === 1) return "어제";
+  if (days < 30) return `${days}일 전`;
+  if (days < 365) return `${Math.floor(days / 30)}개월 전`;
+  return "1년 넘음";
 }

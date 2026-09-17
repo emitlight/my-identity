@@ -108,6 +108,52 @@ begin
        where h.user_id = uid and h.active
     ), '[]'::jsonb),
 
+    -- ── 본지 피드 ────────────────────────────────────────────
+    -- 모아둔 자료가 Today 아래에 사진 기사로 깔린다. 목록을 찾아
+    -- 들어가야 보이는 자료는 결국 안 보게 되고, 그게 노션에서
+    -- 일어난 일이다. 표지 아래로 흐르면 매일 눈에 들어온다.
+    'feed', coalesce((
+      select jsonb_agg(f order by f.sort_order, f.name)
+      from (
+        select c.id, c.slug, c.name, c.icon, c.cover_url, c.kind, c.sort_order,
+               (select count(*) from public.collection_items ci
+                 where ci.collection_id = c.id) as total,
+               (select count(*) from public.collection_items ci
+                 where ci.collection_id = c.id and ci.status = 'wishlist') as unseen,
+               greatest(
+                 (select max(ci.created_at) from public.collection_items ci
+                   where ci.collection_id = c.id),
+                 (select max(cl.logged_on)::timestamptz
+                    from public.collection_item_logs cl
+                    join public.collection_items ci2 on ci2.id = cl.item_id
+                   where ci2.collection_id = c.id)
+               ) as last_active
+          from public.collections c
+         where c.user_id = uid
+      ) f
+    ), '[]'::jsonb),
+
+    -- 추구미 한 꼭지. 레퍼런스가 모여 있고 증거를 찍을 때가 된 것을
+    -- 우선으로 올린다.
+    'aspiration', (
+      select jsonb_build_object(
+               'id', a.id, 'title', a.title, 'statement', a.statement,
+               'cover_url', a.cover_url,
+               'refs', (select count(*) from public.aspiration_refs r
+                         where r.aspiration_id = a.id),
+               'evidence', (select count(*) from public.aspiration_evidence e
+                             where e.aspiration_id = a.id),
+               'due_capture', a.capture_cadence <> 'off' and (
+                 a.last_captured_at is null
+                 or a.last_captured_at < now() - case a.capture_cadence
+                      when 'monthly' then interval '30 days'
+                      else interval '90 days' end))
+        from public.aspirations a
+       where a.user_id = uid and a.status = 'active'
+       order by a.last_captured_at nulls first, a.started_at
+       limit 1
+    ),
+
     -- 노션이 3개월간 하지 않은 말을 여기서 한다.
     'alerts', coalesce((
       select jsonb_agg(a.card order by a.rank, a.card->>'title')
@@ -169,7 +215,11 @@ begin
                  'kind', 'surface',
                  'title', '오늘 ' || x.region || '이네요',
                  'body', x.cname || ' · 아직 안 가본 곳 ' || x.cnt || '군데',
-                 'href', '/collections/' || x.cslug || '?region=' || x.region)
+                 'href', '/collections/' || x.cslug || '?region=' || x.region,
+                 -- 이름 세 개를 같이 올린다. "3군데"만으로는 열어볼 이유가
+                 -- 안 생기고, 이름이 보이면 그 자리에서 정해진다.
+                 'chips', coalesce(x.picks, '[]'::jsonb),
+                 'image', x.image)
           from (
             select ev.region,
                    c.name as cname,
@@ -177,7 +227,24 @@ begin
                    (select count(*) from public.collection_items ci
                      where ci.collection_id = c.id
                        and ci.region = ev.region
-                       and ci.status = 'wishlist') as cnt
+                       and ci.status = 'wishlist') as cnt,
+                   (select jsonb_agg(p.title order by p.rn)
+                      from (select ci.title,
+                                   row_number() over (
+                                     order by ci.rating desc nulls last,
+                                              ci.created_at desc) as rn
+                              from public.collection_items ci
+                             where ci.collection_id = c.id
+                               and ci.region = ev.region
+                               and ci.status = 'wishlist') p
+                     where p.rn <= 3) as picks,
+                   (select ci.cover_url from public.collection_items ci
+                     where ci.collection_id = c.id
+                       and ci.region = ev.region
+                       and ci.status = 'wishlist'
+                       and ci.cover_url is not null
+                     order by ci.rating desc nulls last, ci.created_at desc
+                     limit 1) as image
               from public.surfacing_rules sr
               join public.collections c on c.id = sr.collection_id
               join public.events ev
@@ -197,7 +264,21 @@ begin
                  'kind', 'surface',
                  'title', c.name,
                  'body', '저장해둔 ' || y.cnt || '곳',
-                 'href', '/collections/' || c.slug)
+                 'href', '/collections/' || c.slug,
+                 'chips', coalesce((
+                   select jsonb_agg(p.title order by p.rn)
+                     from (select ci.title,
+                                  row_number() over (
+                                    order by ci.rating desc nulls last,
+                                             ci.created_at desc) as rn
+                             from public.collection_items ci
+                            where ci.collection_id = c.id) p
+                    where p.rn <= 3), '[]'::jsonb),
+                 'image', (
+                   select ci.cover_url from public.collection_items ci
+                    where ci.collection_id = c.id and ci.cover_url is not null
+                    order by ci.rating desc nulls last, ci.created_at desc
+                    limit 1))
           from public.surfacing_rules sr
           join public.collections c on c.id = sr.collection_id
           join lateral (

@@ -108,6 +108,10 @@ export interface TodayAlert {
   title: string;
   body: string;
   href: string;
+  /** 서피싱 카드에만 붙는다 — 실제 항목 이름 세 개까지 */
+  chips?: string[] | null;
+  /** 서피싱된 항목 중 사진이 있는 첫 장 */
+  image?: string | null;
 }
 
 // ---------- 컬렉션 ----------

@@ -200,6 +200,16 @@ begin
   raise notice '%', format('%-28s %s', '서피싱이 맨 위',
     case when snap->'alerts'->0->>'kind' = 'surface' then 'PASS'
          else 'FAIL: ' || (snap->'alerts'->0->>'kind') end);
+
+  -- 카드에 실제 이름이 실려야 한다. "2군데"만으로는 열어볼 이유가 없다.
+  raise notice '%', format('%-28s %s', '카드에 항목 이름',
+    case when snap->'alerts'->0->'chips' @> '["성심당"]'::jsonb
+          and snap->'alerts'->0->'chips' @> '["태평소국밥"]'::jsonb
+         then 'PASS' else 'FAIL: ' || (snap->'alerts'->0->'chips')::text end);
+  raise notice '%', format('%-28s %s', '가본 곳은 이름에서도 빠짐',
+    case when not (snap->'alerts'->0->'chips' @> '["이미 가본 집"]'::jsonb)
+         then 'PASS' else 'FAIL' end);
+
 end $$;
 
 \echo ''
@@ -223,4 +233,64 @@ begin
    where linked = false and last_active is null;
   raise notice '%', format('%-28s %s', '연결 없으면 활동 null',
     case when unlinked >= 1 then 'PASS' else 'FAIL' end);
+end $$;
+
+\echo ''
+\echo '=== 본지 피드 ==='
+do $$
+declare me uuid := '11111111-1111-1111-1111-111111111111'; snap jsonb; cid uuid;
+begin
+  select id into cid from public.collections where user_id = me and slug = 'places-t';
+  perform set_config('request.jwt.claim.sub', me::text, true);
+  snap := public.today_snapshot(current_date);
+
+  raise notice '%', format('%-28s %s', '피드에 컬렉션 등장',
+    case when jsonb_array_length(snap->'feed') >= 1 then 'PASS' else 'FAIL' end);
+  raise notice '%', format('%-28s %s', '피드가 미방문 수를 센다',
+    case when (select (f->>'unseen')::int from jsonb_array_elements(snap->'feed') f
+                where f->>'slug' = 'places-t') = 3 then 'PASS'
+         else 'FAIL: ' || coalesce((select f->>'unseen' from jsonb_array_elements(snap->'feed') f
+                where f->>'slug' = 'places-t'), 'null') end);
+
+  -- 앞 절에서 쓴 제목과 겹치면 유니크 제약에 걸린다
+  insert into public.aspirations (user_id, title, statement, capture_cadence)
+  values (me, '피드 테스트용 추구미', '내 공간이 나를 닮아 있으면', 'monthly');
+  snap := public.today_snapshot(current_date);
+  raise notice '%', format('%-28s %s', '추구미 꼭지 등장',
+    case when snap->'aspiration' ? 'title' then 'PASS' else 'FAIL' end);
+  raise notice '%', format('%-28s %s', '촬영 시기 판단',
+    case when (snap->'aspiration'->>'due_capture')::boolean then 'PASS' else 'FAIL' end);
+end $$;
+
+\echo ''
+\echo '=== 서피싱 카드 칩 상한 ==='
+-- 앞 절의 places-t 를 건드리면 피드 개수 기대가 깨지므로 자기 컬렉션으로 본다
+do $$
+declare me uuid := '11111111-1111-1111-1111-111111111111'; cid uuid; card jsonb;
+begin
+  insert into public.collections (user_id, slug, name, kind, default_view)
+  values (me, 'many-t', '많이 모은 것', 'place', 'list') returning id into cid;
+
+  insert into public.collection_items (user_id, collection_id, title, region, status) values
+    (me, cid, '하나', '대전', 'wishlist'),
+    (me, cid, '둘',   '대전', 'wishlist'),
+    (me, cid, '셋',   '대전', 'wishlist'),
+    (me, cid, '넷',   '대전', 'wishlist'),
+    (me, cid, '다섯', '대전', 'wishlist');
+
+  insert into public.surfacing_rules (user_id, collection_id, label, trigger)
+  values (me, cid, '일정 지역 장소', '{"type":"event_region"}'::jsonb);
+
+  perform set_config('request.jwt.claim.sub', me::text, true);
+  select a into card from jsonb_array_elements(
+           public.today_snapshot(current_date)->'alerts') a
+   where a->>'href' like '%many-t%' limit 1;
+
+  -- 표지에 칩이 다섯 개 깔리면 지면이 무너진다. 이름은 세 개, 개수는 전부.
+  raise notice '%', format('%-28s %s', '이름은 세 개까지',
+    case when jsonb_array_length(card->'chips') = 3 then 'PASS'
+         else 'FAIL (' || coalesce(jsonb_array_length(card->'chips')::text, 'null') || ')' end);
+  raise notice '%', format('%-28s %s', '개수는 전부 센다 (5곳)',
+    case when (card->>'body') like '%5군데%' then 'PASS'
+         else 'FAIL: ' || coalesce(card->>'body', 'null') end);
 end $$;
