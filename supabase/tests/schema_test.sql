@@ -260,6 +260,15 @@ begin
     case when snap->'aspiration' ? 'title' then 'PASS' else 'FAIL' end);
   raise notice '%', format('%-28s %s', '촬영 시기 판단',
     case when (snap->'aspiration'->>'due_capture')::boolean then 'PASS' else 'FAIL' end);
+
+  -- 서랍만 늘어놓으면 안 열어본다. 낱장이 지면에 직접 올라와야 한다.
+  raise notice '%', format('%-28s %s', '낱장이 지면에 오름',
+    case when jsonb_array_length(snap->'highlights') between 1 and 8 then 'PASS'
+         else 'FAIL (' || jsonb_array_length(snap->'highlights') || ')' end);
+  raise notice '%', format('%-28s %s', '낱장에 컬렉션 이름 동봉',
+    case when snap->'highlights'->0 ? 'collection_slug' then 'PASS' else 'FAIL' end);
+  raise notice '%', format('%-28s %s', '여덟 장을 넘지 않음',
+    case when jsonb_array_length(snap->'highlights') <= 8 then 'PASS' else 'FAIL' end);
 end $$;
 
 \echo ''

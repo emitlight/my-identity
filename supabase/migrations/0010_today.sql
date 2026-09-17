@@ -133,6 +133,27 @@ begin
       ) f
     ), '[]'::jsonb),
 
+    -- ── 낱장 기사 ────────────────────────────────────────────
+    -- 피드는 컬렉션(서랍)을 보여준다. 서랍만 늘어놓으면 결국 열어보지
+    -- 않게 되므로, 서랍 안의 낱장 몇 개를 지면에 직접 깐다.
+    -- 사진이 있는 것 · 아직 안 해본 것 · 최근에 넣은 것 순.
+    'highlights', coalesce((
+      select jsonb_agg(h order by h.rank, h.created_at desc)
+      from (
+        select ci.id, ci.title, ci.subtitle, ci.summary, ci.cover_url,
+               ci.region, ci.rating, ci.status, ci.created_at,
+               c.slug as collection_slug, c.name as collection_name,
+               c.kind as collection_kind,
+               (case when ci.cover_url is not null then 0 else 1 end
+                + case when ci.status = 'wishlist' then 0 else 1 end) as rank
+          from public.collection_items ci
+          join public.collections c on c.id = ci.collection_id
+         where ci.user_id = uid
+         order by rank, ci.created_at desc
+         limit 8
+      ) h
+    ), '[]'::jsonb),
+
     -- 추구미 한 꼭지. 레퍼런스가 모여 있고 증거를 찍을 때가 된 것을
     -- 우선으로 올린다.
     'aspiration', (

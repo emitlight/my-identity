@@ -26,6 +26,22 @@ interface FeedRow {
   last_active: string | null;
 }
 
+/** 컬렉션 안의 낱장 하나 — 서랍이 아니라 기사로 지면에 오르는 단위 */
+interface HighlightRow {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  summary: string | null;
+  cover_url: string | null;
+  region: string | null;
+  rating: number | null;
+  status: string;
+  created_at: string;
+  collection_slug: string;
+  collection_name: string;
+  collection_kind: string;
+}
+
 interface AspirationRow {
   id: string;
   title: string;
@@ -46,6 +62,7 @@ interface Snapshot {
   habits: (Habit & { done_today: boolean; streak: number })[];
   alerts: TodayAlert[];
   feed: FeedRow[];
+  highlights: HighlightRow[];
   aspiration: AspirationRow | null;
 }
 
