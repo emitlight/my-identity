@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { QuickCapture } from "@/components/QuickCapture";
 import { TodayRail } from "@/components/TodayRail";
+import { TodayStrip } from "@/components/TodayStrip";
 import {
   CoverStory,
   DeadlineBand,
@@ -179,6 +180,12 @@ export default async function TodayPage() {
       }
     >
       <div className="flex flex-col gap-10 lg:gap-14">
+        <TodayStrip
+          events={snap.events}
+          tasks={snap.tasks}
+          habits={snap.habits}
+          now={now}
+        />
         <QuickCapture />
 
         {cover ? (
