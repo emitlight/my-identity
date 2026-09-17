@@ -15,7 +15,10 @@ rm -rf "$PGROOT"; mkdir -p "$PGROOT"; chown -R postgres:postgres "$PGROOT"; chmo
 
 su postgres -c "$PGBIN/initdb -D $PGROOT/data -U postgres --auth=trust -E UTF8" >/dev/null
 # TCP 를 열지 않고 유닉스 소켓만 쓴다. 포트 충돌이 구조적으로 발생하지 않는다.
-pkill -9 -u postgres postgres >/dev/null 2>&1 || true
+# 정리는 이 데이터 디렉터리를 쥐고 있는 프로세스만 대상으로 한다.
+# 예전에는 postgres 사용자의 프로세스를 전부 죽였는데, 같은 기계에서
+# 미리보기용 인스턴스를 같이 띄워두면 그것까지 말없이 내려갔다.
+pkill -9 -f "postgres.*-D $PGROOT/data" >/dev/null 2>&1 || true
 su postgres -c "$PGBIN/pg_ctl -D $PGROOT/data -l $PGROOT/log -o \"-k $PGROOT -c listen_addresses=''\" -w start" >/dev/null
 trap "su postgres -c '$PGBIN/pg_ctl -D $PGROOT/data -m fast stop' >/dev/null 2>&1 || true" EXIT
 

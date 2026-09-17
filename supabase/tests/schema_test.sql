@@ -269,6 +269,24 @@ begin
     case when snap->'highlights'->0 ? 'collection_slug' then 'PASS' else 'FAIL' end);
   raise notice '%', format('%-28s %s', '여덟 장을 넘지 않음',
     case when jsonb_array_length(snap->'highlights') <= 8 then 'PASS' else 'FAIL' end);
+
+  -- 한 단어짜리 분류 이름이 할 말 있는 항목보다 앞에 오면 안 된다
+  insert into public.collection_items (user_id, collection_id, title, status)
+  values (me, cid, 'attire', 'wishlist');
+  insert into public.collection_items (user_id, collection_id, title, subtitle, status)
+  values (me, cid, '성심당 튀김소보로', '대전 은행동 본점', 'wishlist');
+  snap := public.today_snapshot(current_date);
+
+  raise notice '%', format('%-28s %s', '할 말 있는 것이 먼저',
+    case when (select min(i) from (
+                 select ordinality - 1 as i, value->>'title' as t
+                   from jsonb_array_elements(snap->'highlights') with ordinality
+                ) h where h.t = '성심당 튀김소보로')
+              < coalesce((select min(i) from (
+                 select ordinality - 1 as i, value->>'title' as t
+                   from jsonb_array_elements(snap->'highlights') with ordinality
+                ) h where h.t = 'attire'), 99)
+         then 'PASS' else 'FAIL' end);
 end $$;
 
 \echo ''

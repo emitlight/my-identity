@@ -144,7 +144,13 @@ begin
                ci.region, ci.rating, ci.status, ci.created_at,
                c.slug as collection_slug, c.name as collection_name,
                c.kind as collection_kind,
-               (case when ci.cover_url is not null then 0 else 1 end
+               -- 지면에 올릴 순서. 사진이 있는 것 > 할 말이 있는 것 >
+               -- 아직 안 해본 것. 노션에서 넘어온 항목 중에는 'attire'
+               -- 처럼 분류 이름만 적힌 한 단어짜리가 섞여 있는데, 그런
+               -- 것이 표지 옆 자리를 차지하면 지면이 우스워진다.
+               (case when ci.cover_url is not null then 0 else 2 end
+                + case when coalesce(ci.subtitle, ci.summary, ci.region) is not null
+                         or ci.rating is not null then 0 else 1 end
                 + case when ci.status = 'wishlist' then 0 else 1 end) as rank
           from public.collection_items ci
           join public.collections c on c.id = ci.collection_id
