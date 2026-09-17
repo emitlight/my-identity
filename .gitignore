@@ -14,3 +14,9 @@ tsconfig.tsbuildinfo
 
 # 디자인 캔버스 번들 — 작업 파일에서 다시 만든다 (design/README.md 참고)
 design/my-identity-dashboard.html
+
+# 디자인 탐색의 렌더 결과물 — 소스(.html)에서 다시 만들 수 있고,
+# 한 장이 4MB 씩이라 리포에 쌓을 이유가 없다.
+design/explore/*.png
+design/explore/.fontcache/
+design/explore/_preview.html
