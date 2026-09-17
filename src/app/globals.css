@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
-/* 한국어 UI 본문. 네트워크가 막히면 시스템 폰트로 자연히 떨어진다. */
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+/* 서체는 src/app/layout.tsx 의 next/font 가 --f-* 로 넣어준다.
+   CDN @import 를 쓰면 회사망이나 광고 차단기에서 통째로 막혀 지면이
+   시스템 폰트로 주저앉는다. 빌드에 포함시켜 그 경우를 없앤다. */
 
 /* ============================================================
    디자인 토큰
@@ -116,9 +117,10 @@
   --color-ok:          var(--ok);
   --color-on-dark:     var(--on-dark);
 
-  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
-               BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
-               system-ui, sans-serif;
+  --font-sans: var(--f-sans), -apple-system, BlinkMacSystemFont,
+               "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-display: var(--f-display), "Times New Roman", serif;
+  --font-display-ko: var(--f-display-ko), "Apple SD Gothic Neo", serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
 
@@ -137,6 +139,9 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  /* 한글 줄바꿈은 어절 단위로. 브라우저 기본값은 글자 단위라 문장이
+     단어 한가운데서 갈라진다. */
+  word-break: keep-all;
   /* PWA 로 설치했을 때 노치·홈 인디케이터를 피한다. */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -179,6 +184,10 @@ body {
   font-weight: 400;
   letter-spacing: -.008em;
   text-wrap: balance;
+  /* 한글은 어절 단위로 끊는다. 없으면 "인테리어 및 공 / 간 스타일링" 처럼
+     단어 한가운데가 갈라지고, 큰 활자일수록 눈에 띈다. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /** 러버릭 · 작은 대문자 라벨 */

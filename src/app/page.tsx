@@ -96,6 +96,11 @@ export default async function TodayPage() {
   const overdue = snap.alerts.find((a) => a.kind === "overdue");
   const band = snap.alerts.filter((a) => a !== surface && a !== overdue);
 
+  // 빈 컬렉션은 뒤로 민다. 잡지가 백지를 표지 다음 장에 놓지는 않는다.
+  const feed = [...snap.feed].sort(
+    (a, b) => (a.total === 0 ? 1 : 0) - (b.total === 0 ? 1 : 0),
+  );
+
   const cover =
     surface
       ? {
@@ -133,7 +138,7 @@ export default async function TodayPage() {
                 `레퍼런스 ${snap.aspiration.refs}장 · 기록 ${snap.aspiration.evidence}장`,
               href: `/identity`,
               seed: snap.aspiration.title,
-              number: String(snap.aspiration.refs),
+              number: snap.aspiration.refs ? String(snap.aspiration.refs) : undefined,
               numberLabel: "레퍼런스",
               image: snap.aspiration.cover_url,
               chips: undefined,
@@ -206,7 +211,7 @@ export default async function TodayPage() {
                 />
               ) : null}
 
-              {snap.feed.map((f) => (
+              {feed.map((f) => (
                 <FeedCard
                   key={f.id}
                   rubric={RUBRIC[f.slug] ?? f.name}
@@ -235,15 +240,29 @@ export default async function TodayPage() {
   );
 }
 
-/** "3일 남음", "43일 경과", "아직 안 가본 곳 3군데" 에서 첫 숫자만 */
+/** "3일 남음", "43일 경과", "아직 안 가본 곳 3군데" 에서 첫 숫자만.
+    0 은 돌려주지 않는다 — 표지에 큰 활자로 0 을 박으면 비었다고 광고하는 꼴이다. */
 function firstNumber(text: string | null | undefined): string | undefined {
-  return text?.match(/\d+/)?.[0];
+  const n = text?.match(/\d+/)?.[0];
+  return n && n !== "0" ? n : undefined;
 }
+
+/** 세는 말과 "아직"의 뜻이 컬렉션 성격마다 다르다.
+    책을 "1곳", 영화를 "안 가봤습니다" 라고 쓰면 읽다가 걸린다. */
+const UNIT: Record<string, { unit: string; verb: string }> = {
+  place:   { unit: "곳", verb: "안 가봤습니다" },
+  media:   { unit: "개", verb: "안 봤습니다" },
+  product: { unit: "개", verb: "안 샀습니다" },
+  person:  { unit: "명", verb: "안 만났습니다" },
+  generic: { unit: "개", verb: "그대로입니다" },
+};
 
 function standfirst(f: FeedRow): string | undefined {
   if (f.total === 0) return "아직 비어 있습니다";
-  if (f.unseen > 0) return `${f.total}곳 중 ${f.unseen}곳은 아직 안 가봤습니다`;
-  return `${f.total}개를 모아뒀습니다`;
+  const u = UNIT[f.kind] ?? UNIT.generic;
+  if (f.unseen > 0)
+    return `${f.total}${u.unit} 중 ${f.unseen}${u.unit}은 아직 ${u.verb}`;
+  return `${f.total}${u.unit} 전부 챙겼습니다`;
 }
 
 function meta(f: FeedRow): string | undefined {
