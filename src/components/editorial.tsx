@@ -49,7 +49,8 @@ const STROKE: Record<Tone, string> = {
 };
 
 export function hollowStyle(width: string, tone: Tone = "paper"): React.CSSProperties {
-  return { WebkitTextStroke: `${width} ${STROKE[tone]}` };
+  // opsz 를 낮춰야 0 이 타원이 아니라 숫자로 읽힌다.
+  return { WebkitTextStroke: `${width} ${STROKE[tone]}`, fontVariationSettings: '"opsz" 16' };
 }
 
 /** 같은 컬렉션의 낱장들이 줄줄이 같은 색이 되지 않게 돌려 쓴다 */
@@ -59,22 +60,6 @@ export function toneAt(i: number): Tone {
 }
 
 /* ── 아주 작은 것들 ───────────────────────────────────────── */
-
-/** 러버릭 — 기사 위에 붙는 작은 대문자 라벨 */
-export function Kicker({
-  children,
-  tone = "accent",
-}: {
-  children: React.ReactNode;
-  tone?: "accent" | "signal" | "quiet" | "onDark";
-}) {
-  const color =
-    tone === "signal" ? "text-signal"
-    : tone === "quiet" ? "text-faint"
-    : tone === "onDark" ? "text-[color:var(--on-dark-dim)]"
-    : "text-hot-deep";
-  return <span className={`kicker ${color}`}>{children}</span>;
-}
 
 /** 라틴 러버릭 + 한글 러버릭 한 쌍. 지면 전체가 이 리듬으로 열린다. */
 export function Rubric({
@@ -429,11 +414,15 @@ function Perf({ tone }: { tone: Tone }) {
 
 /** 책등 — 읽기 */
 export function Spines({ title, tone = "blush" }: { title: string; tone?: Tone }) {
+  // 책등은 바탕과 반대색이어야 상자로 읽힌다
+  const spine =
+    tone === "ink" || tone === "blush" || tone === "paper"
+      ? "bg-hot text-[color:var(--on-accent)]"
+      : "bg-ink text-[color:var(--on-dark)]";
+  const shelf = tone === "hot" ? "bg-ink" : "bg-hot";
   return (
-    <div className="absolute inset-0 z-[2] flex items-end gap-2.5 px-5 pb-3 sm:gap-3 sm:px-7 sm:pb-4">
-      <span
-        className="flex h-[76%] w-[clamp(40px,9vw,64px)] items-center justify-center bg-ink px-1 py-3 text-[color:var(--on-dark)]"
-      >
+    <div className="absolute inset-0 z-[2] flex items-end gap-2.5 px-5 pb-3.5 sm:gap-3 sm:px-7 sm:pb-4">
+      <span className={`flex h-[78%] w-[clamp(42px,9.5vw,66px)] items-center justify-center px-1 py-3 ${spine}`}>
         <span
           className="krb line-clamp-1 text-[clamp(12px,2.8vw,19px)] leading-none"
           style={{ writingMode: "vertical-rl" }}
@@ -444,34 +433,28 @@ export function Spines({ title, tone = "blush" }: { title: string; tone?: Tone }
       {/* 아직 꽂히지 않은 자리 — 다음 권이 들어올 칸 */}
       <span className={`h-[58%] w-[clamp(28px,6vw,44px)] ${frameBox(tone)}`} />
       <span className={`h-[44%] w-[clamp(28px,6vw,44px)] ${frameBox(tone)}`} />
-      <span className={`kicker ml-auto pb-4 ${DIM[tone]}`}>Shelf</span>
-      <span aria-hidden className="absolute inset-x-0 bottom-0 h-2.5 bg-ink sm:h-3" />
+      <span aria-hidden className={`absolute inset-x-0 bottom-0 h-2.5 sm:h-3 ${shelf}`} />
     </div>
   );
 }
 
 /** 트랙 — 음악 */
 export function Tracks({ title, tone = "ink" }: { title: string; tone?: Tone }) {
-  const bars = [88, 54, 96, 38, 72, 62];
+  const bars = [34, 72, 48, 96, 26, 64, 88, 40, 58, 78, 30, 68];
+  const fill = tone === "hot" ? "bg-ink" : "bg-hot";
   return (
-    <div className="absolute inset-0 z-[2] flex flex-col justify-center gap-3 px-5 sm:px-7">
-      <span className="krd text-[clamp(20px,5vw,40px)] leading-[.98]">{title}</span>
-      <span className="flex items-end gap-1.5 sm:gap-2" aria-hidden>
+    <div className="absolute inset-0 z-[2] flex flex-col justify-end gap-3 px-5 pb-5 pt-11 sm:px-7 sm:pb-6">
+      <span aria-hidden className="flex h-[42%] items-end gap-[3px] sm:gap-1">
         {bars.map((h, i) => (
           <span
             key={i}
-            style={{ height: `${h * 0.42}px` }}
-            className={
-              "w-[9px] flex-1 sm:w-3 " +
-              (i % 2 === 0
-                ? tone === "hot"
-                  ? "bg-ink"
-                  : "bg-hot"
-                : RULE[tone])
-            }
+            style={{ height: `${h}%`, opacity: i % 3 === 1 ? 0.45 : 1 }}
+            className={`flex-1 ${fill}`}
           />
         ))}
       </span>
+      <span aria-hidden className={`h-[2px] w-full ${RULE[tone]}`} />
+      <span className="krd text-[clamp(22px,5.4vw,42px)] leading-[.98]">{title}</span>
     </div>
   );
 }
@@ -504,12 +487,10 @@ export function TagPlate({ title, tone = "paper" }: { title: string; tone?: Tone
 export function Locator({
   title,
   region,
-  note,
   tone = "hot",
 }: {
   title: string;
   region?: string | null;
-  note?: string | null;
   tone?: Tone;
 }) {
   // 지역이 제목과 같으면 같은 말을 두 번 하는 셈이다.
@@ -517,10 +498,10 @@ export function Locator({
   return (
     <div className="absolute inset-0 z-[2] flex flex-col justify-center gap-2.5 px-5 pb-4 pt-11 sm:gap-3 sm:px-7 sm:pt-12">
       <span aria-hidden className={`h-[2px] w-full ${RULE[tone]}`} />
-      <span className="krd text-[clamp(28px,7.2vw,54px)] leading-[.96]">{title}</span>
-      {stamp || note ? (
+      <span className="krd text-[clamp(32px,8.4vw,54px)] leading-[.96]">{title}</span>
+      {stamp ? (
         <span className={`kicker-kr truncate text-[10.5px] tracking-[.16em] ${DIM[tone]}`}>
-          {stamp ?? note}
+          {stamp}
         </span>
       ) : null}
     </div>
@@ -572,7 +553,7 @@ export function DeadlineBand({
                 {d.num}
               </span>
             </div>
-            <div className="display mt-2.5 text-[clamp(17px,4vw,25px)] leading-[1.2]">
+            <div className="krb mt-2.5 text-[clamp(16px,4vw,23px)] leading-[1.24]">
               {d.title}
             </div>
             <div className="mt-1.5 text-[11.5px] tracking-[.06em] text-[color:var(--on-dark-dim)]">
@@ -689,7 +670,7 @@ export function InkDeck({
           {parts.tail ? <span className="text-hot">{parts.tail}</span> : null}
         </h2>
 
-        {numeral !== undefined ? (
+        {numeral !== undefined && String(numeral) !== "0" ? (
           <BigNumeral
             value={numeral}
             label={numeralLabel}
@@ -766,7 +747,7 @@ export function NextUpBand({
   empty?: string;
 }) {
   return (
-    <section className="relative bg-hot px-5 pb-6 pt-5 text-[color:var(--on-accent)] sm:px-7 lg:px-10 lg:pb-7 lg:pt-6">
+    <section className="relative bg-hot px-5 pb-6 pt-5 text-[color:var(--on-accent)] sm:px-7 lg:px-10 lg:pb-7 lg:pt-6 xl:pr-[210px]">
       <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-3">
@@ -843,10 +824,15 @@ export function NextUpBand({
       {until ? (
         <span
           aria-hidden
-          className="absolute right-8 top-1/2 hidden size-[132px] -translate-y-1/2 -rotate-[7deg] flex-col items-center justify-center rounded-full border-[5px] border-paper bg-ink text-[color:var(--on-dark)] xl:flex"
+          className="absolute right-9 top-1/2 hidden size-[136px] -translate-y-1/2 -rotate-[7deg] flex-col items-center justify-center rounded-full border-[5px] border-paper bg-ink text-[color:var(--on-dark)] xl:flex"
         >
           <span className="kicker text-[7.5px] text-hot">In</span>
-          <span className="num text-[46px] leading-[.92] text-hot">{untilNum(until)}</span>
+          <span
+            className="num text-[46px] leading-[.92] text-hot"
+            style={{ fontVariationSettings: '"opsz" 24' }}
+          >
+            {untilNum(until)}
+          </span>
           <span className="kicker-kr text-[11px] tracking-[.02em]">{untilUnit(until)}</span>
         </span>
       ) : null}
@@ -1000,12 +986,12 @@ export function CoverLine({
   cta?: string;
 }) {
   const inner = (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-y-2 border-hot bg-blush px-5 py-3 sm:px-7">
+    <div className="flex flex-col gap-2 border-y-2 border-hot bg-blush px-5 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-7">
       <span className="flex shrink-0 items-baseline gap-2">
         {lat ? <span className="kicker text-hot-deep">{lat}</span> : null}
         <span className="kicker-kr text-ink">{kr}</span>
       </span>
-      <span className="min-w-0 flex-1 text-[13px] leading-snug text-muted">{text}</span>
+      <span className="min-w-0 flex-1 text-[13px] leading-relaxed text-muted">{text}</span>
       {cta ? (
         <span className="krb shrink-0 text-[12.5px] text-hot-deep">{cta} →</span>
       ) : null}
@@ -1087,7 +1073,7 @@ export function HighlightPlate({
         ) : kind === "tag" ? (
           <TagPlate title={title} tone={tone} />
         ) : (
-          <Locator title={title} region={region} note={note} tone={tone} />
+          <Locator title={title} region={region} tone={tone} />
         )}
       </Plate>
 
@@ -1102,7 +1088,9 @@ export function HighlightPlate({
         ) : (
           <span aria-hidden className="h-px min-w-[10px] flex-1 bg-line" />
         )}
-        {meta ? <span className="kicker shrink-0 text-faint">{meta}</span> : null}
+        {meta ? (
+          <span className="kicker-kr shrink-0 text-[10.5px] tracking-[.1em] text-faint">{meta}</span>
+        ) : null}
       </div>
     </Link>
   );
@@ -1138,126 +1126,20 @@ export function IndexRow({
         {name}
       </span>
       <span aria-hidden className="h-px min-w-[10px] flex-1 bg-line" />
-      {meta ? <span className="hidden text-[11.5px] text-faint sm:block">{meta}</span> : null}
-      <span
-        className={
-          "num shrink-0 text-[clamp(17px,4vw,26px)] leading-none " +
-          (empty ? "outline text-faint" : "text-ink")
-        }
-        style={empty ? hollowStyle("1.5px", "paper") : undefined}
-      >
-        {total}
-      </span>
-    </Link>
-  );
-}
-
-/* ── 이전 API 호환 ────────────────────────────────────────
-   다른 라우트가 아직 이 이름들을 쓴다. 겉모습만 판형에 맞춘다. */
-
-export function Cover({
-  src,
-  seed,
-  ratio = "4/5",
-  className = "",
-  children,
-}: {
-  src?: string | null;
-  seed: string;
-  ratio?: string;
-  className?: string;
-  children?: React.ReactNode;
-}) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) % 4;
-  const tone = toneAt(h);
-  return (
-    <div className={`relative overflow-hidden ${PLATE[tone]} ${className}`} style={{ aspectRatio: ratio }}>
-      {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt=""
-          loading="lazy"
-          className="zoom absolute inset-0 size-full object-cover mix-blend-multiply"
-          style={{ filter: "grayscale(1) brightness(1.6) contrast(1.06)" }}
-        />
+      {empty ? (
+        <span className="kicker-kr shrink-0 text-[10.5px] tracking-[.12em] text-faint">
+          {meta ?? "비어 있음"}
+        </span>
       ) : (
-        <Dots />
+        <>
+          {meta ? (
+            <span className="hidden text-[11.5px] text-faint sm:block">{meta}</span>
+          ) : null}
+          <span className="num shrink-0 text-[clamp(17px,4vw,26px)] leading-none text-ink">
+            {total}
+          </span>
+        </>
       )}
-      {children}
-    </div>
-  );
-}
-
-export function CoverStory({
-  kicker,
-  headline,
-  standfirst,
-  chips,
-  number,
-  numberLabel,
-  href,
-}: {
-  kicker: string;
-  headline: string;
-  standfirst?: string;
-  chips?: string[];
-  number?: string;
-  numberLabel?: string;
-  href: string;
-  image?: string | null;
-  seed?: string;
-}) {
-  return (
-    <div className="flex flex-col">
-      <CoverPlate
-        tabKr={kicker}
-        tabLat="Cover story"
-        items={chips?.map((c, i) => ({ lead: String(i + 1).padStart(2, "0"), name: c }))}
-      />
-      <InkDeck
-        headline={headline}
-        standfirst={standfirst}
-        numeral={number}
-        numeralLabel={numberLabel}
-        href={href}
-      />
-    </div>
-  );
-}
-
-export function FeedCard({
-  rubric,
-  headline,
-  standfirst,
-  meta,
-  href,
-  image,
-  seed,
-}: {
-  rubric: string;
-  headline: string;
-  standfirst?: string;
-  meta?: string;
-  dot?: string | null;
-  href: string;
-  image?: string | null;
-  seed: string;
-  ratio?: string;
-}) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) % 4;
-  return (
-    <HighlightPlate
-      n={h + 1}
-      rubric={rubric}
-      title={headline}
-      note={standfirst ?? meta}
-      href={href}
-      kind="locator"
-      tone={toneAt(h)}
-      image={image}
-    />
+    </Link>
   );
 }

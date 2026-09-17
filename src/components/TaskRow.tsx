@@ -1,7 +1,7 @@
 "use client";
 
 import { useOptimistic, useTransition } from "react";
-import { toggleTask } from "@/lib/actions/tasks";
+import { scheduleToday, toggleTask } from "@/lib/actions/tasks";
 import { RoleDot } from "@/components/ui";
 import type { Task } from "@/lib/types";
 
@@ -77,5 +77,45 @@ export function TaskRow({
       ) : null}
       <RoleDot color={roleColor} />
     </label>
+  );
+}
+
+/**
+ * 인박스 한 줄을 오늘로 끌어오는 버튼.
+ *
+ * 노션에서 17개가 "시작 안 함"으로 3개월을 버틴 이유는 목록이 없어서가
+ * 아니라 거기서 오늘로 꺼내오는 동작이 없어서였다. 그 동작을 지면의
+ * 제일 빈 칸 — 오늘 할 일이 0개인 자리 — 에 둔다.
+ *
+ * 서버 액션이 revalidate 하므로 이 줄은 저절로 사라진다.
+ * 따로 들고 있을 상태가 없다.
+ */
+export function InboxPullRow({ task }: { task: Task }) {
+  const [busy, start] = useTransition();
+
+  return (
+    <div
+      className={
+        "flex items-center gap-3 border-b border-line py-2.5 transition-opacity " +
+        (busy ? "opacity-40" : "")
+      }
+    >
+      <span className="krb min-w-0 flex-1 truncate text-[clamp(14px,3.6vw,17px)]">
+        {task.title}
+      </span>
+      <button
+        type="button"
+        disabled={busy}
+        aria-label={`${task.title} 오늘 할 일로 가져오기`}
+        onClick={() => {
+          start(async () => {
+            await scheduleToday({ id: task.id });
+          });
+        }}
+        className="krb shrink-0 border-2 border-ink px-3 py-1 text-[11.5px] tracking-[.08em] transition-colors hover:bg-ink hover:text-hot disabled:opacity-40"
+      >
+        {busy ? "…" : "오늘로"}
+      </button>
+    </div>
   );
 }

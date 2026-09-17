@@ -2,10 +2,11 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { QuickCapture } from "@/components/QuickCapture";
-import { TaskRow } from "@/components/TaskRow";
+import { InboxPullRow, TaskRow } from "@/components/TaskRow";
 import { HabitRow } from "@/components/HabitRow";
 import {
   Burst,
+  CoverLine,
   CoverPlate,
   DeadlineBand,
   EmptyNote,
@@ -15,6 +16,7 @@ import {
   Ledger,
   NextUpBand,
   SectionRule,
+  ZeroState,
   kindFor,
   toneAt,
 } from "@/components/editorial";
@@ -114,6 +116,18 @@ export default async function TodayPage() {
   }
 
   const snap = data as Snapshot;
+
+  // 인박스에서 오늘로 끌어올 후보 — 개수만 보여주면 꺼낼 방법이 없다.
+  const { data: inboxRows } = snap.inbox_count
+    ? await supabase
+        .from("tasks")
+        .select("*")
+        .eq("status", "inbox")
+        .order("created_at", { ascending: false })
+        .limit(4)
+    : { data: null };
+  const inbox = (inboxRows ?? []) as Task[];
+
   const now = new Date();
   const z = local(snap.today ?? today);
   const dateline = `${z.getFullYear()}년 ${z.getMonth() + 1}월 ${z.getDate()}일 ${weekday(now)}요일`;
@@ -121,7 +135,15 @@ export default async function TodayPage() {
   const roleColor = new Map(snap.roles.map((r) => [r.id, r.color]));
 
   /* ── 다음 일정 ───────────────────────────────────────── */
-  const next = snap.next_event;
+  // snap.next_event 는 오늘 일정이 하나도 없는 날을 위한 예비다.
+  // 오늘 아직 시작하지 않은 일정이 있으면 그것이 먼저다.
+  const upcoming = snap.events
+    .filter((e) => !e.all_day && new Date(e.starts_at) >= now)
+    .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+
+  const next = upcoming[0] ?? snap.next_event ?? null;
+  const nextIsToday = !!upcoming[0];
+
   const rest = snap.events
     .filter((e) => e.id !== next?.id)
     .map((e) => ({
@@ -130,6 +152,11 @@ export default async function TodayPage() {
       tag: e.all_day ? "종일" : new Date(e.starts_at) < now ? "끝남" : undefined,
       strong: e.all_day || new Date(e.starts_at) >= now,
     }));
+
+  // 오늘 것이 아닌 예비를 썼다면, 그 사실을 작게 밝힌다.
+  if (!nextIsToday && snap.next_event) {
+    rest.length = 0;
+  }
 
   /* ── 실행 ────────────────────────────────────────────── */
   const doneTasks = snap.tasks.filter((t) => t.status === "done").length;
@@ -146,16 +173,9 @@ export default async function TodayPage() {
   const cover = pickCover(snap, coverAlert, now);
 
   /* ── 이번 호 ─────────────────────────────────────────── */
-  // 같은 컬렉션의 낱장이 줄줄이 같은 색이 되지 않게 컬렉션별로 색을 돌린다.
-  const seen = new Map<string, number>();
-  const plates = snap.highlights.map((h) => {
-    const i = seen.get(h.collection_slug) ?? 0;
-    seen.set(h.collection_slug, i + 1);
-    return { h, tone: toneAt(i + h.collection_slug.length) };
-  });
-
-  // 2단에서 마지막 한 장이 혼자 남으면 폭을 넓혀 지면을 닫는다.
-  const tailOrphan = plates.length > 1 && plates.length % 2 === 0;
+  // 컬렉션은 장치(지명판·책등·트랙·꼬리표)로 구별된다. 색은 옆칸과 겹치지
+  // 않게 자리 순서대로 돌리기만 하면 된다.
+  const plates = snap.highlights.map((h, i) => ({ h, tone: toneAt(i) }));
 
   const feed = [...snap.feed].sort(
     (a, b) => (a.total === 0 ? 1 : 0) - (b.total === 0 ? 1 : 0),
@@ -164,11 +184,12 @@ export default async function TodayPage() {
   return (
     <AppShell active="today" title="오늘" dateline={dateline}>
       {/* ═══ 다음 일정 — 제호를 자르고 들어온다 ═══ */}
-      <Bleed className="relative z-[2] -mt-[clamp(9px,2.54vw,37px)]">
+      <Bleed className="relative z-[2] -mt-[min(4.05vw,59px)]">
         <NextUpBand
           time={next ? (next.all_day ? "종일" : hhmm(next.starts_at)) : undefined}
           title={next?.title}
-          until={next && !next.all_day ? untilLabel(next.starts_at, now) : undefined}
+          until={next && !next.all_day && nextIsToday ? untilLabel(next.starts_at, now) : undefined}
+          note={next && !nextIsToday ? "오늘 일정은 없습니다 · 다음 일정입니다" : undefined}
           rest={rest}
           empty={snap.events.length ? "남은 일정이 없습니다" : "오늘은 일정이 없습니다"}
         />
@@ -199,16 +220,39 @@ export default async function TodayPage() {
               ))}
             </div>
           ) : (
-            <EmptyNote
+            <ZeroState
+              numeral={0}
+              title="오늘 할 일이 비어 있습니다"
               sub={
                 snap.inbox_count > 0
-                  ? `인박스에 ${snap.inbox_count}개가 정리를 기다리고 있습니다.`
-                  : "아래 입력창에 한 줄 적으면 여기로 옵니다."
+                  ? `인박스에 ${snap.inbox_count}개가 정리를 기다리고 있습니다. 하나를 오늘로 가져오면 여기가 채워집니다.`
+                  : "아래에 한 줄 적으면 여기로 옵니다."
               }
-            >
-              오늘 할 일이 비어 있습니다
-            </EmptyNote>
+            />
           )}
+
+          {/* 인박스 → 오늘. 목록만 보여주면 3개월 뒤에도 13개다. */}
+          {inbox.length ? (
+            <div className="mt-1">
+              <div className="flex items-center gap-3 border-t-2 border-ink pb-1 pt-3">
+                <span className="kicker text-hot-deep">From inbox</span>
+                <span className="kicker-kr text-[10.5px] tracking-[.14em] text-muted">
+                  오늘로 가져오기
+                </span>
+                <span aria-hidden className="h-px flex-1 bg-line" />
+                <Link href="/tasks" className="kicker text-faint hover:text-ink">
+                  전부 {snap.inbox_count} →
+                </Link>
+              </div>
+              {inbox.slice(0, snap.tasks.length ? 2 : 3).map((t) => (
+                <InboxPullRow key={t.id} task={t} />
+              ))}
+            </div>
+          ) : null}
+
+          <div className="mt-5">
+            <QuickCapture />
+          </div>
         </Ledger>
 
         <Ledger
@@ -249,14 +293,9 @@ export default async function TodayPage() {
         ) : null}
       </Bleed>
 
-      {/* ═══ 빠른 입력 ═══ */}
-      <div className="pt-6 lg:pt-7">
-        <QuickCapture />
-      </div>
-
       {/* ═══ 마감 ═══ */}
       {band.length ? (
-        <Bleed className="mt-7 lg:mt-9">
+        <Bleed className="mt-6 lg:mt-8">
           <DeadlineBand
             items={band.map((a) => ({
               num: firstNumber(a.body) ?? "—",
@@ -279,15 +318,25 @@ export default async function TodayPage() {
           </div>
 
           <Bleed className="mt-5 lg:mt-6">
-            <CoverPlate
-              tabLat={cover.tabLat}
-              tabKr={cover.tabKr}
-              headLat={cover.plateHeadLat}
-              headKr={cover.plateHeadKr}
-              items={cover.items}
-              rows={cover.rows}
-              stamp={cover.stamp}
-            />
+            {cover.items?.length || cover.rows?.some((r) => Number(r.value) > 0) ? (
+              <CoverPlate
+                tabLat={cover.tabLat}
+                tabKr={cover.tabKr}
+                headLat={cover.plateHeadLat}
+                headKr={cover.plateHeadKr}
+                items={cover.items}
+                rows={cover.rows}
+                stamp={cover.stamp}
+              />
+            ) : cover.lineText ? (
+              <CoverLine
+                lat={cover.tabLat}
+                kr={cover.tabKr}
+                text={cover.lineText}
+                cta={cover.lineCta}
+                href={cover.href}
+              />
+            ) : null}
             <InkDeck
               kickerLat={cover.deckLat}
               kickerKr={cover.deckKr}
@@ -319,28 +368,21 @@ export default async function TodayPage() {
             이번 호
           </SectionRule>
 
-          <div className="mt-5 grid grid-cols-2 gap-4 sm:gap-5 lg:mt-7 lg:grid-cols-3 lg:gap-7">
+          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:mt-7 lg:grid-cols-3 lg:gap-7">
             {plates.map(({ h, tone }, i) => (
-              <div
+              <HighlightPlate
                 key={h.id}
-                className={
-                  "min-w-0 " +
-                  (i === 0 ? "col-span-2 lg:col-span-2 " : "") +
-                  (tailOrphan && i === plates.length - 1 ? "col-span-2 lg:col-span-1" : "")
-                }
-              >
-                <HighlightPlate
-                  n={i + 1}
-                  rubric={h.collection_name}
-                  title={h.title}
-                  note={h.summary ?? h.subtitle}
-                  region={h.region}
-                  href={`/collections/${h.collection_slug}/${h.id}`}
-                  kind={kindFor(h.collection_slug, h.collection_kind)}
-                  tone={tone}
-                  image={h.cover_url}
-                />
-              </div>
+                n={i + 1}
+                rubric={h.collection_name}
+                title={h.title}
+                note={h.summary ?? h.subtitle}
+                meta={statusLabel(h.status)}
+                region={h.region}
+                href={`/collections/${h.collection_slug}/${h.id}`}
+                kind={kindFor(h.collection_slug, h.collection_kind)}
+                tone={tone}
+                image={h.cover_url}
+              />
             ))}
           </div>
         </section>
@@ -349,7 +391,14 @@ export default async function TodayPage() {
       {/* ═══ 컬렉션 색인 — 빈 것도 정보다 ═══ */}
       {feed.length ? (
         <section className="mt-11 lg:mt-16">
-          <SectionRule lat="Departments" right="전부 보기 →">
+          <SectionRule
+            lat="Departments"
+            right={
+              <Link href="/collections" className="krb text-[12.5px] hover:text-hot-deep">
+                전부 보기 →
+              </Link>
+            }
+          >
             컬렉션
           </SectionRule>
           <div className="mt-4 grid gap-x-10 sm:grid-cols-2 lg:mt-6">
@@ -399,6 +448,8 @@ function pickCover(
   asideNote?: string;
   numeral?: string | number;
   numeralLabel?: string;
+  lineText?: string;
+  lineCta?: string;
   href: string;
 } | null {
   // 오늘 일정 중 지역이 붙은 것 — 표지 기사와 오늘을 잇는 끈
@@ -462,6 +513,9 @@ function pickCover(
     asideNote: asp.due_capture ? "한 장이면 시작됩니다" : undefined,
     numeral: asp.refs,
     numeralLabel: "레퍼런스",
+    lineText:
+      "레퍼런스도 기록도 아직 없습니다. 한 장이 들어오면 이 자리가 지면이 됩니다.",
+    lineCta: "첫 장 넣기",
     href: "/identity",
   };
 }
@@ -491,4 +545,15 @@ function lastSeen(f: FeedRow): string | undefined {
   if (days < 30) return `${days}일 전`;
   if (days < 365) return `${Math.floor(days / 30)}개월 전`;
   return "1년 넘음";
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  wishlist: "아직",
+  visited: "가봄",
+  owned: "가짐",
+  dropped: "접음",
+};
+
+function statusLabel(s: string): string | undefined {
+  return STATUS_LABEL[s];
 }

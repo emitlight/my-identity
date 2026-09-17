@@ -56,11 +56,12 @@ export function HabitRow({
           </span>
           <span className="kicker-kr text-[10px] tracking-[.06em] text-muted">일 연속</span>
         </span>
+      ) : done ? (
+        <span className="kicker shrink-0 text-[8.5px] text-hot-deep">Day one</span>
       ) : (
-        // 0 을 숫자로 박지 않는다. 아직 시작하지 않은 것과 0일 연속은 다른 말이다.
-        <span className="kicker shrink-0 text-[8.5px] text-faint">
-          {done ? "Day one" : "Not yet"}
-        </span>
+        // 0 을 숫자로 박지 않는다. 네 줄이 같은 말을 반복하면 소음이 되므로
+        // 아직인 줄은 짧은 괘선 하나로만 둔다. 세는 일은 머리의 0/4 가 한다.
+        <span aria-hidden className="h-[2px] w-5 shrink-0 bg-ink/25" />
       )}
     </label>
   );

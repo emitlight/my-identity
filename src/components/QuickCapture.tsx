@@ -86,7 +86,7 @@ export function QuickCapture() {
         <button
           type="submit"
           disabled={!text.trim() || pending}
-          className="krb shrink-0 bg-ink px-5 text-[13px] tracking-[.1em] text-hot transition-colors hover:bg-hot hover:text-[color:var(--on-accent)] disabled:bg-line-soft disabled:text-faint sm:px-7"
+          className="krb shrink-0 border-l-2 border-ink bg-ink px-5 text-[13px] tracking-[.1em] text-hot transition-colors hover:bg-hot hover:text-[color:var(--on-accent)] disabled:bg-transparent disabled:text-faint sm:px-7"
         >
           {pending ? "…" : "저장"}
         </button>
