@@ -129,6 +129,8 @@ export interface SchemaField {
 
 export type CollectionKind = "place" | "media" | "product" | "person" | "generic";
 export type CollectionView = "map" | "list" | "card" | "magazine";
+/** 화면에 뿌릴 이름은 lib/collections.ts 가 정한다. 컬렉션 성격마다
+    "안 가봄"·"안 봄"·"안 삼" 으로 달라지므로 여기에 두면 안 된다. */
 export type ItemStatus = "wishlist" | "visited" | "owned" | "dropped";
 
 export interface Collection {
@@ -166,9 +168,3 @@ export interface CollectionItem {
   created_at: string;
 }
 
-export const ITEM_STATUS_LABEL: Record<ItemStatus, string> = {
-  wishlist: "안 가봄",
-  visited: "가봄",
-  owned: "가지고 있음",
-  dropped: "접음",
-};

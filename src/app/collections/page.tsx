@@ -2,18 +2,10 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { Empty } from "@/components/ui";
+import { words } from "@/lib/collections";
 import type { Collection } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
-
-/** 컬렉션 성격에 따라 세는 말이 다르다. 책을 "1곳" 이라고 세면 걸린다. */
-const UNIT: Record<string, string> = {
-  place: "곳",
-  media: "개",
-  product: "개",
-  person: "명",
-  generic: "개",
-};
 
 export default async function CollectionsPage() {
   const { supabase } = await requireUser();
@@ -56,7 +48,7 @@ export default async function CollectionsPage() {
         <ul>
           {rows.map((c, i) => {
             const n = c.collection_items?.[0]?.count ?? 0;
-            const unit = UNIT[c.kind] ?? "개";
+            const unit = words(c.kind).unit;
             return (
               <li key={c.id}>
                 <Link

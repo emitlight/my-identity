@@ -5,8 +5,8 @@ import { AppShell } from "@/components/AppShell";
 import { ItemRow } from "@/components/ItemRow";
 import { ItemQuickAdd } from "@/components/ItemQuickAdd";
 import { Card, SectionLabel, Empty } from "@/components/ui";
+import { progressLine, statusLabel, words } from "@/lib/collections";
 import {
-  ITEM_STATUS_LABEL,
   type Collection,
   type CollectionItem,
   type CollectionView,
@@ -87,7 +87,7 @@ export default async function CollectionPage({
     <AppShell
       active="collections"
       title={c.name}
-      subtitle={`${items.length}곳 · 안 가본 곳 ${notVisited}`}
+      subtitle={progressLine(items.length, notVisited, c.kind)}
     >
       <div className="flex flex-col gap-5">
         <ItemQuickAdd
@@ -124,7 +124,7 @@ export default async function CollectionPage({
                 : "text-faint hover:text-muted")
             }
           >
-            안 가본 곳만
+            {words(c.kind).pending}만
           </Link>
 
           {regions.slice(0, 6).map((r) => (
@@ -177,7 +177,7 @@ export default async function CollectionPage({
                   <div className="p-3">
                     <p className="text-[14px] font-medium leading-snug">{it.title}</p>
                     <p className="mt-1 text-[11.5px] text-faint">
-                      {[it.region, ITEM_STATUS_LABEL[it.status]].filter(Boolean).join(" · ")}
+                      {[it.region, statusLabel(it.status, c.kind)].filter(Boolean).join(" · ")}
                     </p>
                   </div>
                 </Card>

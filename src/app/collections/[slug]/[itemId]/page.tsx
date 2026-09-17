@@ -5,11 +5,8 @@ import { AppShell } from "@/components/AppShell";
 import { VisitLogForm } from "@/components/VisitLogForm";
 import { Card, SectionLabel } from "@/components/ui";
 import { monthDay } from "@/lib/date";
-import {
-  ITEM_STATUS_LABEL,
-  type Collection,
-  type CollectionItem,
-} from "@/lib/types";
+import { statusLabel } from "@/lib/collections";
+import { type Collection, type CollectionItem } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -81,7 +78,7 @@ export default async function ItemPage({
 
           <div className="p-5">
             <p className="text-[11px] uppercase tracking-[0.14em] text-accent">
-              {[it.region, ITEM_STATUS_LABEL[it.status]].filter(Boolean).join(" · ")}
+              {[it.region, statusLabel(it.status, c.kind)].filter(Boolean).join(" · ")}
             </p>
             <h1 className="mt-2 text-[25px] font-semibold leading-tight tracking-tight">
               {it.title}

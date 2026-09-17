@@ -38,6 +38,20 @@ const DIM: Record<Tone, string> = {
   paper: "text-faint",
 };
 
+/** 바탕 위에서 속 빈 활자의 획이 가져야 하는 색.
+    .outline 은 color:transparent 라 currentColor 로 획을 그리면 같이 투명해진다.
+    그래서 획 색은 늘 직접 준다. */
+const STROKE: Record<Tone, string> = {
+  hot: "var(--on-accent)",
+  ink: "var(--on-dark)",
+  blush: "var(--ink)",
+  paper: "var(--ink)",
+};
+
+export function hollowStyle(width: string, tone: Tone = "paper"): React.CSSProperties {
+  return { WebkitTextStroke: `${width} ${STROKE[tone]}` };
+}
+
 /** 같은 컬렉션의 낱장들이 줄줄이 같은 색이 되지 않게 돌려 쓴다 */
 const ROTATION: Tone[] = ["hot", "ink", "blush", "paper"];
 export function toneAt(i: number): Tone {
@@ -121,12 +135,14 @@ export function Burst({
   value,
   note,
   tone = "hot",
+  size = 168,
   className = "",
 }: {
   lat?: string;
   value: React.ReactNode;
   note?: string;
   tone?: "hot" | "ink";
+  size?: number;
   className?: string;
 }) {
   return (
@@ -137,12 +153,20 @@ export function Burst({
         (tone === "hot" ? "bg-hot text-[color:var(--on-accent)] " : "bg-ink text-[color:var(--on-dark)] ") +
         className
       }
+      style={{ width: size, height: size }}
     >
       {lat ? (
         <span className={"kicker text-[7.5px] " + (tone === "hot" ? "" : "text-hot")}>{lat}</span>
       ) : null}
-      <span className="num text-[clamp(34px,9vw,60px)] leading-[.92]">{value}</span>
-      {note ? <span className="kicker-kr text-[10px] tracking-[.06em]">{note}</span> : null}
+      <span
+        className="num leading-[.92]"
+        style={{ fontSize: size * 0.34, fontVariationSettings: '"opsz" 22' }}
+      >
+        {value}
+      </span>
+      {note ? (
+        <span className="kicker-kr text-[10px] tracking-[.04em]">{note}</span>
+      ) : null}
     </span>
   );
 }
@@ -158,12 +182,14 @@ export function BigNumeral({
   value,
   label,
   italic,
+  tone = "ink",
   className = "",
   size = "clamp(76px,17vw,230px)",
 }: {
   value: string | number;
   label?: string;
   italic?: boolean;
+  tone?: Tone;
   className?: string;
   size?: string;
 }) {
@@ -175,7 +201,7 @@ export function BigNumeral({
         style={{
           fontSize: size,
           lineHeight: 0.76,
-          WebkitTextStrokeWidth: hollow ? "3px" : undefined,
+          ...(hollow ? hollowStyle("3px", tone) : null),
         }}
       >
         {value}
@@ -188,10 +214,12 @@ export function BigNumeral({
 /** 윤곽선 지명 — 큰 라틴을 속 빈 글자로. 바탕이 비어 보이지 않게. */
 export function OutlineWord({
   children,
+  tone = "ink",
   className = "",
   size = "clamp(54px,12vw,140px)",
 }: {
   children: React.ReactNode;
+  tone?: Tone;
   className?: string;
   size?: string;
 }) {
@@ -199,7 +227,7 @@ export function OutlineWord({
     <span
       aria-hidden
       className={`num-it outline block whitespace-nowrap leading-[.8] ${className}`}
-      style={{ fontSize: size, WebkitTextStrokeWidth: "2px" }}
+      style={{ fontSize: size, ...hollowStyle("2px", tone) }}
     >
       {children}
     </span>
@@ -277,7 +305,7 @@ export function CountRows({
             <dd className="flex shrink-0 items-baseline gap-1.5">
               <span
                 className={"num text-[clamp(30px,7vw,58px)] leading-[.8] " + (hollow ? "outline" : "")}
-                style={{ WebkitTextStrokeWidth: hollow ? "2.5px" : undefined }}
+                style={hollow ? hollowStyle("2.5px", tone) : undefined}
               >
                 {r.value}
               </span>
@@ -400,31 +428,23 @@ function Perf({ tone }: { tone: Tone }) {
 }
 
 /** 책등 — 읽기 */
-export function Spines({ titles, tone = "blush" }: { titles: string[]; tone?: Tone }) {
-  const heights = ["78%", "64%", "52%"];
+export function Spines({ title, tone = "blush" }: { title: string; tone?: Tone }) {
   return (
-    <div className="absolute inset-0 z-[2] flex items-end gap-2 px-5 pb-3 sm:gap-2.5 sm:px-7 sm:pb-4">
-      {titles.slice(0, 3).map((t, i) => (
+    <div className="absolute inset-0 z-[2] flex items-end gap-2.5 px-5 pb-3 sm:gap-3 sm:px-7 sm:pb-4">
+      <span
+        className="flex h-[76%] w-[clamp(40px,9vw,64px)] items-center justify-center bg-ink px-1 py-3 text-[color:var(--on-dark)]"
+      >
         <span
-          key={`${t}-${i}`}
-          style={{ height: heights[i] }}
-          className={
-            "flex w-[clamp(34px,8vw,58px)] items-center justify-center py-3 " +
-            (i === 0
-              ? "bg-ink text-[color:var(--on-dark)]"
-              : i === 1
-                ? "bg-hot text-[color:var(--on-accent)]"
-                : `${frameBox(tone)} ${DIM[tone]}`)
-          }
+          className="krb line-clamp-1 text-[clamp(12px,2.8vw,19px)] leading-none"
+          style={{ writingMode: "vertical-rl" }}
         >
-          <span
-            className="krb text-[clamp(11px,2.6vw,18px)] leading-none"
-            style={{ writingMode: "vertical-rl" }}
-          >
-            {t}
-          </span>
+          {title}
         </span>
-      ))}
+      </span>
+      {/* 아직 꽂히지 않은 자리 — 다음 권이 들어올 칸 */}
+      <span className={`h-[58%] w-[clamp(28px,6vw,44px)] ${frameBox(tone)}`} />
+      <span className={`h-[44%] w-[clamp(28px,6vw,44px)] ${frameBox(tone)}`} />
+      <span className={`kicker ml-auto pb-4 ${DIM[tone]}`}>Shelf</span>
       <span aria-hidden className="absolute inset-x-0 bottom-0 h-2.5 bg-ink sm:h-3" />
     </div>
   );
@@ -484,19 +504,25 @@ export function TagPlate({ title, tone = "paper" }: { title: string; tone?: Tone
 export function Locator({
   title,
   region,
+  note,
   tone = "hot",
 }: {
   title: string;
   region?: string | null;
+  note?: string | null;
   tone?: Tone;
 }) {
+  // 지역이 제목과 같으면 같은 말을 두 번 하는 셈이다.
+  const stamp = region && region !== title ? region : null;
   return (
-    <div className="absolute inset-0 z-[2] flex flex-col justify-end gap-2 px-5 pb-4 sm:px-7 sm:pb-6">
-      {region ? (
-        <span className={`kicker-kr text-[10px] tracking-[.22em] ${DIM[tone]}`}>{region}</span>
-      ) : null}
+    <div className="absolute inset-0 z-[2] flex flex-col justify-center gap-2.5 px-5 pb-4 pt-11 sm:gap-3 sm:px-7 sm:pt-12">
       <span aria-hidden className={`h-[2px] w-full ${RULE[tone]}`} />
-      <span className="krd text-[clamp(26px,6.6vw,52px)] leading-[.98]">{title}</span>
+      <span className="krd text-[clamp(28px,7.2vw,54px)] leading-[.96]">{title}</span>
+      {stamp || note ? (
+        <span className={`kicker-kr truncate text-[10.5px] tracking-[.16em] ${DIM[tone]}`}>
+          {stamp ?? note}
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -518,27 +544,33 @@ export function DeadlineBand({
         <span className="kicker text-hot">{items.length} open</span>
       </div>
 
-      <div className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        className={
+          "grid gap-x-8 gap-y-7 sm:grid-cols-2 " +
+          (items.length > 2 ? "lg:grid-cols-3" : "")
+        }
+      >
         {items.map((d, i) => (
           <div
             key={`${d.title}-${i}`}
-            className={
-              "min-w-0 " +
-              (i > 0
-                ? "sm:border-l sm:border-[color:var(--on-dark-line)] sm:pl-8"
-                : "") +
-              (i === 2 ? " lg:border-l lg:border-[color:var(--on-dark-line)] lg:pl-8" : "") +
-              (i === 2 ? " sm:border-l-0 sm:pl-0" : "")
-            }
+            className="min-w-0 border-t border-[color:var(--on-dark-line)] pt-4 sm:border-t-0 sm:pt-0"
           >
-            <div className="num whitespace-nowrap text-[clamp(52px,12vw,92px)] leading-[.78] text-hot">
+            <div className="flex items-baseline gap-1.5 whitespace-nowrap">
               <span
-                className="align-[.62em] text-[.38em] text-[color:var(--on-dark)]"
-                style={{ fontVariationSettings: '"opsz" 11' }}
+                className="num text-[clamp(17px,4vw,26px)] leading-none text-[color:var(--on-dark-dim)]"
+                style={{ fontVariationSettings: '"opsz" 12' }}
               >
-                D-
+                D－
               </span>
-              {d.num}
+              <span
+                className={
+                  "num text-[clamp(50px,11.5vw,88px)] leading-[.78] " +
+                  (d.urgent ? "text-hot" : "text-[color:var(--on-dark)]")
+                }
+                style={{ fontVariationSettings: '"opsz" 54' }}
+              >
+                {d.num}
+              </span>
             </div>
             <div className="display mt-2.5 text-[clamp(17px,4vw,25px)] leading-[1.2]">
               {d.title}
@@ -722,12 +754,14 @@ export function NextUpBand({
   time,
   title,
   until,
+  note,
   rest,
   empty,
 }: {
   time?: string;
   title?: string;
   until?: string;
+  note?: string;
   rest: { time: string; title: string; tag?: string; strong?: boolean }[];
   empty?: string;
 }) {
@@ -762,6 +796,10 @@ export function NextUpBand({
               {empty ?? "남은 일정이 없습니다"}
             </p>
           )}
+
+          {note ? (
+            <p className="kicker-kr mt-2 text-[10.5px] tracking-[.16em] opacity-75">{note}</p>
+          ) : null}
         </div>
 
         <div className="relative lg:pl-7">
@@ -870,7 +908,7 @@ export function Ledger({
   );
 }
 
-/** 빈 칸에 놓는 한 줄. 빈 것을 숨기지 않고 지면의 일부로 만든다. */
+/** 빈 칸에 놓는 한 줄 */
 export function EmptyNote({
   children,
   sub,
@@ -883,6 +921,102 @@ export function EmptyNote({
       <p className="krb text-[clamp(15px,3.8vw,19px)] leading-snug text-muted">{children}</p>
       {sub ? <p className="mt-1.5 text-[12.5px] leading-relaxed text-faint">{sub}</p> : null}
     </div>
+  );
+}
+
+/**
+ * 비어 있음을 지면으로 만드는 자리.
+ *
+ * 0 을 속 빈 활자로 크게 놓고, 바로 옆에서 다음에 할 일을 가리킨다.
+ * 빈 칸을 여백으로 남기면 "아직 아무것도 안 했다"만 남지만,
+ * 가리킬 곳이 있으면 같은 빈 칸이 시작점이 된다.
+ */
+export function ZeroState({
+  numeral,
+  title,
+  sub,
+  actionLabel,
+  href,
+}: {
+  numeral: number | string;
+  title: string;
+  sub?: string;
+  actionLabel?: string;
+  href?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-4 py-5 sm:gap-6 sm:py-7">
+      <div className="flex items-center gap-5 sm:gap-7">
+        <span
+          className="num outline shrink-0 leading-[.72] text-ink"
+          style={{
+            fontSize: "clamp(74px,16vw,140px)",
+            ...hollowStyle("3px", "paper"),
+          }}
+        >
+          {numeral}
+        </span>
+        <span className="min-w-0">
+          <span className="krb block text-[clamp(17px,4.4vw,24px)] leading-tight">{title}</span>
+          {sub ? (
+            <span className="mt-2 block max-w-[34ch] text-[13px] leading-relaxed text-muted">
+              {sub}
+            </span>
+          ) : null}
+        </span>
+      </div>
+
+      {actionLabel && href ? (
+        <Link
+          href={href}
+          className="group flex items-center gap-3 border-t-2 border-ink pt-2.5"
+        >
+          <span className="krb text-[clamp(14px,3.6vw,17px)] group-hover:text-hot-deep">
+            {actionLabel}
+          </span>
+          <span aria-hidden className="h-[2px] min-w-[10px] flex-1 bg-line" />
+          <span aria-hidden className="num text-[20px] leading-none text-hot">→</span>
+        </Link>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * 표지 색면이 아직 담을 것이 없을 때 대신 놓는 한 줄.
+ * 0 두 개를 지면 폭만큼 키워 광고하느니, 줄 하나로 자리만 지킨다.
+ */
+export function CoverLine({
+  lat,
+  kr,
+  text,
+  href,
+  cta,
+}: {
+  lat?: string;
+  kr: string;
+  text: string;
+  href?: string;
+  cta?: string;
+}) {
+  const inner = (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-y-2 border-hot bg-blush px-5 py-3 sm:px-7">
+      <span className="flex shrink-0 items-baseline gap-2">
+        {lat ? <span className="kicker text-hot-deep">{lat}</span> : null}
+        <span className="kicker-kr text-ink">{kr}</span>
+      </span>
+      <span className="min-w-0 flex-1 text-[13px] leading-snug text-muted">{text}</span>
+      {cta ? (
+        <span className="krb shrink-0 text-[12.5px] text-hot-deep">{cta} →</span>
+      ) : null}
+    </div>
+  );
+  return href ? (
+    <Link href={href} className="block">
+      {inner}
+    </Link>
+  ) : (
+    inner
   );
 }
 
@@ -904,6 +1038,7 @@ export function HighlightPlate({
   rubric,
   title,
   note,
+  meta,
   region,
   href,
   kind,
@@ -914,6 +1049,7 @@ export function HighlightPlate({
   rubric: string;
   title: string;
   note?: string | null;
+  meta?: string | null;
   region?: string | null;
   href: string;
   kind: PlateKind;
@@ -922,11 +1058,7 @@ export function HighlightPlate({
 }) {
   return (
     <Link href={href} className="tile group flex min-w-0 flex-col">
-      <Plate
-        tone={tone}
-        dots={!image}
-        className="aspect-[4/3] w-full sm:aspect-[5/4]"
-      >
+      <Plate tone={tone} dots={!image} className="aspect-[16/10] w-full">
         <PlateNum n={String(n).padStart(2, "0")} tone={tone === "paper" ? "ink" : "paper"} />
 
         {image ? (
@@ -947,7 +1079,7 @@ export function HighlightPlate({
             </span>
           </>
         ) : kind === "spine" ? (
-          <Spines titles={splitTitle(title)} tone={tone} />
+          <Spines title={title} tone={tone} />
         ) : kind === "tracks" ? (
           <Tracks title={title} tone={tone} />
         ) : kind === "film" ? (
@@ -955,28 +1087,25 @@ export function HighlightPlate({
         ) : kind === "tag" ? (
           <TagPlate title={title} tone={tone} />
         ) : (
-          <Locator title={title} region={region} tone={tone} />
+          <Locator title={title} region={region} note={note} tone={tone} />
         )}
       </Plate>
 
-      <div className="mt-3 min-w-0">
-        <span aria-hidden className="mb-2.5 block h-[3px] w-full bg-ink" />
-        <Rubric kr={rubric} className="mb-1.5" />
-        <h3 className="krb text-[clamp(16px,4.2vw,23px)] leading-[1.18] group-hover:text-hot-deep">
-          {title}
-        </h3>
+      {/* 제목은 색면이 이미 크게 말했다. 여기서는 어느 서랍의 것인지와
+          그 한 줄만 — 같은 말을 두 번 싣지 않는다. */}
+      <div className="mt-2.5 flex min-w-0 items-baseline gap-3 border-t-[3px] border-ink pt-2">
+        <span className="kicker-kr shrink-0 text-[11px] group-hover:text-hot-deep">{rubric}</span>
         {note ? (
-          <p className="mt-1.5 line-clamp-2 text-[12.5px] leading-relaxed text-muted">{note}</p>
-        ) : null}
+          <span className="min-w-0 flex-1 truncate text-[12.5px] leading-snug text-muted">
+            {note}
+          </span>
+        ) : (
+          <span aria-hidden className="h-px min-w-[10px] flex-1 bg-line" />
+        )}
+        {meta ? <span className="kicker shrink-0 text-faint">{meta}</span> : null}
       </div>
     </Link>
   );
-}
-
-/** "철학 콘서트 1·2·3" → 책등 세 장이 되지 않게, 제목을 토막낸다 */
-function splitTitle(t: string): string[] {
-  const parts = t.split(/\s*[·,]\s*/).filter(Boolean);
-  return parts.length > 1 ? parts : [t];
 }
 
 /* ── 컬렉션 색인 ──────────────────────────────────────────
@@ -1015,7 +1144,7 @@ export function IndexRow({
           "num shrink-0 text-[clamp(17px,4vw,26px)] leading-none " +
           (empty ? "outline text-faint" : "text-ink")
         }
-        style={{ WebkitTextStrokeWidth: empty ? "1.5px" : undefined }}
+        style={empty ? hollowStyle("1.5px", "paper") : undefined}
       >
         {total}
       </span>
