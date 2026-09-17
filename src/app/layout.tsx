@@ -1,35 +1,53 @@
 import type { Metadata, Viewport } from "next";
-import { Bodoni_Moda, Song_Myung, IBM_Plex_Sans_KR } from "next/font/google";
+import {
+  Bodoni_Moda,
+  Archivo_Black,
+  Black_Han_Sans,
+  Gothic_A1,
+} from "next/font/google";
 import "./globals.css";
 
 /* ============================================================
-   서체
-   next/font 는 빌드 때 받아서 같이 배포한다. 런타임에 CDN 을 때리지
-   않으므로 폰트가 늦게 떠서 글자가 튀는 일이 없고, 사내망이나 비행기
-   모드처럼 외부가 막힌 곳에서도 지면이 그대로 선다.
+   서체 — NEWSSTAND
 
-   라틴은 디도(Bodoni), 한글은 명조(송명)로 갈라 쓴다. 한 제목 안에서
-   "MY IDENTITY" 와 "오늘, 대전" 이 같은 굵기·같은 대비로 읽히게 하려면
-   이 짝이 필요하다. 본문은 한글·라틴이 한 몸인 산세리프로 둔다.
+   가판대에 놓인 잡지의 조판을 그대로 가져온다. 네 벌이 각자 다른
+   일을 한다.
+
+     Bodoni Moda   디도. 숫자와 제호. 이 지면의 뼈대다.
+     Archivo Black 라틴 러버릭. 작고 넓게 벌려 쓰는 라벨 전용.
+     Black Han Sans 한글 디스플레이. 크게 칠 때만.
+     Gothic A1     한글 본문·UI. 굵기 폭이 넓어 900 까지 쓴다.
+
+   next/font 가 빌드 때 받아서 같이 배포한다. 런타임에 CDN 을 때리지
+   않으므로 폰트가 늦게 떠서 글자가 튀지 않고, 회사망처럼 외부가 막힌
+   곳에서도 지면이 그대로 선다.
    ============================================================ */
-const display = Bodoni_Moda({
+const didone = Bodoni_Moda({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--f-display",
+  style: ["normal", "italic"],
+  variable: "--f-didone",
   display: "swap",
 });
 
-// 한글 폰트는 subsets 옵션이 없다 (용량 때문에 preload 대상이 아니다).
-const displayKo = Song_Myung({
-  weight: "400",
-  variable: "--f-display-ko",
-  display: "swap",
-});
-
-const sans = IBM_Plex_Sans_KR({
+const kicker = Archivo_Black({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--f-sans",
+  weight: "400",
+  variable: "--f-kick",
+  display: "swap",
+});
+
+const krDisplay = Black_Han_Sans({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--f-krd",
+  display: "swap",
+});
+
+const kr = Gothic_A1({
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "800", "900"],
+  variable: "--f-kr",
   display: "swap",
 });
 
@@ -46,8 +64,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F4F3F7" },
-    { media: "(prefers-color-scheme: dark)", color: "#121118" },
+    { media: "(prefers-color-scheme: light)", color: "#FFFCF7" },
+    { media: "(prefers-color-scheme: dark)", color: "#140E11" },
   ],
 };
 
@@ -57,7 +75,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${display.variable} ${displayKo.variable} ${sans.variable}`}
+      className={`${didone.variable} ${kicker.variable} ${krDisplay.variable} ${kr.variable}`}
     >
       <body>{children}</body>
     </html>

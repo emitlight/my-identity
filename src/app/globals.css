@@ -1,99 +1,118 @@
 @import "tailwindcss";
 
 /* 서체는 src/app/layout.tsx 의 next/font 가 --f-* 로 넣어준다.
-   CDN @import 를 쓰면 회사망이나 광고 차단기에서 통째로 막혀 지면이
-   시스템 폰트로 주저앉는다. 빌드에 포함시켜 그 경우를 없앤다. */
+   CDN @import 를 쓰면 회사망이나 차단기에서 통째로 막혀 지면이 시스템
+   폰트로 주저앉는다. 빌드에 포함시켜 그 경우를 없앤다. */
 
 /* ============================================================
-   디자인 토큰
-   설계서(docs/DESIGN.md)의 팔레트를 그대로 쓴다.
-   accent(petrol teal) = 구조 / signal(burnt orange) = 알림·서피싱.
-   두 색의 역할을 섞지 않는 것이 이 UI 의 유일한 색 규칙이다.
+   디자인 토큰 — NEWSSTAND
+
+   가판대 잡지의 삼색. 크림 종이 · 잉크 블랙 · 형광 핑크.
+   핑크는 장식이 아니라 기능이다. 지금 손대야 하는 것에만 칠한다 —
+   남은 날짜, 안 가본 곳의 수, 끊긴 연속 기록. 전부 핑크로 칠하면
+   아무것도 핑크가 아니게 된다.
+
+   사진이 없는 지면이므로 색면과 활자가 사진의 일을 대신한다.
+   그래서 중간 톤이 거의 없다: 종이 아니면 잉크, 그 사이는 rule 한 줄.
    ============================================================ */
 :root {
-  --paper:       #F4F3F7;
-  --surface:     #FFFFFF;
-  --surface-2:   #FAFAFC;
-  --ink:         #17171F;
-  --muted:       #67657A;
-  --faint:       #8E8C9E;
-  --line:        #E2E0E9;
-  --line-soft:   #EDEBF1;
+  --paper:       #FFFCF7;
+  --surface:     #FFFCF7;
+  --surface-2:   #F7EFE4;
+  --ink:         #141010;
+  --muted:       #4A3B36;
+  --faint:       #8A7268;
+  --line:        #E6D9CB;
+  --line-soft:   #F0E6DA;
 
-  --accent:      #0B5E63;
-  --accent-soft: #E3EFEF;
-  --on-accent:   #FFFFFF;
+  /* 형광 핑크 — 구조가 아니라 신호다 */
+  --hot:         #FF1B6B;
+  --hot-deep:    #C70048;
+  --blush:       #FFD2E2;
 
-  --signal:      #B9511F;
-  --signal-soft: #FAEBE1;
+  --accent:      #FF1B6B;
+  --accent-soft: #FFD2E2;
+  --on-accent:   #141010;
 
-  --danger:      #B3261E;
-  --ok:          #2F7D4F;
+  --signal:      #C70048;
+  --signal-soft: #FFD2E2;
 
-  /* 사진 위 글자. 지면이 밝든 어둡든 사진 위는 늘 어둡게 깔리므로
-     라이트·다크에서 같은 값을 쓴다. */
-  --on-dark:      #FAF7F3;
-  --on-dark-dim:  #D9C8AE;
-  --on-dark-line: rgba(250,247,243,.45);
+  --danger:      #C70048;
+  --ok:          #1F7A4C;
+
+  /* 잉크 색면 위의 글자 */
+  --on-dark:      #FFFCF7;
+  --on-dark-dim:  rgba(255,252,247,.58);
+  --on-dark-line: rgba(255,252,247,.26);
 
   /* 역할 기본색. 사용자가 바꾸면 roles.color 가 이를 덮는다. */
-  --role-1: #3A7CA5;
-  --role-2: #7161D1;
-  --role-3: #41916B;
+  --role-1: #2B6CA3;
+  --role-2: #6B4FC4;
+  --role-3: #1F7A4C;
   --role-4: #C2703F;
 }
 
+/* 밤의 가판대 — 같은 삼색을 와인빛 바탕으로 뒤집는다.
+   크림 바탕을 그대로 어둡게만 하면 핑크가 탁해진다. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper:       #121118;
-    --surface:     #1B1A23;
-    --surface-2:   #22212C;
-    --ink:         #ECEBF2;
-    --muted:       #9C9AAD;
-    --faint:       #7A7889;
-    --line:        #2F2D3B;
-    --line-soft:   #262532;
+    --paper:       #140E11;
+    --surface:     #140E11;
+    --surface-2:   #1F151A;
+    --ink:         #FFF4EC;
+    --muted:       #C4A99E;
+    --faint:       #8E7268;
+    --line:        #3A2830;
+    --line-soft:   #2A1C22;
 
-    --accent:      #5FBDC0;
-    --accent-soft: #173234;
-    --on-accent:   #0B1F20;
+    --hot:         #FF3D80;
+    --hot-deep:    #FF6E9E;
+    --blush:       #3A1526;
 
-    --signal:      #E88B54;
-    --signal-soft: #33231A;
+    --accent:      #FF3D80;
+    --accent-soft: #3A1526;
+    --on-accent:   #140E11;
 
-    --danger:      #F2857C;
-    --ok:          #63B98C;
+    --signal:      #FF6E9E;
+    --signal-soft: #3A1526;
 
-    --role-1: #63A6CE;
-    --role-2: #9B8DEA;
-    --role-3: #63B98C;
+    --danger:      #FF8080;
+    --ok:          #5FC08D;
+
+    --role-1: #6FA8D6;
+    --role-2: #A995EE;
+    --role-3: #5FC08D;
     --role-4: #DE9463;
   }
 }
 
 :root[data-theme="dark"] {
-  --paper:       #121118;
-  --surface:     #1B1A23;
-  --surface-2:   #22212C;
-  --ink:         #ECEBF2;
-  --muted:       #9C9AAD;
-  --faint:       #7A7889;
-  --line:        #2F2D3B;
-  --line-soft:   #262532;
+  --paper:       #140E11;
+  --surface:     #140E11;
+  --surface-2:   #1F151A;
+  --ink:         #FFF4EC;
+  --muted:       #C4A99E;
+  --faint:       #8E7268;
+  --line:        #3A2830;
+  --line-soft:   #2A1C22;
 
-  --accent:      #5FBDC0;
-  --accent-soft: #173234;
-  --on-accent:   #0B1F20;
+  --hot:         #FF3D80;
+  --hot-deep:    #FF6E9E;
+  --blush:       #3A1526;
 
-  --signal:      #E88B54;
-  --signal-soft: #33231A;
+  --accent:      #FF3D80;
+  --accent-soft: #3A1526;
+  --on-accent:   #140E11;
 
-  --danger:      #F2857C;
-  --ok:          #63B98C;
+  --signal:      #FF6E9E;
+  --signal-soft: #3A1526;
 
-  --role-1: #63A6CE;
-  --role-2: #9B8DEA;
-  --role-3: #63B98C;
+  --danger:      #FF8080;
+  --ok:          #5FC08D;
+
+  --role-1: #6FA8D6;
+  --role-2: #A995EE;
+  --role-3: #5FC08D;
   --role-4: #DE9463;
 }
 
@@ -108,6 +127,9 @@
   --color-faint:       var(--faint);
   --color-line:        var(--line);
   --color-line-soft:   var(--line-soft);
+  --color-hot:         var(--hot);
+  --color-hot-deep:    var(--hot-deep);
+  --color-blush:       var(--blush);
   --color-accent:      var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-on-accent:   var(--on-accent);
@@ -117,31 +139,36 @@
   --color-ok:          var(--ok);
   --color-on-dark:     var(--on-dark);
 
-  --font-sans: var(--f-sans), -apple-system, BlinkMacSystemFont,
+  --font-sans: var(--f-kr), -apple-system, BlinkMacSystemFont,
                "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
-  --font-display: var(--f-display), "Times New Roman", serif;
-  --font-display-ko: var(--f-display-ko), "Apple SD Gothic Neo", serif;
+  --font-display: var(--f-didone), Georgia, serif;
+  --font-krd: var(--f-krd), var(--f-kr), sans-serif;
+  --font-kick: var(--f-kick), Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
 
 /* ============================================================
    기본
    ============================================================ */
-* { -webkit-tap-highlight-color: transparent; }
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 
 html {
   color-scheme: light dark;
   -webkit-text-size-adjust: 100%;
+  background: var(--paper);
 }
 
 body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   /* 한글 줄바꿈은 어절 단위로. 브라우저 기본값은 글자 단위라 문장이
      단어 한가운데서 갈라진다. */
   word-break: keep-all;
+  /* 색면이 화면 끝까지 나가는 판형이라 가로 스크롤이 생기기 쉽다. */
+  overflow-x: hidden;
   /* PWA 로 설치했을 때 노치·홈 인디케이터를 피한다. */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -149,9 +176,9 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--hot);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 /* 숫자가 세로로 정렬되어야 하는 곳 (시각, 스트릭, 금액) */
@@ -164,57 +191,112 @@ body {
   }
 }
 
-
 /* ============================================================
    조판
-   매거진 판형의 공통 클래스. 부품(components/editorial.tsx)이 이걸 쓴다.
+   부품(components/editorial.tsx)이 이 클래스를 쓴다.
    ============================================================ */
 
-/** 제호 */
+/** 제호 — 디도 최대 굵기. 글자가 잘리지 않게 line-box 를 직접 잡는다.
+    opsz 를 크게 두면 헤어라인 세리프가 사라져 끊어져 보인다. */
 .masthead {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: .15em;
+  font-weight: 900;
+  font-variation-settings: "opsz" 32;
+  letter-spacing: -.05em;
+  line-height: .82;
+  white-space: nowrap;
   color: var(--ink);
 }
 
-/** 표제 — 라틴은 디스플레이 페이스, 한글은 명조로 갈라진다 */
+/** 표제 — 라틴·숫자는 디도, 한글은 디스플레이 고딕으로 갈라진다 */
 .display {
-  font-family: var(--font-display), var(--font-display-ko);
-  font-weight: 400;
-  letter-spacing: -.008em;
-  text-wrap: balance;
-  /* 한글은 어절 단위로 끊는다. 없으면 "인테리어 및 공 / 간 스타일링" 처럼
-     단어 한가운데가 갈라지고, 큰 활자일수록 눈에 띈다. */
+  font-family: var(--font-display), var(--font-krd);
+  font-weight: 900;
+  letter-spacing: -.045em;
+  line-height: 1.02;
   word-break: keep-all;
   overflow-wrap: break-word;
 }
 
-/** 러버릭 · 작은 대문자 라벨 */
+/** 한글만 크게 칠 때 (제목 전체가 한글일 때) */
+.krd {
+  font-family: var(--font-krd);
+  font-weight: 400;
+  letter-spacing: -.045em;
+  line-height: 1.02;
+  word-break: keep-all;
+}
+
+/** 굵은 한글 본문 제목 — 디스플레이보다 작은 자리 */
+.krb {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  letter-spacing: -.03em;
+  word-break: keep-all;
+}
+
+/** 러버릭 · 라틴 대문자 라벨. 넓게 벌려 아주 작게. */
 .kicker {
-  font-size: 10px;
-  letter-spacing: .2em;
+  font-family: var(--font-kick);
+  font-size: 9px;
+  letter-spacing: .22em;
   text-transform: uppercase;
   line-height: 1.4;
   white-space: nowrap;
 }
 
-/** 본문 안의 명조 — 인용, 칩, 스펙 값 */
-.serif { font-family: var(--font-display-ko); }
+/** 한글 러버릭 — 라틴 러버릭 옆에 붙는다 */
+.kicker-kr {
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: .16em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
 
-/** 숫자 — 디스플레이 페이스의 숫자꼴을 쓴다 */
+/** 숫자 — 디도의 숫자꼴. 이 지면에서 숫자는 사진 대신이다. */
 .num {
   font-family: var(--font-display);
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -.045em;
+}
+
+/** 기울인 디도 숫자 — 표지에 찍는 큰 수 */
+.num-it {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-variation-settings: "opsz" 72;
+  letter-spacing: -.05em;
+}
+
+/** 망점 — 색면이 비어 보이지 않게 얹는 인쇄 질감 */
+.dots {
+  background-image: radial-gradient(currentColor 1.7px, transparent 1.8px);
+  background-size: 11px 11px;
+  opacity: .16;
+}
+
+/** 별표 — 인박스처럼 "지금 쳐다봐야 하는 수"에만 쓴다 */
+.burst {
+  clip-path: polygon(50.0% 3.3%, 57.1% 12.2%, 67.6% 4.6%, 71.3% 15.6%, 81.8% 15.1%, 81.1% 26.5%, 94.0% 28.1%, 86.1% 39.7%, 97.5% 45.6%, 89.3% 53.6%, 97.8% 63.6%, 84.0% 66.9%, 88.5% 79.0%, 76.9% 79.6%, 74.6% 89.7%, 63.9% 85.9%, 58.9% 97.9%, 50.0% 90.5%, 41.3% 96.4%, 35.9% 86.4%, 24.1% 91.8%, 24.7% 77.7%, 11.9% 78.7%, 14.6% 67.6%, 2.2% 63.6%, 12.2% 53.5%, 2.0% 45.6%, 11.5% 39.1%, 8.2% 29.2%, 19.3% 26.8%, 17.2% 14.0%, 28.7% 15.6%, 32.9% 6.0%, 42.8% 11.7%);
+}
+
+/** 윤곽선 활자 — 지명처럼 큰 라틴을 속 빈 글자로 */
+.outline {
+  color: transparent;
+  -webkit-text-stroke: 1px currentColor;
 }
 
 /* ── 지면이 살아 있게 하는 최소한의 움직임 ───────────────────
    스크롤 트리거 애니메이션은 쓰지 않는다. 첫 화면이 비어 보이고,
    매일 여는 화면에서 매번 기다리게 된다. */
-.tile { transition: transform .35s cubic-bezier(.2,.7,.3,1), box-shadow .35s; }
+.tile { transition: transform .3s cubic-bezier(.2,.7,.3,1); }
 @media (hover: hover) {
-  .tile:hover { transform: translateY(-5px); }
-  .tile:hover .zoom { transform: scale(1.055); }
+  .tile:hover { transform: translateY(-4px); }
+  .tile:hover .zoom { transform: scale(1.05); }
 }
 .zoom { transition: transform .7s cubic-bezier(.2,.7,.3,1); }
 

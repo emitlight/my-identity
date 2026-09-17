@@ -168,16 +168,6 @@ export default async function TodayPage() {
       active="today"
       title="오늘"
       dateline={dateline}
-      rail={
-        <TodayRail
-          events={snap.events}
-          tasks={snap.tasks}
-          habits={snap.habits}
-          roles={snap.roles}
-          inboxCount={snap.inbox_count}
-          now={now}
-        />
-      }
     >
       <div className="flex flex-col gap-10 lg:gap-14">
         <TodayStrip
@@ -187,6 +177,15 @@ export default async function TodayPage() {
           now={now}
         />
         <QuickCapture />
+
+        <TodayRail
+          events={snap.events}
+          tasks={snap.tasks}
+          habits={snap.habits}
+          roles={snap.roles}
+          inboxCount={snap.inbox_count}
+          now={now}
+        />
 
         {cover ? (
           <CoverStory
