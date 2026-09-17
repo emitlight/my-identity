@@ -206,6 +206,18 @@ body {
   line-height: .82;
   white-space: nowrap;
   color: var(--ink);
+  /* vw 로 잡으면 좌우 여백이 브레이크포인트마다 달라서 어딘가에서는
+     반드시 글자가 잘린다. 담는 칸을 기준으로 재는 게 맞다. */
+  font-size: clamp(42px, 13.4vw, 193px);
+}
+
+.masthead-wrap { width: 100%; }
+
+@supports (font-size: 1cqw) {
+  .masthead-wrap { container-type: inline-size; }
+  /* 제호 한 줄의 폭은 글자 크기의 6.885배다 (Bodoni 900, -.05em).
+     칸의 99% 를 채우도록 역산한 값. */
+  .masthead { font-size: 14.38cqw; }
 }
 
 /** 표제 — 라틴·숫자는 디도, 한글은 디스플레이 고딕으로 갈라진다 */

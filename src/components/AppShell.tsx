@@ -96,10 +96,8 @@ export function AppShell({
 
       {/* ─────────── 제호 ─────────── */}
       <div className="mx-auto w-full max-w-[1440px] px-5 pt-2 lg:px-10 lg:pt-2.5">
-        <Link href="/" className="block">
-          <h1 className="masthead text-center text-[clamp(52px,14.1vw,204px)]">
-            MY IDENTITY
-          </h1>
+        <Link href="/" className="masthead-wrap block">
+          <h1 className="masthead text-center">MY IDENTITY</h1>
         </Link>
       </div>
 
