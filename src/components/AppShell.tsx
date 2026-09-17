@@ -38,6 +38,9 @@ export function AppShell({
 }) {
   const label = NAV.concat(SECONDARY).find((n) => n.key === active)?.label ?? title;
 
+  // 켜진 메뉴는 ink 바탕에 paper 글자다. hot 을 쓰면 다크 모드에서
+  // ink 가 크림색이 되면서 분홍 글자가 3:1 로 떨어져 안 읽힌다.
+
   return (
     <div className="min-h-dvh bg-paper">
       {/* ─────────── 리본 ─────────── */}
@@ -52,7 +55,7 @@ export function AppShell({
                 className={
                   "krb border-[1.5px] px-3 py-1 text-[12px] tracking-[.06em] transition-colors " +
                   (active === n.key
-                    ? "border-transparent bg-ink text-hot"
+                    ? "border-transparent bg-ink text-paper"
                     : "border-transparent hover:border-ink")
                 }
               >
@@ -83,7 +86,7 @@ export function AppShell({
                 className={
                   "krb border-[1.5px] px-3 py-1 text-[12px] tracking-[.06em] transition-colors " +
                   (active === s.key
-                    ? "border-transparent bg-ink text-hot"
+                    ? "border-transparent bg-ink text-paper"
                     : "border-transparent hover:border-ink")
                 }
               >
