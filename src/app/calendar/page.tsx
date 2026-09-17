@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { QuickCapture } from "@/components/QuickCapture";
-import { Card, SectionLabel, Empty, RoleDot } from "@/components/ui";
+import { Empty, RoleDot } from "@/components/ui";
 import { todayISO, hhmm, monthDay, weekday, TZ } from "@/lib/date";
 import type { CalendarEvent, Role } from "@/lib/types";
 
@@ -27,9 +27,7 @@ export default async function CalendarPage() {
   if (error) {
     return (
       <AppShell active="calendar" title="캘린더">
-        <Card className="p-5">
-          <p className="text-[14.5px] text-danger">일정을 불러오지 못했습니다.</p>
-        </Card>
+        <p className="krb py-10 text-[15px] text-danger">일정을 불러오지 못했습니다.</p>
       </AppShell>
     );
   }
@@ -45,40 +43,64 @@ export default async function CalendarPage() {
 
   return (
     <AppShell active="calendar" title="캘린더" subtitle="앞으로 60일">
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-8 pt-4 lg:pt-6">
         <QuickCapture />
 
         {byDay.size === 0 ? (
-          <Card>
-            <Empty>앞으로 60일간 등록된 일정이 없습니다.</Empty>
-          </Card>
+          <Empty>앞으로 60일간 등록된 일정이 없습니다.</Empty>
         ) : (
-          [...byDay.entries()].map(([day, list]) => {
-            const d = new Date(`${day}T00:00:00Z`);
-            return (
-              <section key={day} className="flex flex-col gap-2">
-                <SectionLabel right={day === today ? "오늘" : undefined}>
-                  {monthDay(d)} {weekday(d)}
-                </SectionLabel>
-                <Card className="divide-y divide-line-soft">
-                  {list.map((e) => (
-                    <div key={e.id} className="flex items-baseline gap-3 px-3 py-2.5">
-                      <span className="w-[42px] shrink-0 text-[12.5px] tnum text-muted">
-                        {e.all_day ? "종일" : hhmm(e.starts_at)}
-                      </span>
-                      <span className="min-w-0 flex-1 text-[14.5px] leading-snug">
-                        {e.title}
-                      </span>
-                      {e.region ? (
-                        <span className="shrink-0 text-[11.5px] text-faint">{e.region}</span>
-                      ) : null}
-                      <RoleDot color={roleColor.get(e.role_id ?? "")} />
+          <div>
+            {[...byDay.entries()].map(([day, list]) => {
+              const d = new Date(`${day}T00:00:00Z`);
+              const isToday = day === today;
+              return (
+                <section
+                  key={day}
+                  className="grid grid-cols-[58px_minmax(0,1fr)] gap-4 border-b-2 border-ink/80 py-5 lg:grid-cols-[132px_minmax(0,1fr)] lg:gap-8 lg:py-7"
+                >
+                  {/* 날짜를 숫자로 세운다. 이 지면에서 숫자는 사진 대신이다. */}
+                  <div className="pt-0.5">
+                    <div
+                      className={
+                        "num text-[36px] leading-[.85] lg:text-[62px] " +
+                        (isToday ? "text-hot" : "text-ink")
+                      }
+                    >
+                      {d.getUTCDate()}
                     </div>
-                  ))}
-                </Card>
-              </section>
-            );
-          })
+                    <div className="kicker-kr mt-1 text-muted">
+                      {monthDay(d).split(".")[0]}월 {weekday(d)}
+                    </div>
+                    {isToday ? (
+                      <div className="krb mt-1.5 inline-block bg-ink px-2 py-0.5 text-[10.5px] tracking-[.16em] text-hot">
+                        오늘
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <ul className="min-w-0">
+                    {list.map((e) => (
+                      <li
+                        key={e.id}
+                        className="flex items-baseline gap-3 border-b border-line py-2.5 last:border-b-0 lg:gap-5"
+                      >
+                        <span className="num w-[44px] shrink-0 text-[13px] text-muted lg:w-[58px] lg:text-[16px]">
+                          {e.all_day ? "종일" : hhmm(e.starts_at)}
+                        </span>
+                        <span className="krb min-w-0 flex-1 text-[15px] leading-snug lg:text-[19px]">
+                          {e.title}
+                        </span>
+                        {e.region ? (
+                          <span className="kicker-kr shrink-0 text-faint">{e.region}</span>
+                        ) : null}
+                        <RoleDot color={roleColor.get(e.role_id ?? "")} />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
+          </div>
         )}
       </div>
     </AppShell>

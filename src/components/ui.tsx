@@ -1,25 +1,34 @@
 import { clsx } from "clsx";
 
-/** 섹션 머리표 — 작고 조용하게, 내용이 주인공이 되도록 */
+/* 가판대 판형의 공통 부품.
+   둥근 모서리와 그림자를 쓰지 않는다. 이 지면의 재료는 색면·괘선·활자
+   세 가지뿐이고, 카드가 떠 보이기 시작하면 잡지가 아니라 대시보드로
+   돌아간다. */
+
+/** 섹션 머리 — 라틴 러버릭 + 한글, 그리고 굵은 밑줄 */
 export function SectionLabel({
   children,
   right,
+  latin,
 }: {
   children: React.ReactNode;
   right?: React.ReactNode;
+  latin?: string;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 px-1">
-      <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-faint">
-        {children}
+    <div className="flex items-end justify-between gap-4 border-b-[3px] border-ink pb-1.5">
+      <span className="flex flex-col gap-1.5">
+        {latin ? <span className="kicker text-hot-deep">{latin}</span> : null}
+        <span className="krb text-[19px] leading-none lg:text-[24px]">{children}</span>
       </span>
       {right ? (
-        <span className="text-[11px] tracking-wide text-faint tnum">{right}</span>
+        <span className="num text-[22px] leading-none text-hot lg:text-[28px]">{right}</span>
       ) : null}
     </div>
   );
 }
 
+/** 괘선으로 두른 칸. 배경으로 띄우지 않고 선으로만 묶는다. */
 export function Card({
   children,
   className,
@@ -27,15 +36,16 @@ export function Card({
 }: {
   children: React.ReactNode;
   className?: string;
-  tone?: "plain" | "signal";
+  tone?: "plain" | "signal" | "ink";
 }) {
   return (
     <div
       className={clsx(
-        "rounded-lg border",
         tone === "signal"
-          ? "border-signal/35 bg-signal-soft"
-          : "border-line bg-surface",
+          ? "border-[2px] border-hot bg-blush"
+          : tone === "ink"
+            ? "border-[2px] border-ink bg-ink text-[color:var(--on-dark)]"
+            : "border border-line bg-surface",
         className,
       )}
     >
@@ -44,13 +54,13 @@ export function Card({
   );
 }
 
-/** 역할 색 점. 역할이 없으면 자리만 차지하지 않고 사라진다. */
+/** 역할 색. 점이 아니라 짧은 막대 — 괘선의 언어에 맞춘다. */
 export function RoleDot({ color }: { color?: string | null }) {
   if (!color) return null;
   return (
     <span
       aria-hidden
-      className="inline-block size-[7px] shrink-0 rounded-full"
+      className="inline-block h-[3px] w-4 shrink-0"
       style={{ background: color }}
     />
   );
@@ -58,7 +68,7 @@ export function RoleDot({ color }: { color?: string | null }) {
 
 export function Empty({ children }: { children: React.ReactNode }) {
   return (
-    <p className="px-1 py-6 text-center text-[13.5px] text-faint">{children}</p>
+    <p className="krb py-8 text-center text-[14px] text-faint">{children}</p>
   );
 }
 
@@ -74,11 +84,11 @@ export function Button({
     <button
       {...props}
       className={clsx(
-        "rounded-md px-4 py-2.5 text-[14px] font-medium transition-opacity",
+        "krb px-5 py-2.5 text-[13px] tracking-[.06em] transition-colors",
         "disabled:cursor-not-allowed disabled:opacity-45",
         variant === "primary"
-          ? "bg-accent text-on-accent hover:opacity-90"
-          : "border border-line bg-surface text-ink hover:bg-surface-2",
+          ? "bg-ink text-hot hover:bg-hot hover:text-ink"
+          : "border-2 border-ink bg-transparent text-ink hover:bg-blush",
         className,
       )}
     >
@@ -87,7 +97,8 @@ export function Button({
   );
 }
 
-/** 파싱 결과 칩 — 저장 전에 무엇으로 해석됐는지 보여주고 고치게 한다 */
+/** 파싱 결과 칩 — 저장 전에 무엇으로 해석됐는지 보여주고 고치게 한다.
+    핑크 바탕 위의 글자는 hot 이 아니라 hot-deep 이어야 읽힌다. */
 export function Chip({
   children,
   tone = "accent",
@@ -98,9 +109,9 @@ export function Chip({
   return (
     <span
       className={clsx(
-        "inline-flex items-center rounded px-2 py-[3px] text-[11.5px] whitespace-nowrap tnum",
-        tone === "accent" && "bg-accent-soft text-accent",
-        tone === "signal" && "bg-signal-soft text-signal",
+        "krb inline-flex items-center whitespace-nowrap px-2 py-[3px] text-[11.5px] tnum",
+        tone === "accent" && "bg-blush text-hot-deep",
+        tone === "signal" && "bg-ink text-hot",
         tone === "quiet" && "bg-line-soft text-muted",
       )}
     >

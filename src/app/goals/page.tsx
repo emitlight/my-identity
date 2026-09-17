@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
-import { Card, SectionLabel, Empty } from "@/components/ui";
+import { Empty } from "@/components/ui";
 import { daysUntil } from "@/lib/date";
 import type { Goal, Role } from "@/lib/types";
 
@@ -58,29 +58,43 @@ export default async function GoalsPage() {
 
   return (
     <AppShell active="goals" title="목표" subtitle={`${all.length}개 · 진행 중`}>
+      <div className="flex items-end justify-between gap-4 border-b-[4px] border-ink pb-2 pt-4 lg:pt-6">
+        <span className="flex flex-col gap-2">
+          <span className="kicker text-hot-deep">Deadlines</span>
+          <span className="krd text-[34px] leading-none lg:text-[52px]">목표</span>
+        </span>
+        <span className="flex items-baseline gap-2">
+          <span className="num text-[38px] leading-none text-hot lg:text-[56px]">{all.length}</span>
+          <span className="kicker-kr pb-1 text-muted">진행 중</span>
+        </span>
+      </div>
+
       {groups.length === 0 ? (
-        <Card>
-          <Empty>아직 목표가 없습니다.</Empty>
-        </Card>
+        <Empty>아직 목표가 없습니다.</Empty>
       ) : (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col">
           {groups.map((g) => (
-            <section key={g.horizon} className="flex flex-col gap-2">
-              <SectionLabel right={`${g.items.length}개`}>
-                {HORIZON_LABEL[g.horizon]}
-              </SectionLabel>
-              <Card className="divide-y divide-line-soft">
-                {g.items.map((goal) => (
-                  <div key={goal.id}>
-                    <GoalRow goal={goal} color={roleColor.get(goal.role_id ?? "")} current={latest} />
-                    {(children.get(goal.id) ?? []).map((c) => (
-                      <div key={c.id} className="border-t border-line-soft bg-surface-2/60 pl-6">
-                        <GoalRow goal={c} color={roleColor.get(c.role_id ?? "")} current={latest} child />
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </Card>
+            <section key={g.horizon}>
+              <h2 className="mt-8 flex items-baseline gap-4 border-b-2 border-ink pb-1.5 lg:mt-12">
+                <span className="krb text-[17px] lg:text-[21px]">{HORIZON_LABEL[g.horizon]}</span>
+                <span aria-hidden className="h-px flex-1 bg-line" />
+                <span className="kicker text-faint">{g.items.length} open</span>
+              </h2>
+
+              {g.items.map((goal) => (
+                <div key={goal.id}>
+                  <GoalRow goal={goal} color={roleColor.get(goal.role_id ?? "")} current={latest} />
+                  {(children.get(goal.id) ?? []).map((c) => (
+                    <GoalRow
+                      key={c.id}
+                      goal={c}
+                      color={roleColor.get(c.role_id ?? "")}
+                      current={latest}
+                      child
+                    />
+                  ))}
+                </div>
+              ))}
             </section>
           ))}
         </div>
@@ -89,6 +103,13 @@ export default async function GoalsPage() {
   );
 }
 
+/**
+ * 목표 한 줄.
+ *
+ * 남은 일수를 큰 숫자로 왼쪽에 세운다. 노션에서 12개가 전부
+ * 'Not started' 로 굳은 이유는 마감이 계산되지 않아서였고, 계산된
+ * 마감은 눈에 띄는 자리에 있어야 의미가 있다.
+ */
 function GoalRow({
   goal,
   color,
@@ -106,71 +127,69 @@ function GoalRow({
     have != null && goal.metric_target
       ? Math.min(100, Math.round((have / Number(goal.metric_target)) * 100))
       : null;
+  const urgent = left != null && left <= 30;
 
   return (
-    <div className="flex items-start gap-3 px-4 py-3">
-      {color ? (
-        <span
-          aria-hidden
-          className="mt-[7px] size-[7px] shrink-0 rounded-full"
-          style={{ background: color }}
-        />
-      ) : (
-        <span aria-hidden className="mt-[7px] size-[7px] shrink-0" />
-      )}
+    <div
+      className={
+        "flex items-start gap-4 border-b border-line py-4 lg:gap-7 " +
+        (child ? "pl-6 lg:pl-14" : "")
+      }
+    >
+      {/* D— */}
+      <span className="flex w-[74px] shrink-0 items-baseline gap-1 lg:w-[108px]">
+        {left == null ? (
+          <span className="kicker pt-2 text-faint">No date</span>
+        ) : (
+          <>
+            <span className="num text-[15px] leading-none text-muted lg:text-[19px]">
+              {left < 0 ? "D+" : "D－"}
+            </span>
+            <span
+              className={
+                "num text-[30px] leading-[.85] lg:text-[44px] " +
+                (urgent || left < 0 ? "text-hot" : "text-ink")
+              }
+            >
+              {Math.abs(left)}
+            </span>
+          </>
+        )}
+      </span>
 
       <span className="min-w-0 flex-1">
-        <span className="flex items-baseline gap-2">
-          {child ? <span aria-hidden className="text-[11px] text-faint">└</span> : null}
-          <span className="min-w-0 text-[14.5px] font-medium leading-snug">{goal.title}</span>
+        <span className="flex items-center gap-2.5">
+          {color ? (
+            <span aria-hidden className="h-[3px] w-4 shrink-0" style={{ background: color }} />
+          ) : null}
+          <span className="krb min-w-0 text-[16px] leading-snug lg:text-[21px]">{goal.title}</span>
         </span>
 
         {goal.description ? (
-          <span className="mt-0.5 block text-[12.5px] text-faint">{goal.description}</span>
+          <span className="mt-1 block text-[12.5px] leading-relaxed text-muted lg:text-[13.5px]">
+            {goal.description}
+          </span>
         ) : null}
 
         {pct != null ? (
-          <span className="mt-2 block">
+          <span className="mt-2.5 block max-w-[440px]">
             <span className="flex items-baseline justify-between text-[11.5px] tnum text-muted">
-              <span>
+              <span className="num text-[13px] text-ink">
                 {have!.toLocaleString("ko-KR")}
                 {goal.metric_unit ? ` ${goal.metric_unit}` : ""}
               </span>
-              <span>
+              <span className="num text-[13px]">
                 {Number(goal.metric_target).toLocaleString("ko-KR")}
                 {goal.metric_unit ? ` ${goal.metric_unit}` : ""}
               </span>
             </span>
-            <span className="mt-1 block h-[3px] overflow-hidden rounded-full bg-line">
-              <span
-                className="block h-full rounded-full bg-accent"
-                style={{ width: `${pct}%` }}
-              />
+            <span className="mt-1 block h-[6px] bg-line-soft">
+              <span className="block h-full bg-hot" style={{ width: `${pct}%` }} />
             </span>
           </span>
         ) : goal.metric_key ? (
-          <span className="mt-1 block text-[11.5px] text-faint">
-            {goal.metric_key} 기록이 아직 없습니다
-          </span>
+          <span className="kicker mt-1.5 block text-faint">No record</span>
         ) : null}
-      </span>
-
-      <span className="shrink-0 text-right">
-        {left == null ? (
-          <span className="text-[11.5px] text-faint">기한 없음</span>
-        ) : left < 0 ? (
-          <span className="text-[11.5px] font-medium tnum text-signal">
-            {Math.abs(left)}일 지남
-          </span>
-        ) : (
-          <span
-            className={
-              "text-[11.5px] tnum " + (left <= 30 ? "font-medium text-signal" : "text-muted")
-            }
-          >
-            {left}일 남음
-          </span>
-        )}
       </span>
     </div>
   );
