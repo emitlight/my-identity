@@ -113,12 +113,17 @@ export default async function IdentityPage() {
             잉크 띠에 둔다 — 어떤 사진이 오든 대비가 무너지지 않는다. */}
         {p.cover_url ? (
           <section className="-mx-5 lg:-mx-10">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={p.cover_url}
-              alt=""
-              className="h-[180px] w-full object-cover lg:h-[320px]"
-            />
+            {/* 사진을 못 불러오면(원본이 외부 호스트에 있다) 빈 칸이 아니라
+                색면으로 남는다. 지면이 무너지지 않는다. */}
+            <div className="relative h-[180px] w-full overflow-hidden bg-blush lg:h-[320px]">
+              <span aria-hidden className="dots absolute inset-0 text-ink" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={p.cover_url}
+                alt=""
+                className="absolute inset-0 size-full object-cover"
+              />
+            </div>
             <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 bg-ink px-5 py-3 text-[color:var(--on-dark)] lg:px-10 lg:py-4">
               <span className="krd text-[24px] leading-none lg:text-[38px]">
                 {p.display_name ?? p.email}
