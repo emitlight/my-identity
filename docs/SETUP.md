@@ -14,27 +14,23 @@
    - Region: **Northeast Asia (Seoul)** ← 한국에서 쓰므로 꼭 서울
 3. 생성에 2~3분 걸립니다.
 
-### 스키마 넣기
+### 스키마 + 데이터 넣기 (한 번에)
 
-프로젝트가 준비되면 왼쪽 메뉴 **SQL Editor** → **New query**.
+왼쪽 메뉴 **SQL Editor** → **New query** → `supabase/bundle.sql` 을 통째로
+붙여넣고 **Run**.
 
-`supabase/migrations/` 폴더의 파일을 **번호 순서대로** 하나씩 붙여넣고 **Run** 합니다.
+이 한 파일에 테이블·정책·함수·노션 이관 데이터가 전부 들어 있습니다.
+여러 번 실행해도 안전하니, 중간에 실패해서 다시 붙여넣어도 괜찮습니다.
 
+> 노션 이관 데이터는 **앱에 한 번 로그인한 뒤** 다시 실행해야 붙습니다.
+> 계정이 있어야 데이터를 걸어줄 대상이 생기기 때문입니다.
+> 순서: bundle 실행 → 4절까지 배포 → 로그인 → bundle 한 번 더 실행.
+
+파일이 없으면 이렇게 만듭니다:
+
+```bash
+bash scripts/bundle-sql.sh
 ```
-0001_foundation.sql    ← 확장, 공통 함수, 프로필
-0002_identity.sql      ← 역할, 가치, 목표, 추구미
-0003_work.sql          ← 프로젝트, 할 일, 습관
-0004_calendar.sql      ← 일정
-0005_notes.sql         ← 메모, 회고, 지표
-0006_collections.sql   ← 컬렉션 (맛집·골프장)
-0007_notifications.sql ← 알림 규칙
-0008_storage.sql       ← 사진 저장소
-0009_goal_activity.sql ← 방치 감지
-0010_today.sql         ← Today 스냅샷
-```
-
-> ⚠️ 순서를 지켜야 합니다. 뒤 파일이 앞 파일의 함수와 테이블을 씁니다.
-> 각 파일마다 `Success. No rows returned` 가 나오면 정상입니다.
 
 ### 키 복사하기
 

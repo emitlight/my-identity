@@ -7,11 +7,11 @@
 -- ============================================================
 
 alter table public.goals
-  add column last_activity_at timestamptz not null default now(),
+  add column if not exists last_activity_at timestamptz not null default now(),
   -- 방치 알림을 며칠 침묵 후 보낼지. null 이면 이 목표는 묻지 않는다.
-  add column stale_after_days int default 60;
+  add column if not exists stale_after_days int default 60;
 
-create index goals_stale_idx on public.goals (user_id, last_activity_at)
+create index if not exists goals_stale_idx on public.goals (user_id, last_activity_at)
   where status = 'active';
 
 -- 목표 자체가 수정되면 움직인 것으로 본다.
@@ -28,6 +28,7 @@ begin
 end;
 $$;
 
+drop trigger if exists goals_touch_activity on public.goals;
 create trigger goals_touch_activity
   before update on public.goals
   for each row
@@ -50,6 +51,7 @@ begin
 end;
 $$;
 
+drop trigger if exists metric_logs_touch_goal on public.metric_logs;
 create trigger metric_logs_touch_goal
   after insert on public.metric_logs
   for each row execute function public.touch_goal_by_metric();
@@ -73,6 +75,7 @@ begin
 end;
 $$;
 
+drop trigger if exists tasks_touch_goal on public.tasks;
 create trigger tasks_touch_goal
   after update of status on public.tasks
   for each row execute function public.touch_goal_by_task();

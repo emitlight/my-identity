@@ -6,11 +6,17 @@
 -- 매거진은 저장 형식이 아니라 보기 형식이다.
 -- ============================================================
 
-create type collection_kind as enum ('place', 'media', 'product', 'person', 'generic');
-create type collection_view as enum ('map', 'list', 'card', 'magazine');
-create type item_status     as enum ('wishlist', 'visited', 'owned', 'dropped');
+do $ident$ begin
+  create type collection_kind as enum ('place', 'media', 'product', 'person', 'generic');
+exception when duplicate_object then null; end $ident$;
+do $ident$ begin
+  create type collection_view as enum ('map', 'list', 'card', 'magazine');
+exception when duplicate_object then null; end $ident$;
+do $ident$ begin
+  create type item_status     as enum ('wishlist', 'visited', 'owned', 'dropped');
+exception when duplicate_object then null; end $ident$;
 
-create table public.collections (
+create table if not exists public.collections (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references auth.users(id) on delete cascade,
   slug         text not null,
@@ -37,7 +43,7 @@ create table public.collections (
 select public.own_rows('public.collections');
 select public.auto_touch('public.collections');
 
-create table public.collection_items (
+create table if not exists public.collection_items (
   id                uuid primary key default gen_random_uuid(),
   user_id           uuid not null references auth.users(id) on delete cascade,
   collection_id     uuid not null references public.collections(id) on delete cascade,
@@ -70,15 +76,15 @@ create table public.collection_items (
 select public.own_rows('public.collection_items');
 select public.auto_touch('public.collection_items');
 
-create index collection_items_list_idx   on public.collection_items (collection_id, status);
-create index collection_items_region_idx on public.collection_items (user_id, region) where region is not null;
-create index collection_items_tags_idx   on public.collection_items using gin (tags);
-create index collection_items_data_idx   on public.collection_items using gin (data);
-create index collection_items_search_idx
+create index if not exists collection_items_list_idx   on public.collection_items (collection_id, status);
+create index if not exists collection_items_region_idx on public.collection_items (user_id, region) where region is not null;
+create index if not exists collection_items_tags_idx   on public.collection_items using gin (tags);
+create index if not exists collection_items_data_idx   on public.collection_items using gin (data);
+create index if not exists collection_items_search_idx
   on public.collection_items using gin ((title || ' ' || coalesce(summary, '')) gin_trgm_ops);
 
 -- 같은 곳을 여러 번 가면 기록이 쌓인다. "3번 갔고 평점이 오르는 중" 이 보인다.
-create table public.collection_item_logs (
+create table if not exists public.collection_item_logs (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references auth.users(id) on delete cascade,
   item_id    uuid not null references public.collection_items(id) on delete cascade,
@@ -93,7 +99,7 @@ create table public.collection_item_logs (
 );
 select public.own_rows('public.collection_item_logs');
 select public.auto_touch('public.collection_item_logs');
-create index collection_item_logs_item_idx on public.collection_item_logs (item_id, logged_on desc);
+create index if not exists collection_item_logs_item_idx on public.collection_item_logs (item_id, logged_on desc);
 
 -- ------------------------------------------------------------
 -- surfacing_rules — 맥락 서피싱
@@ -107,7 +113,7 @@ create index collection_item_logs_item_idx on public.collection_item_logs (item_
 --   {"type":"nearby",        "radius_km":5}
 --   {"type":"stale",         "days_since_view":90}
 -- ------------------------------------------------------------
-create table public.surfacing_rules (
+create table if not exists public.surfacing_rules (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null references auth.users(id) on delete cascade,
   collection_id uuid not null references public.collections(id) on delete cascade,

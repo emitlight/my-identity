@@ -59,7 +59,7 @@ $$;
 -- ------------------------------------------------------------
 -- profiles — auth.users 1:1
 -- ------------------------------------------------------------
-create table public.profiles (
+create table if not exists public.profiles (
   id            uuid primary key references auth.users(id) on delete cascade,
   user_id       uuid generated always as (id) stored,
   email         text,
@@ -71,6 +71,7 @@ create table public.profiles (
 );
 
 alter table public.profiles enable row level security;
+drop policy if exists own_profile on public.profiles;
 create policy own_profile on public.profiles for all to authenticated
   using (auth.uid() = id) with check (auth.uid() = id);
 select public.auto_touch('public.profiles');
@@ -89,6 +90,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users

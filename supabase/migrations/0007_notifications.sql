@@ -5,7 +5,7 @@
 -- ------------------------------------------------------------
 -- push_subscriptions — 기기별 1행 (폰 · 노트북 각각)
 -- ------------------------------------------------------------
-create table public.push_subscriptions (
+create table if not exists public.push_subscriptions (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references auth.users(id) on delete cascade,
   endpoint     text not null,
@@ -23,20 +23,24 @@ select public.auto_touch('public.push_subscriptions');
 -- ------------------------------------------------------------
 -- notification_rules
 -- ------------------------------------------------------------
-create type notification_kind as enum (
-  'morning_brief',      -- 07:30 아침 브리핑
-  'event_reminder',     -- 일정 N분 전
-  'habit_nudge',        -- 습관 미체크
-  'evening_review',     -- 21:30 저녁 회고
-  'weekly_review',      -- 일 09:00 주간 리뷰
-  'evidence_capture',   -- 추구미 증거 사진 요청
-  'aspiration_drift',   -- 루틴 이탈 → 레퍼런스 재노출
-  'context_surface',    -- 맥락 서피싱
-  'due_soon'            -- 마감 임박
-);
-create type notification_channel as enum ('webpush', 'email');
+do $ident$ begin
+  create type notification_kind as enum (
+    'morning_brief',      -- 07:30 아침 브리핑
+    'event_reminder',     -- 일정 N분 전
+    'habit_nudge',        -- 습관 미체크
+    'evening_review',     -- 21:30 저녁 회고
+    'weekly_review',      -- 일 09:00 주간 리뷰
+    'evidence_capture',   -- 추구미 증거 사진 요청
+    'aspiration_drift',   -- 루틴 이탈 → 레퍼런스 재노출
+    'context_surface',    -- 맥락 서피싱
+    'due_soon'            -- 마감 임박
+  );
+exception when duplicate_object then null; end $ident$;
+do $ident$ begin
+  create type notification_channel as enum ('webpush', 'email');
+exception when duplicate_object then null; end $ident$;
 
-create table public.notification_rules (
+create table if not exists public.notification_rules (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references auth.users(id) on delete cascade,
   kind       notification_kind not null,
@@ -62,9 +66,11 @@ select public.auto_touch('public.notification_rules');
 -- clicked_at: 아무도 안 누르는 알림 종류를 찾아서 끄기 위해 쌓는다.
 --         Phase 1 부터 쌓아야 한 달 뒤에 판단할 근거가 생긴다.
 -- ------------------------------------------------------------
-create type notification_status as enum ('queued', 'sent', 'failed', 'skipped');
+do $ident$ begin
+  create type notification_status as enum ('queued', 'sent', 'failed', 'skipped');
+exception when duplicate_object then null; end $ident$;
 
-create table public.notifications (
+create table if not exists public.notifications (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null references auth.users(id) on delete cascade,
   kind          notification_kind not null,
@@ -84,9 +90,9 @@ create table public.notifications (
 );
 select public.own_rows('public.notifications');
 select public.auto_touch('public.notifications');
-create unique index notifications_dedupe_idx
+create unique index if not exists notifications_dedupe_idx
   on public.notifications (user_id, dedupe_key) where dedupe_key is not null;
-create index notifications_recent_idx on public.notifications (user_id, created_at desc);
+create index if not exists notifications_recent_idx on public.notifications (user_id, created_at desc);
 
 -- ------------------------------------------------------------
 -- 기본 알림 규칙 — 가입 즉시 비서가 동작해야 한다.
@@ -112,6 +118,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_profile_created on public.profiles;
 drop trigger if exists on_profile_created on public.profiles;
 create trigger on_profile_created
   after insert on public.profiles

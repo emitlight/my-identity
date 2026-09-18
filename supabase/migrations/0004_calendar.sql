@@ -7,9 +7,11 @@
 -- 만들 수 없다. 캘린더 소유는 편의가 아니라 구조 문제다.
 -- ============================================================
 
-create type event_source as enum ('local', 'google');
+do $ident$ begin
+  create type event_source as enum ('local', 'google');
+exception when duplicate_object then null; end $ident$;
 
-create table public.events (
+create table if not exists public.events (
   id               uuid primary key default gen_random_uuid(),
   user_id          uuid not null references auth.users(id) on delete cascade,
   role_id          uuid references public.roles(id) on delete set null,
@@ -41,8 +43,8 @@ create table public.events (
 select public.own_rows('public.events');
 select public.auto_touch('public.events');
 
-create index events_range_idx  on public.events (user_id, starts_at);
-create index events_region_idx on public.events (user_id, region) where region is not null;
-create unique index events_external_idx
+create index if not exists events_range_idx  on public.events (user_id, starts_at);
+create index if not exists events_region_idx on public.events (user_id, region) where region is not null;
+create unique index if not exists events_external_idx
   on public.events (user_id, source, external_id)
   where external_id is not null;

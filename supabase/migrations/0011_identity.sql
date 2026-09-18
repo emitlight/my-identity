@@ -13,13 +13,13 @@
 -- 두면 아무 일도 일어나지 않는다.
 -- ------------------------------------------------------------
 alter table public.profiles
-  add column birth_date        date,
-  add column birth_place       text,
-  add column career_started_at date,
-  add column company           text,
-  add column job_title         text,
+  add column if not exists birth_date        date,
+  add column if not exists birth_place       text,
+  add column if not exists career_started_at date,
+  add column if not exists company           text,
+  add column if not exists job_title         text,
   -- 학력 · 전공 같은 서사. Markdown.
-  add column bio               text;
+  add column if not exists bio               text;
 
 -- ------------------------------------------------------------
 -- interests — 내가 하는 · 하고 싶은 활동 영역
@@ -34,11 +34,15 @@ alter table public.profiles
 -- 그러면 목록이 거울이 된다 — 운동 셋 중 골프만 하고 있고 수영과
 -- 필라테스는 반년째 조용하다는 것이 보인다.
 -- ------------------------------------------------------------
-create type interest_area as enum
-  ('lifelog', 'workout', 'finance', 'language', 'other');
-create type interest_status as enum ('active', 'someday', 'paused', 'dropped');
+do $ident$ begin
+  create type interest_area as enum
+    ('lifelog', 'workout', 'finance', 'language', 'other');
+exception when duplicate_object then null; end $ident$;
+do $ident$ begin
+  create type interest_status as enum ('active', 'someday', 'paused', 'dropped');
+exception when duplicate_object then null; end $ident$;
 
-create table public.interests (
+create table if not exists public.interests (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null references auth.users(id) on delete cascade,
   role_id       uuid references public.roles(id) on delete set null,
@@ -60,8 +64,8 @@ create table public.interests (
 );
 select public.own_rows('public.interests');
 select public.auto_touch('public.interests');
-create unique index interests_title_uniq on public.interests (user_id, title);
-create index interests_area_idx on public.interests (user_id, area, sort_order);
+create unique index if not exists interests_title_uniq on public.interests (user_id, title);
+create index if not exists interests_area_idx on public.interests (user_id, area, sort_order);
 
 -- ------------------------------------------------------------
 -- 관심사별 마지막 활동
