@@ -123,8 +123,11 @@ export default async function IdentityPage() {
               <span className="krd text-[24px] leading-none lg:text-[38px]">
                 {p.display_name ?? p.email}
               </span>
+              {/* kicker-kr 을 쓰지 않는다. 그 클래스는 nowrap 이고 globals.css
+                  가 tailwind 뒤에 오므로 whitespace-normal 로 못 덮는다.
+                  직무명이 길어서 폰에서 화면 밖으로 나갔다. */}
               {p.company ? (
-                <span className="kicker-kr text-[color:var(--on-dark-dim)]">
+                <span className="text-[11px] font-black leading-snug tracking-[.14em] text-[color:var(--on-dark-dim)]">
                   {p.company}
                   {p.job_title ? ` · ${p.job_title}` : ""}
                 </span>
