@@ -15,6 +15,8 @@ interface Profile {
   company: string | null;
   job_title: string | null;
   bio: string | null;
+  /** 노션 My Identity 페이지의 표지 사진 */
+  cover_url: string | null;
 }
 
 interface InterestRow {
@@ -66,7 +68,7 @@ export default async function IdentityPage() {
     await Promise.all([
       supabase
         .from("profiles")
-        .select("display_name, email, birth_date, birth_place, career_started_at, company, job_title, bio")
+        .select("display_name, email, birth_date, birth_place, career_started_at, company, job_title, bio, cover_url")
         .eq("id", user.id)
         .maybeSingle(),
       supabase.from("roles").select("*").eq("active", true).order("sort_order"),
@@ -104,10 +106,36 @@ export default async function IdentityPage() {
       title="나"
       subtitle={p.display_name ?? p.email ?? undefined}
     >
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-10 pt-4 lg:pt-6">
+        {/* ---------- 표지 ----------
+            노션 My Identity 페이지의 표지 사진을 그대로 옮겨왔다. 이 앱이
+            가진 유일한 실제 사진이다. 글자는 사진 위에 얹지 않고 아래
+            잉크 띠에 둔다 — 어떤 사진이 오든 대비가 무너지지 않는다. */}
+        {p.cover_url ? (
+          <section className="-mx-5 lg:-mx-10">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={p.cover_url}
+              alt=""
+              className="h-[180px] w-full object-cover lg:h-[320px]"
+            />
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 bg-ink px-5 py-3 text-[color:var(--on-dark)] lg:px-10 lg:py-4">
+              <span className="krd text-[24px] leading-none lg:text-[38px]">
+                {p.display_name ?? p.email}
+              </span>
+              {p.company ? (
+                <span className="kicker-kr text-[color:var(--on-dark-dim)]">
+                  {p.company}
+                  {p.job_title ? ` · ${p.job_title}` : ""}
+                </span>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
+
         {/* ---------- 소개 ---------- */}
         <section className="flex flex-col gap-2">
-          <SectionLabel>소개</SectionLabel>
+          <SectionLabel latin="Profile">소개</SectionLabel>
           <Card className="p-5">
             <div className="flex flex-wrap gap-x-7 gap-y-3">
               {age != null ? (
