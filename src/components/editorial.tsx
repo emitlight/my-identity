@@ -12,29 +12,29 @@ import Link from "next/link";
    색과 서체는 globals.css 의 토큰이 정한다. 여기서는 구조만.
    ============================================================ */
 
-type Tone = "hot" | "ink" | "blush" | "paper";
+type Tone = "key" | "ink" | "soft" | "paper";
 
 /** 색면 한 장. 판형 전체가 이 네 가지 바탕 위에서만 움직인다. */
 const PLATE: Record<Tone, string> = {
-  hot: "bg-hot text-[color:var(--on-accent)]",
+  key: "bg-key text-[color:var(--on-accent)]",
   ink: "bg-ink text-[color:var(--on-dark)]",
-  blush: "bg-blush text-ink",
+  soft: "bg-key-soft text-ink",
   paper: "bg-paper text-ink shadow-[inset_0_0_0_2px_var(--ink)]",
 };
 
 /** 바탕 위에서 괘선이 가져야 하는 색 */
 const RULE: Record<Tone, string> = {
-  hot: "bg-[color:var(--on-accent)]/30",
+  key: "bg-[color:var(--on-accent)]/30",
   ink: "bg-[color:var(--on-dark-line)]",
-  blush: "bg-ink/25",
+  soft: "bg-ink/25",
   paper: "bg-line",
 };
 
 /** 바탕 위에서 부차 정보가 가져야 하는 색 */
 const DIM: Record<Tone, string> = {
-  hot: "text-[color:var(--on-accent)]/65",
+  key: "text-[color:var(--on-accent)]/65",
   ink: "text-[color:var(--on-dark-dim)]",
-  blush: "text-ink/60",
+  soft: "text-ink/60",
   paper: "text-faint",
 };
 
@@ -42,9 +42,9 @@ const DIM: Record<Tone, string> = {
     .outline 은 color:transparent 라 currentColor 로 획을 그리면 같이 투명해진다.
     그래서 획 색은 늘 직접 준다. */
 const STROKE: Record<Tone, string> = {
-  hot: "var(--on-accent)",
+  key: "var(--on-accent)",
   ink: "var(--on-dark)",
-  blush: "var(--ink)",
+  soft: "var(--ink)",
   paper: "var(--ink)",
 };
 
@@ -54,7 +54,7 @@ export function hollowStyle(width: string, tone: Tone = "paper"): React.CSSPrope
 }
 
 /** 같은 컬렉션의 낱장들이 줄줄이 같은 색이 되지 않게 돌려 쓴다 */
-const ROTATION: Tone[] = ["hot", "ink", "blush", "paper"];
+const ROTATION: Tone[] = ["key", "ink", "soft", "paper"];
 export function toneAt(i: number): Tone {
   return ROTATION[i % ROTATION.length];
 }
@@ -79,7 +79,7 @@ export function Rubric({
   if (!lat && !kr) return null;
   return (
     <span className={`flex items-baseline gap-2 ${className}`}>
-      {lat ? <span className={`kicker ${accent ?? "text-hot-deep"}`}>{lat}</span> : null}
+      {lat ? <span className={`kicker ${accent ?? "text-key-ink"}`}>{lat}</span> : null}
       {kr ? <span className={`kicker-kr ${dim ?? ""}`}>{kr}</span> : null}
     </span>
   );
@@ -103,7 +103,7 @@ export function SectionRule({
   return (
     <div className="flex flex-wrap items-end gap-x-4 gap-y-1 border-b-[3px] border-ink pb-2.5">
       <h2 className="krd text-[clamp(30px,7vw,54px)] leading-[.92]">{children}</h2>
-      {lat ? <span className="kicker pb-1.5 text-hot-deep">{lat}</span> : null}
+      {lat ? <span className="kicker pb-1.5 text-key-ink">{lat}</span> : null}
       {right ? (
         <span className="ml-auto pb-1.5 text-[11.5px] leading-snug text-faint">{right}</span>
       ) : null}
@@ -119,14 +119,14 @@ export function Burst({
   lat,
   value,
   note,
-  tone = "hot",
+  tone = "key",
   size = 168,
   className = "",
 }: {
   lat?: string;
   value: React.ReactNode;
   note?: string;
-  tone?: "hot" | "ink";
+  tone?: "key" | "ink";
   size?: number;
   className?: string;
 }) {
@@ -135,13 +135,13 @@ export function Burst({
       aria-hidden
       className={
         "burst flex shrink-0 -rotate-[8deg] flex-col items-center justify-center " +
-        (tone === "hot" ? "bg-hot text-[color:var(--on-accent)] " : "bg-ink text-[color:var(--on-dark)] ") +
+        (tone === "key" ? "bg-key text-[color:var(--on-accent)] " : "bg-ink text-[color:var(--on-dark)] ") +
         className
       }
       style={{ width: size, height: size }}
     >
       {lat ? (
-        <span className={"kicker text-[7.5px] " + (tone === "hot" ? "" : "text-hot")}>{lat}</span>
+        <span className={"kicker text-[7.5px] " + (tone === "key" ? "" : "text-key-on-dark")}>{lat}</span>
       ) : null}
       <span
         className="num leading-[.92]"
@@ -225,7 +225,7 @@ export function OutlineWord({
 
 export function LeaderList({
   items,
-  tone = "hot",
+  tone = "key",
   size = "clamp(26px,6.4vw,70px)",
 }: {
   items: { lead?: string; name: string; trail?: string }[];
@@ -267,7 +267,7 @@ export function LeaderList({
 /** 세는 줄 — 라벨 · 괘선 · 숫자. 0 이면 숫자가 비어 있다. */
 export function CountRows({
   rows,
-  tone = "hot",
+  tone = "key",
 }: {
   rows: { label: string; value: number | string; unit?: string }[];
   tone?: Tone;
@@ -306,7 +306,7 @@ export function CountRows({
 /* ── 색면 한 장 ───────────────────────────────────────────── */
 
 export function Plate({
-  tone = "hot",
+  tone = "key",
   className = "",
   dots = true,
   children,
@@ -332,15 +332,15 @@ export function PlateTab({
 }: {
   lat?: string;
   kr: string;
-  tone?: "ink" | "paper" | "hot";
+  tone?: "ink" | "paper" | "key";
 }) {
   const skin =
     tone === "ink" ? "bg-ink text-[color:var(--on-dark)]"
-    : tone === "hot" ? "bg-hot text-[color:var(--on-accent)]"
+    : tone === "key" ? "bg-key text-[color:var(--on-accent)]"
     : "bg-paper text-ink";
   return (
     <span className={`absolute left-0 top-0 z-[3] px-3.5 py-2 sm:px-5 sm:py-2.5 ${skin}`}>
-      {lat ? <span className="kicker block text-hot">{lat}</span> : null}
+      {lat ? <span className="kicker block text-key-on-dark">{lat}</span> : null}
       <span className="kicker-kr mt-0.5 block text-[clamp(13px,3.2vw,19px)] tracking-[.05em]">
         {kr}
       </span>
@@ -375,7 +375,7 @@ export function FilmStrip({ title, tone = "ink" }: { title: string; tone?: Tone 
         <span
           className={
             "flex items-center justify-center px-1 " +
-            (tone === "hot" ? "bg-ink text-[color:var(--on-dark)]" : "bg-hot text-[color:var(--on-accent)]")
+            (tone === "key" ? "bg-ink text-[color:var(--on-dark)]" : "bg-key text-[color:var(--on-accent)]")
           }
         >
           <span className="krd line-clamp-2 text-center text-[clamp(11px,2.4vw,19px)] leading-[1.06]">
@@ -394,13 +394,13 @@ export function FilmStrip({ title, tone = "ink" }: { title: string; tone?: Tone 
 }
 
 function frameBox(tone: Tone) {
-  return tone === "ink" || tone === "hot"
+  return tone === "ink" || tone === "key"
     ? "shadow-[inset_0_0_0_2px_var(--on-dark-line)]"
     : "shadow-[inset_0_0_0_2px_rgba(20,16,16,.3)]";
 }
 
 function Perf({ tone }: { tone: Tone }) {
-  const c = tone === "ink" || tone === "hot" ? "var(--on-dark-line)" : "rgba(20,16,16,.28)";
+  const c = tone === "ink" || tone === "key" ? "var(--on-dark-line)" : "rgba(20,16,16,.28)";
   return (
     <span
       aria-hidden
@@ -413,13 +413,13 @@ function Perf({ tone }: { tone: Tone }) {
 }
 
 /** 책등 — 읽기 */
-export function Spines({ title, tone = "blush" }: { title: string; tone?: Tone }) {
+export function Spines({ title, tone = "soft" }: { title: string; tone?: Tone }) {
   // 책등은 바탕과 반대색이어야 상자로 읽힌다
   const spine =
-    tone === "ink" || tone === "blush" || tone === "paper"
-      ? "bg-hot text-[color:var(--on-accent)]"
+    tone === "ink" || tone === "soft" || tone === "paper"
+      ? "bg-key text-[color:var(--on-accent)]"
       : "bg-ink text-[color:var(--on-dark)]";
-  const shelf = tone === "hot" ? "bg-ink" : "bg-hot";
+  const shelf = tone === "key" ? "bg-ink" : "bg-key";
   return (
     <div className="absolute inset-0 z-[2] flex items-end gap-2.5 px-5 pb-3.5 sm:gap-3 sm:px-7 sm:pb-4">
       <span className={`flex h-[78%] w-[clamp(42px,9.5vw,66px)] items-center justify-center px-1 py-3 ${spine}`}>
@@ -441,7 +441,7 @@ export function Spines({ title, tone = "blush" }: { title: string; tone?: Tone }
 /** 트랙 — 음악 */
 export function Tracks({ title, tone = "ink" }: { title: string; tone?: Tone }) {
   const bars = [34, 72, 48, 96, 26, 64, 88, 40, 58, 78, 30, 68];
-  const fill = tone === "hot" ? "bg-ink" : "bg-hot";
+  const fill = tone === "key" ? "bg-ink" : "bg-key";
   return (
     <div className="absolute inset-0 z-[2] flex flex-col justify-end gap-3 px-5 pb-5 pt-11 sm:px-7 sm:pb-6">
       <span aria-hidden className="flex h-[42%] items-end gap-[3px] sm:gap-1">
@@ -466,10 +466,10 @@ export function TagPlate({ title, tone = "paper" }: { title: string; tone?: Tone
       <span
         className={
           "relative flex min-w-0 max-w-full items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4 " +
-          (tone === "hot"
+          (tone === "key"
             ? "bg-ink text-[color:var(--on-dark)]"
             : tone === "ink"
-              ? "bg-hot text-[color:var(--on-accent)]"
+              ? "bg-key text-[color:var(--on-accent)]"
               : "bg-ink text-[color:var(--on-dark)]")
         }
       >
@@ -487,7 +487,7 @@ export function TagPlate({ title, tone = "paper" }: { title: string; tone?: Tone
 export function Locator({
   title,
   region,
-  tone = "hot",
+  tone = "key",
 }: {
   title: string;
   region?: string | null;
@@ -519,10 +519,10 @@ export function DeadlineBand({
   return (
     <section className="bg-ink px-5 pb-7 pt-5 text-[color:var(--on-dark)] sm:px-7 lg:px-10 lg:pb-9 lg:pt-6">
       <div className="mb-5 flex items-center gap-3.5 lg:mb-7">
-        <span className="kicker text-hot">Deadlines</span>
+        <span className="kicker text-key-on-dark">Deadlines</span>
         <span className="kicker-kr tracking-[.24em]">마 감</span>
-        <span aria-hidden className="h-[2px] flex-1 bg-hot" />
-        <span className="kicker text-hot">{items.length} open</span>
+        <span aria-hidden className="h-[2px] flex-1 bg-key" />
+        <span className="kicker text-key-on-dark">{items.length} open</span>
       </div>
 
       <div
@@ -546,7 +546,7 @@ export function DeadlineBand({
               <span
                 className={
                   "num text-[clamp(50px,11.5vw,88px)] leading-[.78] " +
-                  (d.urgent ? "text-hot" : "text-[color:var(--on-dark)]")
+                  (d.urgent ? "text-key-on-dark" : "text-[color:var(--on-dark)]")
                 }
                 style={{ fontVariationSettings: '"opsz" 54' }}
               >
@@ -581,7 +581,7 @@ export function CoverPlate({
   items,
   rows,
   stamp,
-  tone = "hot",
+  tone = "key",
 }: {
   tabLat?: string;
   tabKr: string;
@@ -628,7 +628,7 @@ export function InkDeck({
   kickerLat,
   kickerKr,
   headline,
-  hot,
+  key,
   standfirst,
   asideLat,
   asideTitle,
@@ -640,7 +640,7 @@ export function InkDeck({
   kickerLat?: string;
   kickerKr?: string;
   headline: string;
-  hot?: string;
+  key?: string;
   standfirst?: string;
   asideLat?: string;
   asideTitle?: string;
@@ -649,13 +649,13 @@ export function InkDeck({
   numeralLabel?: string;
   href?: string;
 }) {
-  const parts = splitHot(headline, hot);
+  const parts = splitHot(headline, key);
 
   const body = (
     <div className="relative bg-ink px-5 pb-7 pt-6 text-[color:var(--on-dark)] sm:px-7 sm:pb-9 sm:pt-8 lg:px-12 lg:pb-11 lg:pt-10">
       {kickerLat || kickerKr ? (
         <div className="mb-3 flex items-center gap-3">
-          {kickerLat ? <span className="kicker text-hot">{kickerLat}</span> : null}
+          {kickerLat ? <span className="kicker text-key-on-dark">{kickerLat}</span> : null}
           {kickerKr ? (
             <span className="kicker-kr tracking-[.2em] text-[color:var(--on-dark-dim)]">
               {kickerKr}
@@ -667,7 +667,7 @@ export function InkDeck({
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:gap-10">
         <h2 className="krd min-w-0 flex-1 text-[clamp(38px,9.4vw,124px)] leading-[.92]">
           {parts.head}
-          {parts.tail ? <span className="text-hot">{parts.tail}</span> : null}
+          {parts.tail ? <span className="text-key-on-dark">{parts.tail}</span> : null}
         </h2>
 
         {numeral !== undefined && String(numeral) !== "0" ? (
@@ -676,7 +676,7 @@ export function InkDeck({
             label={numeralLabel}
             italic
             size="clamp(66px,15vw,190px)"
-            className="shrink-0 -rotate-[6deg] self-start text-hot lg:self-end"
+            className="shrink-0 -rotate-[6deg] self-start text-key-on-dark lg:self-end"
           />
         ) : null}
       </div>
@@ -689,8 +689,8 @@ export function InkDeck({
             </p>
           ) : null}
           {asideTitle ? (
-            <div className="shrink-0 border-t-2 border-hot pt-3 lg:w-[250px] lg:border-l-2 lg:border-t-0 lg:pl-7 lg:pt-0">
-              {asideLat ? <span className="kicker block text-hot">{asideLat}</span> : null}
+            <div className="shrink-0 border-t-2 border-key pt-3 lg:w-[250px] lg:border-l-2 lg:border-t-0 lg:pl-7 lg:pt-0">
+              {asideLat ? <span className="kicker block text-key-on-dark">{asideLat}</span> : null}
               <span className="krb mt-2 block text-[clamp(16px,4vw,25px)] leading-tight">
                 {asideTitle}
               </span>
@@ -716,9 +716,9 @@ export function InkDeck({
 }
 
 /** 표제의 마지막 어절을 떼어낸다 (핑크가 될 자리) */
-function splitHot(headline: string, hot?: string): { head: string; tail: string | null } {
-  if (hot && headline.includes(hot)) {
-    const i = headline.lastIndexOf(hot);
+function splitHot(headline: string, key?: string): { head: string; tail: string | null } {
+  if (key && headline.includes(key)) {
+    const i = headline.lastIndexOf(key);
     return { head: headline.slice(0, i), tail: headline.slice(i) };
   }
   const words = headline.trim().split(/\s+/);
@@ -747,14 +747,14 @@ export function NextUpBand({
   empty?: string;
 }) {
   return (
-    <section className="relative bg-hot px-5 pb-6 pt-5 text-[color:var(--on-accent)] sm:px-7 lg:px-10 lg:pb-7 lg:pt-6 xl:pr-[210px]">
+    <section className="relative bg-key px-5 pb-6 pt-5 text-[color:var(--on-accent)] sm:px-7 lg:px-10 lg:pb-7 lg:pt-6 xl:pr-[210px]">
       <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:gap-10">
         <div className="min-w-0">
           <div className="mb-2 flex items-center gap-3">
             <span className="kicker">Next up</span>
             <span className="kicker-kr tracking-[.2em]">다 음 일 정</span>
             {until ? (
-              <span className="krb ml-auto shrink-0 bg-ink px-2.5 py-1 text-[11px] tracking-[.1em] text-hot lg:hidden">
+              <span className="krb ml-auto shrink-0 bg-ink px-2.5 py-1 text-[11px] tracking-[.1em] text-key-on-dark lg:hidden">
                 {until}
               </span>
             ) : null}
@@ -826,9 +826,9 @@ export function NextUpBand({
           aria-hidden
           className="absolute right-9 top-1/2 hidden size-[136px] -translate-y-1/2 -rotate-[7deg] flex-col items-center justify-center rounded-full border-[5px] border-paper bg-ink text-[color:var(--on-dark)] xl:flex"
         >
-          <span className="kicker text-[7.5px] text-hot">In</span>
+          <span className="kicker text-[7.5px] text-key-on-dark">In</span>
           <span
-            className="num text-[46px] leading-[.92] text-hot"
+            className="num text-[46px] leading-[.92] text-key-on-dark"
             style={{ fontVariationSettings: '"opsz" 24' }}
           >
             {untilNum(until)}
@@ -862,7 +862,7 @@ export function Ledger({
   kr: string;
   done?: number;
   total?: number;
-  tone?: "paper" | "blush";
+  tone?: "paper" | "soft";
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
@@ -870,17 +870,17 @@ export function Ledger({
     <section
       className={
         "flex min-w-0 flex-col px-5 pb-5 pt-4 sm:px-7 lg:px-8 " +
-        (tone === "blush" ? "bg-blush lg:border-l-[3px] lg:border-ink" : "bg-paper")
+        (tone === "soft" ? "bg-key-soft lg:border-l-[3px] lg:border-ink" : "bg-paper")
       }
     >
       <div className="mb-1 flex items-end justify-between gap-4 border-b-[3px] border-ink pb-2">
         <span className="min-w-0">
-          <span className="kicker block text-hot-deep">{lat}</span>
+          <span className="kicker block text-key-ink">{lat}</span>
           <span className="krb mt-1.5 block text-[clamp(21px,5vw,28px)] leading-none">{kr}</span>
         </span>
         {total !== undefined ? (
           <span
-            className="num shrink-0 text-[clamp(38px,9vw,60px)] leading-[.76] text-hot"
+            className="num shrink-0 text-[clamp(38px,9vw,60px)] leading-[.76] text-key-ink"
             style={{ fontVariationSettings: '"opsz" 20' }}
           >
             {done ?? 0}
@@ -957,11 +957,11 @@ export function ZeroState({
           href={href}
           className="group flex items-center gap-3 border-t-2 border-ink pt-2.5"
         >
-          <span className="krb text-[clamp(14px,3.6vw,17px)] group-hover:text-hot-deep">
+          <span className="krb text-[clamp(14px,3.6vw,17px)] group-hover:text-key-ink">
             {actionLabel}
           </span>
           <span aria-hidden className="h-[2px] min-w-[10px] flex-1 bg-line" />
-          <span aria-hidden className="num text-[20px] leading-none text-hot">→</span>
+          <span aria-hidden className="num text-[20px] leading-none text-key-ink">→</span>
         </Link>
       ) : null}
     </div>
@@ -986,14 +986,14 @@ export function CoverLine({
   cta?: string;
 }) {
   const inner = (
-    <div className="flex flex-col gap-2 border-y-2 border-hot bg-blush px-5 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-7">
+    <div className="flex flex-col gap-2 border-y-2 border-key bg-key-soft px-5 py-3.5 sm:flex-row sm:items-center sm:gap-4 sm:px-7">
       <span className="flex shrink-0 items-baseline gap-2">
-        {lat ? <span className="kicker text-hot-deep">{lat}</span> : null}
+        {lat ? <span className="kicker text-key-ink">{lat}</span> : null}
         <span className="kicker-kr text-ink">{kr}</span>
       </span>
       <span className="min-w-0 flex-1 text-[13px] leading-relaxed text-muted">{text}</span>
       {cta ? (
-        <span className="krb shrink-0 text-[12.5px] text-hot-deep">{cta} →</span>
+        <span className="krb shrink-0 text-[12.5px] text-key-ink">{cta} →</span>
       ) : null}
     </div>
   );
@@ -1090,7 +1090,7 @@ export function HighlightPlate({
       {/* 제목은 색면이 이미 크게 말했다. 여기서는 어느 서랍의 것인지와
           그 한 줄만 — 같은 말을 두 번 싣지 않는다. */}
       <div className="mt-2.5 flex min-w-0 items-baseline gap-3 border-t-[3px] border-ink pt-2">
-        <span className="kicker-kr shrink-0 text-[11px] group-hover:text-hot-deep">{rubric}</span>
+        <span className="kicker-kr shrink-0 text-[11px] group-hover:text-key-ink">{rubric}</span>
         {note ? (
           <span className="min-w-0 flex-1 truncate text-[12.5px] leading-snug text-muted">
             {note}
@@ -1130,7 +1130,7 @@ export function IndexRow({
       <span
         className={
           "krb min-w-0 shrink-0 text-[clamp(14px,3.6vw,19px)] " +
-          (empty ? "text-faint" : "text-ink group-hover:text-hot-deep")
+          (empty ? "text-faint" : "text-ink group-hover:text-key-ink")
         }
       >
         {name}

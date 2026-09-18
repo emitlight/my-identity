@@ -12,8 +12,8 @@ export const CHECK =
 export function boxStyle(done: boolean): React.CSSProperties | undefined {
   return done
     ? {
-        backgroundColor: "var(--hot)",
-        borderColor: "var(--hot)",
+        backgroundColor: "var(--key)",
+        borderColor: "var(--key)",
         backgroundImage: CHECK,
         backgroundSize: "13px",
         backgroundPosition: "center",
@@ -39,7 +39,7 @@ export function TaskRow({
   const [, start] = useTransition();
 
   return (
-    <label className="group flex cursor-pointer items-center gap-4 border-b border-line px-2 py-3 transition-colors hover:bg-blush">
+    <label className="group flex cursor-pointer items-center gap-4 border-b border-line px-2 py-3 transition-colors hover:bg-key-soft">
       <input
         type="checkbox"
         checked={done}
@@ -71,7 +71,7 @@ export function TaskRow({
       </span>
 
       {overdue && !done ? (
-        <span className="kicker-kr shrink-0 -rotate-2 bg-hot px-2 py-1 text-[10px] text-[color:var(--on-accent)]">
+        <span className="kicker-kr shrink-0 -rotate-2 bg-key px-2 py-1 text-[10px] text-[color:var(--on-accent)]">
           마감 지남
         </span>
       ) : null}
@@ -112,7 +112,7 @@ export function InboxPullRow({ task }: { task: Task }) {
             await scheduleToday({ id: task.id });
           });
         }}
-        className="krb shrink-0 border-2 border-ink px-3 py-1 text-[11.5px] tracking-[.08em] transition-colors hover:bg-ink hover:text-hot disabled:opacity-40"
+        className="krb shrink-0 border-2 border-ink px-3 py-1 text-[11.5px] tracking-[.08em] transition-colors hover:bg-ink hover:text-key-on-dark disabled:opacity-40"
       >
         {busy ? "…" : "오늘로"}
       </button>

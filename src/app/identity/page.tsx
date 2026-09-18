@@ -115,7 +115,7 @@ export default async function IdentityPage() {
           <section className="-mx-5 lg:-mx-10">
             {/* 사진을 못 불러오면(원본이 외부 호스트에 있다) 빈 칸이 아니라
                 색면으로 남는다. 지면이 무너지지 않는다. */}
-            <div className="relative h-[180px] w-full overflow-hidden bg-blush lg:h-[320px]">
+            <div className="relative h-[180px] w-full overflow-hidden bg-key-soft lg:h-[320px]">
               <span aria-hidden className="dots absolute inset-0 text-ink" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

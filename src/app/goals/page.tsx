@@ -60,11 +60,11 @@ export default async function GoalsPage() {
     <AppShell active="goals" title="목표" subtitle={`${all.length}개 · 진행 중`}>
       <div className="flex items-end justify-between gap-4 border-b-[4px] border-ink pb-2 pt-4 lg:pt-6">
         <span className="flex flex-col gap-2">
-          <span className="kicker text-hot-deep">Deadlines</span>
+          <span className="kicker text-key-ink">Deadlines</span>
           <span className="krd text-[34px] leading-none lg:text-[52px]">목표</span>
         </span>
         <span className="flex items-baseline gap-2">
-          <span className="num text-[38px] leading-none text-hot lg:text-[56px]">{all.length}</span>
+          <span className="num text-[38px] leading-none text-key-ink lg:text-[56px]">{all.length}</span>
           <span className="kicker-kr pb-1 text-muted">진행 중</span>
         </span>
       </div>
@@ -148,7 +148,7 @@ function GoalRow({
             <span
               className={
                 "num text-[30px] leading-[.85] lg:text-[44px] " +
-                (urgent || left < 0 ? "text-hot" : "text-ink")
+                (urgent || left < 0 ? "text-key-ink" : "text-ink")
               }
             >
               {Math.abs(left)}
@@ -184,7 +184,7 @@ function GoalRow({
               </span>
             </span>
             <span className="mt-1 block h-[6px] bg-line-soft">
-              <span className="block h-full bg-hot" style={{ width: `${pct}%` }} />
+              <span className="block h-full bg-key" style={{ width: `${pct}%` }} />
             </span>
           </span>
         ) : goal.metric_key ? (

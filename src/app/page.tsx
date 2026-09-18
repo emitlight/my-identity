@@ -244,7 +244,7 @@ export default async function TodayPage() {
           {inbox.length ? (
             <div className="mt-1">
               <div className="flex items-center gap-3 border-t-2 border-ink pb-1 pt-3">
-                <span className="kicker text-hot-deep">From inbox</span>
+                <span className="kicker text-key-ink">From inbox</span>
                 <span className="kicker-kr text-[10.5px] tracking-[.14em] text-muted">
                   오늘로 가져오기
                 </span>
@@ -269,7 +269,7 @@ export default async function TodayPage() {
           kr="습관"
           done={doneHabits}
           total={snap.habits.length || undefined}
-          tone="blush"
+          tone="soft"
         >
           {snap.habits.length ? (
             <div className="-mx-2">
@@ -320,7 +320,7 @@ export default async function TodayPage() {
       {cover ? (
         <section className="mt-10 lg:mt-14">
           <div className="flex items-center gap-4 border-t-[4px] border-ink pt-3">
-            <span className="kicker text-hot-deep">Cover story</span>
+            <span className="kicker text-key-ink">Cover story</span>
             <span className="kicker-kr tracking-[.2em]">오늘의 특집</span>
             <span aria-hidden className="h-[2px] flex-1 bg-ink" />
             <span className="kicker hidden text-faint sm:block">이번 호 첫 번째 기사</span>
@@ -350,7 +350,7 @@ export default async function TodayPage() {
               kickerLat={cover.deckLat}
               kickerKr={cover.deckKr}
               headline={cover.headline}
-              hot={cover.hot}
+              key={cover.key}
               standfirst={cover.standfirst}
               asideLat={cover.asideLat}
               asideTitle={cover.asideTitle}
@@ -408,7 +408,7 @@ export default async function TodayPage() {
           <SectionRule
             lat="Departments"
             right={
-              <Link href="/collections" className="krb text-[12.5px] hover:text-hot-deep">
+              <Link href="/collections" className="krb text-[12.5px] hover:text-key-ink">
                 전부 보기 →
               </Link>
             }
@@ -455,7 +455,7 @@ function pickCover(
   deckLat?: string;
   deckKr?: string;
   headline: string;
-  hot?: string;
+  key?: string;
   standfirst?: string;
   asideLat?: string;
   asideTitle?: string;
@@ -485,7 +485,7 @@ function pickCover(
       deckLat: alert.kind === "surface" ? "Cover story" : "Needs a look",
       deckKr: alert.kind === "surface" ? "오늘의 특집" : "확인이 필요합니다",
       headline: alert.title,
-      hot: located?.region && alert.title.includes(located.region) ? located.region : undefined,
+      key: located?.region && alert.title.includes(located.region) ? located.region : undefined,
       standfirst: alert.body,
       asideLat: located ? "On today" : undefined,
       asideTitle: located?.title,

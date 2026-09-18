@@ -63,7 +63,7 @@ export default async function CalendarPage() {
                     <div
                       className={
                         "num text-[36px] leading-[.85] lg:text-[62px] " +
-                        (isToday ? "text-hot" : "text-ink")
+                        (isToday ? "text-key-ink" : "text-ink")
                       }
                     >
                       {d.getUTCDate()}
@@ -72,7 +72,7 @@ export default async function CalendarPage() {
                       {monthDay(d).split(".")[0]}월 {weekday(d)}
                     </div>
                     {isToday ? (
-                      <div className="krb mt-1.5 inline-block bg-ink px-2 py-0.5 text-[10.5px] tracking-[.16em] text-hot">
+                      <div className="krb mt-1.5 inline-block bg-ink px-2 py-0.5 text-[10.5px] tracking-[.16em] text-key-on-dark">
                         오늘
                       </div>
                     ) : null}

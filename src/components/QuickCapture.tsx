@@ -67,7 +67,7 @@ export function QuickCapture() {
   return (
     <form onSubmit={submit} className="border-2 border-ink">
       <div className="flex items-center gap-2 border-b border-line px-3 py-2 sm:px-4">
-        <span className="kicker text-hot-deep">Capture</span>
+        <span className="kicker text-key-ink">Capture</span>
         <span className="kicker-kr text-[10px] tracking-[.18em] text-faint">한 줄이면 됩니다</span>
       </div>
 
@@ -86,7 +86,7 @@ export function QuickCapture() {
         <button
           type="submit"
           disabled={!text.trim() || pending}
-          className="krb shrink-0 border-l-2 border-ink bg-ink px-5 text-[13px] tracking-[.1em] text-hot transition-colors hover:bg-hot hover:text-[color:var(--on-accent)] disabled:bg-transparent disabled:text-faint sm:px-7"
+          className="krb shrink-0 border-l-2 border-ink bg-ink px-5 text-[13px] tracking-[.1em] text-key-on-dark transition-colors hover:bg-key hover:text-[color:var(--on-accent)] disabled:bg-transparent disabled:text-faint sm:px-7"
         >
           {pending ? "…" : "저장"}
         </button>
@@ -137,7 +137,7 @@ export function QuickCapture() {
           role="status"
           className={
             "krb px-3 pb-2.5 text-[12.5px] sm:px-4 " +
-            (flash.tone === "ok" ? "text-hot-deep" : "text-danger")
+            (flash.tone === "ok" ? "text-key-ink" : "text-danger")
           }
         >
           {flash.msg}

@@ -49,7 +49,7 @@ export function HabitRow({
       {shown > 0 ? (
         <span className="flex shrink-0 items-baseline gap-1.5">
           <span
-            className="num text-[clamp(22px,5.5vw,30px)] leading-[.8] text-hot-deep"
+            className="num text-[clamp(22px,5.5vw,30px)] leading-[.8] text-key-ink"
             style={{ fontVariationSettings: '"opsz" 16' }}
           >
             {shown}
@@ -57,7 +57,7 @@ export function HabitRow({
           <span className="kicker-kr text-[10px] tracking-[.06em] text-muted">일 연속</span>
         </span>
       ) : done ? (
-        <span className="kicker shrink-0 text-[8.5px] text-hot-deep">Day one</span>
+        <span className="kicker shrink-0 text-[8.5px] text-key-ink">Day one</span>
       ) : (
         // 0 을 숫자로 박지 않는다. 네 줄이 같은 말을 반복하면 소음이 되므로
         // 아직인 줄은 짧은 괘선 하나로만 둔다. 세는 일은 머리의 0/4 가 한다.

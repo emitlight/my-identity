@@ -58,7 +58,7 @@ export function ItemQuickAdd({
         <button
           type="submit"
           disabled={!title.trim() || pending}
-          className="shrink-0 rounded-md bg-accent px-3.5 py-1.5 text-[13px] font-medium text-on-accent disabled:opacity-35"
+          className="krb shrink-0 bg-ink px-3.5 py-1.5 text-[12.5px] tracking-[.06em] text-key-on-dark disabled:opacity-35"
         >
           {pending ? "…" : "추가"}
         </button>

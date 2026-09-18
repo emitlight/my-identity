@@ -67,7 +67,7 @@ export function VisitLogForm({ itemId, slug }: { itemId: string; slug: string })
       <button
         type="submit"
         disabled={pending}
-        className="mt-3 w-full rounded-md bg-accent py-2 text-[13.5px] font-medium text-on-accent disabled:opacity-40"
+        className="krb mt-3 w-full bg-ink py-2 text-[13px] tracking-[.06em] text-key-on-dark disabled:opacity-40"
       >
         {pending ? "기록 중…" : "다녀왔음으로 기록"}
       </button>

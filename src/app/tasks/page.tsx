@@ -63,11 +63,11 @@ function Group({
     <section>
       <div className="flex items-end justify-between gap-4 border-b-[3px] border-ink pb-1.5">
         <span className="flex flex-col gap-1.5">
-          <span className="kicker text-hot-deep">{latin}</span>
+          <span className="kicker text-key-ink">{latin}</span>
           <span className="krb text-[19px] leading-none lg:text-[24px]">{title}</span>
         </span>
         {tasks.length ? (
-          <span className="num text-[26px] leading-none text-hot lg:text-[34px]">
+          <span className="num text-[26px] leading-none text-key-ink lg:text-[34px]">
             {tasks.length}
           </span>
         ) : null}

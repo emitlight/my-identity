@@ -33,11 +33,11 @@ export default async function CollectionsPage() {
       {/* 목차 머리 */}
       <div className="flex items-end justify-between gap-4 border-b-[4px] border-ink pb-2 pt-4 lg:pt-6">
         <span className="flex flex-col gap-2">
-          <span className="kicker text-hot-deep">The Collections</span>
+          <span className="kicker text-key-ink">The Collections</span>
           <span className="krd text-[34px] leading-none lg:text-[52px]">컬렉션</span>
         </span>
         <span className="flex items-baseline gap-2">
-          <span className="num text-[38px] leading-none text-hot lg:text-[56px]">{total}</span>
+          <span className="num text-[38px] leading-none text-key-ink lg:text-[56px]">{total}</span>
           <span className="kicker-kr pb-1 text-muted">모아둠</span>
         </span>
       </div>
@@ -53,9 +53,9 @@ export default async function CollectionsPage() {
               <li key={c.id}>
                 <Link
                   href={`/collections/${c.slug}`}
-                  className="group flex items-center gap-4 border-b-2 border-ink/80 py-4 transition-colors hover:bg-blush lg:gap-8 lg:py-6"
+                  className="group flex items-center gap-4 border-b-2 border-ink/80 py-4 transition-colors hover:bg-key-soft lg:gap-8 lg:py-6"
                 >
-                  <span className="num w-9 shrink-0 text-[20px] leading-none text-hot-deep lg:w-14 lg:text-[28px]">
+                  <span className="num w-9 shrink-0 text-[20px] leading-none text-key-ink lg:w-14 lg:text-[28px]">
                     {String(i + 1).padStart(2, "0")}
                   </span>
 

@@ -7,10 +7,20 @@
 /* ============================================================
    디자인 토큰 — NEWSSTAND
 
-   가판대 잡지의 삼색. 크림 종이 · 잉크 블랙 · 형광 핑크.
-   핑크는 장식이 아니라 기능이다. 지금 손대야 하는 것에만 칠한다 —
-   남은 날짜, 안 가본 곳의 수, 끊긴 연속 기록. 전부 핑크로 칠하면
-   아무것도 핑크가 아니게 된다.
+   가판대 잡지의 삼색. 크림 종이 · 잉크 블랙 · 팬톤 옐로/스카이.
+
+     --key       PANTONE 13-0647 Illuminating   #F5DF4D
+     --key-ink   PANTONE 18-4141 Directoire Blue #0061A0
+     --key-soft  PANTONE 15-4020 Cerulean 의 옅은 톤  #D6E4F0
+
+   노랑과 파랑이 한 벌로 일을 나눈다. 노랑은 **색면**이다 — 띠, 색판,
+   잉크 위의 글자. 파랑은 **글자**다 — 종이 위의 숫자·러버릭·강조.
+   노랑을 종이 위 글자로 쓰면 1.3:1 이라 안 읽히고, 파랑을 큰 색면으로
+   깔면 노랑이 죽는다. 그래서 자리가 정해져 있다.
+
+   키 컬러는 장식이 아니라 기능이다. 지금 손대야 하는 것에만 칠한다 —
+   남은 날짜, 안 가본 곳의 수, 끊긴 연속 기록. 전부 칠하면 아무것도
+   칠하지 않은 것과 같다.
 
    사진이 없는 지면이므로 색면과 활자가 사진의 일을 대신한다.
    그래서 중간 톤이 거의 없다: 종이 아니면 잉크, 그 사이는 rule 한 줄.
@@ -21,23 +31,31 @@
   --surface-2:   #F7EFE4;
   --ink:         #141010;
   --muted:       #4A3B36;
-  --faint:       #8A7268;
+  --faint:       #77675E;
   --line:        #E6D9CB;
   --line-soft:   #F0E6DA;
 
-  /* 형광 핑크 — 구조가 아니라 신호다 */
-  --hot:         #FF1B6B;
-  --hot-deep:    #C70048;
-  --blush:       #FFD2E2;
+  /* 키 컬러 — 색면은 노랑, 글자는 파랑 */
+  --key:         #F5DF4D;   /* 색면 · 잉크 위 글자 */
+  --key-ink:     #0061A0;   /* 종이 위 글자 · 숫자 */
+  --key-soft:    #D6E4F0;   /* 옅은 색면 */
 
-  --accent:      #FF1B6B;
-  --accent-soft: #FFD2E2;
-  --on-accent:   #141010;
+  /* accent 는 대부분 '종이 위 글자'로 쓰인다. 노랑을 넣으면 1.3:1 이라
+     안 읽히므로 읽히는 쪽(파랑)을 가리킨다. 노랑이 필요한 자리는
+     --key 를 직접 쓴다. */
+  --accent:      #0061A0;
+  --accent-soft: #D6E4F0;
+  --on-accent:   #141010;   /* 노랑 색면 위 글자는 늘 잉크 */
 
-  --signal:      #C70048;
-  --signal-soft: #FFD2E2;
+  /* 잉크 색면 위에 얹는 키 컬러. ink 가 다크에서 흰색으로 뒤집히므로
+     이 값도 같이 뒤집혀야 한다 — 흰 바탕의 노랑은 1.2:1 이다. */
+  --key-on-dark: #F5DF4D;
 
-  --danger:      #C70048;
+  /* 경고는 키와 달라야 뜻이 생긴다. 노랑 옆에서 읽히는 벽돌빛 붉은색. */
+  --signal:      #C4362B;
+  --signal-soft: #FAE4E1;
+
+  --danger:      #C4362B;
   --ok:          #1F7A4C;
 
   /* 잉크 색면 위의 글자.
@@ -55,37 +73,41 @@
   --role-4: #C2703F;
 }
 
-/* 밤의 가판대 — 같은 삼색을 와인빛 바탕으로 뒤집는다.
-   크림 바탕을 그대로 어둡게만 하면 핑크가 탁해진다. */
+/* 밤의 가판대 — 크림을 감청으로 뒤집는다.
+   바탕을 그냥 어둡게만 하면 노랑이 탁해진다. 파랑 계열 바탕이라야
+   노랑이 형광처럼 선다. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper:       #140E11;
-    --surface:     #140E11;
-    --surface-2:   #1F151A;
-    --ink:         #FFF4EC;
-    --muted:       #C4A99E;
-    --faint:       #8E7268;
-    --line:        #3A2830;
-    --line-soft:   #2A1C22;
+    --paper:       #0F141A;
+    --surface:     #0F141A;
+    --surface-2:   #18202A;
+    --ink:         #F2F5F8;
+    --muted:       #A8B6C4;
+    --faint:       #7C8C9C;
+    --line:        #253140;
+    --line-soft:   #1B2530;
 
-    --hot:         #FF3D80;
-    --hot-deep:    #FF6E9E;
-    --blush:       #3A1526;
+    /* 노랑은 그대로 둔다 — 감청 바탕에서 가장 잘 선다.
+       종이 위 글자였던 짙은 파랑은 여기서 옅은 하늘로 뒤집힌다. */
+    --key:         #F5DF4D;
+    --key-ink:     #7FC1E8;
+    --key-soft:    #1B2C3C;
 
-    --accent:      #FF3D80;
-    --accent-soft: #3A1526;
-    --on-accent:   #140E11;
+    --accent:      #7FC1E8;
+    --accent-soft: #1B2C3C;
+    --on-accent:   #141010;
+    --key-on-dark: #0B4A78;
 
-    --signal:      #FF6E9E;
-    --signal-soft: #3A1526;
+    --signal:      #FF8A7A;
+    --signal-soft: #2E1A18;
 
-    --danger:      #FF8080;
+    --danger:      #FF8A7A;
     --ok:          #5FC08D;
 
-    /* ink 가 크림색이 되었으므로 그 위의 글자는 어두워야 한다 */
-    --on-dark:      #140E11;
-    --on-dark-dim:  rgba(20,14,17,.62);
-    --on-dark-line: rgba(20,14,17,.22);
+    /* ink 가 흰색이 되었으므로 그 위의 글자는 어두워야 한다 */
+    --on-dark:      #0F141A;
+    --on-dark-dim:  rgba(15,20,26,.62);
+    --on-dark-line: rgba(15,20,26,.22);
 
     --role-1: #6FA8D6;
     --role-2: #A995EE;
@@ -95,33 +117,36 @@
 }
 
 :root[data-theme="dark"] {
-  --paper:       #140E11;
-  --surface:     #140E11;
-  --surface-2:   #1F151A;
-  --ink:         #FFF4EC;
-  --muted:       #C4A99E;
-  --faint:       #8E7268;
-  --line:        #3A2830;
-  --line-soft:   #2A1C22;
+  --paper:       #0F141A;
+  --surface:     #0F141A;
+  --surface-2:   #18202A;
+  --ink:         #F2F5F8;
+  --muted:       #A8B6C4;
+  --faint:       #7C8C9C;
+  --line:        #253140;
+  --line-soft:   #1B2530;
 
-  --hot:         #FF3D80;
-  --hot-deep:    #FF6E9E;
-  --blush:       #3A1526;
+  /* 노랑은 그대로 둔다 — 감청 바탕에서 가장 잘 선다.
+     종이 위 글자였던 짙은 파랑은 여기서 옅은 하늘로 뒤집힌다. */
+  --key:         #F5DF4D;
+  --key-ink:     #7FC1E8;
+  --key-soft:    #1B2C3C;
 
-  --accent:      #FF3D80;
-  --accent-soft: #3A1526;
-  --on-accent:   #140E11;
+  --accent:      #7FC1E8;
+  --accent-soft: #1B2C3C;
+  --on-accent:   #141010;
+  --key-on-dark: #0B4A78;
 
-  --signal:      #FF6E9E;
-  --signal-soft: #3A1526;
+  --signal:      #FF8A7A;
+  --signal-soft: #2E1A18;
 
-  --danger:      #FF8080;
+  --danger:      #FF8A7A;
   --ok:          #5FC08D;
 
-  /* ink 가 크림색이 되었으므로 그 위의 글자는 어두워야 한다 */
-  --on-dark:      #140E11;
-  --on-dark-dim:  rgba(20,14,17,.62);
-  --on-dark-line: rgba(20,14,17,.22);
+  /* ink 가 흰색이 되었으므로 그 위의 글자는 어두워야 한다 */
+  --on-dark:      #0F141A;
+  --on-dark-dim:  rgba(15,20,26,.62);
+  --on-dark-line: rgba(15,20,26,.22);
 
   --role-1: #6FA8D6;
   --role-2: #A995EE;
@@ -140,9 +165,10 @@
   --color-faint:       var(--faint);
   --color-line:        var(--line);
   --color-line-soft:   var(--line-soft);
-  --color-hot:         var(--hot);
-  --color-hot-deep:    var(--hot-deep);
-  --color-blush:       var(--blush);
+  --color-key:         var(--key);
+  --color-key-on-dark: var(--key-on-dark);
+  --color-key-ink:    var(--key-ink);
+  --color-key-soft:       var(--key-soft);
   --color-accent:      var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-on-accent:   var(--on-accent);
@@ -189,7 +215,8 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--hot);
+  /* 노랑 링은 크림 종이 위에서 안 보인다. 포커스는 늘 파랑 쪽. */
+  outline: 2px solid var(--key-ink);
   outline-offset: 2px;
   border-radius: 1px;
 }

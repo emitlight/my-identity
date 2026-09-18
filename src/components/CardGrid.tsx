@@ -207,7 +207,7 @@ export function CardGrid({
           onClick={() => setEditing((v) => !v)}
           className={
             "krb hidden px-3 py-1.5 text-[11px] tracking-[.14em] transition-colors lg:block " +
-            (editing ? "bg-ink text-paper" : "border-2 border-ink hover:bg-blush")
+            (editing ? "bg-ink text-paper" : "border-2 border-ink hover:bg-key-soft")
           }
           aria-pressed={editing}
         >
@@ -217,7 +217,7 @@ export function CardGrid({
           <button
             type="button"
             onClick={() => apply(reflow(slots))}
-            className="krb hidden border-2 border-ink px-3 py-1.5 text-[11px] tracking-[.14em] hover:bg-blush lg:block"
+            className="krb hidden border-2 border-ink px-3 py-1.5 text-[11px] tracking-[.14em] hover:bg-key-soft lg:block"
           >
             자동 정렬
           </button>
@@ -298,7 +298,7 @@ export function CardGrid({
                       aria-label={`카드 크기 ${s.w}×${s.h} · 눌러서 바꾸기`}
                       // 아래가 아니라 색면 오른쪽 위. 아래에 두면 캡션 글자를
                       // 덮는다. 번호판은 왼쪽 위라 겹치지 않는다.
-                      className="krb absolute right-2 top-2 z-[6] bg-ink px-2 py-1 text-[10px] tracking-[.12em] text-hot"
+                      className="krb absolute right-2 top-2 z-[6] bg-ink px-2 py-1 text-[10px] tracking-[.12em] text-key-on-dark"
                     >
                       {s.w}×{s.h}
                     </button>

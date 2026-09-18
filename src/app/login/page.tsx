@@ -25,7 +25,7 @@ export default async function LoginPage({
   return (
     <main className="flex min-h-dvh flex-col bg-paper">
       {/* 리본 — 잡지 표지의 발행 정보 자리 */}
-      <div className="flex h-10 items-center justify-between bg-hot px-5 text-[color:var(--on-accent)] lg:h-[46px] lg:px-10">
+      <div className="flex h-10 items-center justify-between bg-key px-5 text-[color:var(--on-accent)] lg:h-[46px] lg:px-10">
         <span className="kicker">A Daily Magazine of One Life</span>
         <span className="kicker hidden sm:inline">Members Only</span>
       </div>
@@ -38,7 +38,7 @@ export default async function LoginPage({
 
           <div className="mt-6 grid gap-8 border-t-[4px] border-ink pt-6 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16 lg:pt-8">
             <div>
-              <p className="kicker text-hot-deep">Issue No. 1</p>
+              <p className="kicker text-key-ink">Issue No. 1</p>
               <p className="krd mt-3 text-[30px] leading-[1.1] lg:text-[46px]">
                 일상 · 비즈니스 · 취미를
                 <br />
@@ -54,7 +54,7 @@ export default async function LoginPage({
               {error ? (
                 <p
                   role="alert"
-                  className="mb-4 border-2 border-hot bg-blush px-4 py-3 text-[13.5px] leading-relaxed text-hot-deep"
+                  className="mb-4 border-2 border-key bg-key-soft px-4 py-3 text-[13.5px] leading-relaxed text-key-ink"
                 >
                   {MESSAGES[error] ?? "로그인에 실패했습니다. 다시 시도해 주세요."}
                 </p>

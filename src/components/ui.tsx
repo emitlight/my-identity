@@ -18,11 +18,11 @@ export function SectionLabel({
   return (
     <div className="flex items-end justify-between gap-4 border-b-[3px] border-ink pb-1.5">
       <span className="flex flex-col gap-1.5">
-        {latin ? <span className="kicker text-hot-deep">{latin}</span> : null}
+        {latin ? <span className="kicker text-key-ink">{latin}</span> : null}
         <span className="krb text-[19px] leading-none lg:text-[24px]">{children}</span>
       </span>
       {right ? (
-        <span className="num text-[22px] leading-none text-hot lg:text-[28px]">{right}</span>
+        <span className="num text-[22px] leading-none text-key-ink lg:text-[28px]">{right}</span>
       ) : null}
     </div>
   );
@@ -42,7 +42,7 @@ export function Card({
     <div
       className={clsx(
         tone === "signal"
-          ? "border-[2px] border-hot bg-blush"
+          ? "border-[2px] border-key bg-key-soft"
           : tone === "ink"
             ? "border-[2px] border-ink bg-ink text-[color:var(--on-dark)]"
             : "border border-line bg-surface",
@@ -87,8 +87,8 @@ export function Button({
         "krb px-5 py-2.5 text-[13px] tracking-[.06em] transition-colors",
         "disabled:cursor-not-allowed disabled:opacity-45",
         variant === "primary"
-          ? "bg-ink text-hot hover:bg-hot hover:text-ink"
-          : "border-2 border-ink bg-transparent text-ink hover:bg-blush",
+          ? "bg-ink text-key-on-dark hover:bg-key hover:text-ink"
+          : "border-2 border-ink bg-transparent text-ink hover:bg-key-soft",
         className,
       )}
     >
@@ -98,7 +98,7 @@ export function Button({
 }
 
 /** 파싱 결과 칩 — 저장 전에 무엇으로 해석됐는지 보여주고 고치게 한다.
-    핑크 바탕 위의 글자는 hot 이 아니라 hot-deep 이어야 읽힌다. */
+    핑크 바탕 위의 글자는 key 이 아니라 key-ink 이어야 읽힌다. */
 export function Chip({
   children,
   tone = "accent",
@@ -110,8 +110,8 @@ export function Chip({
     <span
       className={clsx(
         "krb inline-flex items-center whitespace-nowrap px-2 py-[3px] text-[11.5px] tnum",
-        tone === "accent" && "bg-blush text-hot-deep",
-        tone === "signal" && "bg-ink text-hot",
+        tone === "accent" && "bg-key-soft text-key-ink",
+        tone === "signal" && "bg-ink text-key-on-dark",
         tone === "quiet" && "bg-line-soft text-muted",
       )}
     >
