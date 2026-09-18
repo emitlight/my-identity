@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { QuickCapture } from "@/components/QuickCapture";
+import { CardGrid, type Slot } from "@/components/CardGrid";
 import { InboxPullRow, TaskRow } from "@/components/TaskRow";
 import { HabitRow } from "@/components/HabitRow";
 import {
@@ -116,6 +117,14 @@ export default async function TodayPage() {
   }
 
   const snap = data as Snapshot;
+
+  // 저장해둔 카드 배치. 없으면 기본 격자로 깔린다.
+  const { data: layout } = await supabase
+    .from("layouts")
+    .select("items")
+    .eq("surface", "today")
+    .maybeSingle();
+  const slots = (layout?.items ?? []) as Slot[];
 
   // 인박스에서 오늘로 끌어올 후보 — 개수만 보여주면 꺼낼 방법이 없다.
   const { data: inboxRows } = snap.inbox_count
@@ -368,23 +377,28 @@ export default async function TodayPage() {
             이번 호
           </SectionRule>
 
-          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:mt-7 lg:grid-cols-3 lg:gap-7">
-            {plates.map(({ h, tone }, i) => (
-              <HighlightPlate
-                key={h.id}
-                n={i + 1}
-                rubric={h.collection_name}
-                title={h.title}
-                note={h.summary ?? h.subtitle}
-                meta={statusLabel(h.status)}
-                region={h.region}
-                href={`/collections/${h.collection_slug}/${h.id}`}
-                kind={kindFor(h.collection_slug, h.collection_kind)}
-                tone={tone}
-                image={h.cover_url}
-              />
-            ))}
-          </div>
+          <CardGrid
+            surface="today"
+            initial={slots}
+            cards={plates.map(({ h, tone }, i) => ({
+              id: h.id,
+              node: (
+                <HighlightPlate
+                  n={i + 1}
+                  rubric={h.collection_name}
+                  title={h.title}
+                  note={h.summary ?? h.subtitle}
+                  meta={statusLabel(h.status)}
+                  region={h.region}
+                  href={`/collections/${h.collection_slug}/${h.id}`}
+                  kind={kindFor(h.collection_slug, h.collection_kind)}
+                  tone={tone}
+                  image={h.cover_url}
+                  fill
+                />
+              ),
+            }))}
+          />
         </section>
       ) : null}
 

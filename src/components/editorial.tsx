@@ -1030,6 +1030,8 @@ export function HighlightPlate({
   kind,
   tone,
   image,
+  /** 격자 안에서는 칸 높이를 채운다 (비율 대신) */
+  fill,
 }: {
   n: number;
   rubric: string;
@@ -1041,10 +1043,18 @@ export function HighlightPlate({
   kind: PlateKind;
   tone: Tone;
   image?: string | null;
+  fill?: boolean;
 }) {
   return (
-    <Link href={href} className="tile group flex min-w-0 flex-col">
-      <Plate tone={tone} dots={!image} className="aspect-[16/10] w-full">
+    <Link
+      href={href}
+      className={"tile group flex min-w-0 flex-col " + (fill ? "h-full" : "")}
+    >
+      <Plate
+        tone={tone}
+        dots={!image}
+        className={fill ? "min-h-0 w-full flex-1" : "aspect-[16/10] w-full"}
+      >
         <PlateNum n={String(n).padStart(2, "0")} tone={tone === "paper" ? "ink" : "paper"} />
 
         {image ? (
