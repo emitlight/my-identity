@@ -1,0 +1,11 @@
+# 빌드에 필요 없는 것들 — 올리지 않는다.
+# 맨 앞의 / 가 중요하다. 없으면 어느 깊이의 같은 이름 폴더에나 걸려서
+# src/lib/supabase/ 까지 같이 빠진다 (실제로 그래서 빌드가 깨졌다).
+/.next
+/node_modules
+/design
+/docs
+/scripts
+/supabase
+/.github
+/README.md
