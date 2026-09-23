@@ -3,6 +3,35 @@
 한 번만 하면 됩니다. 순서대로 따라오시면 30~40분 정도 걸립니다.
 막히면 어느 단계에서 막혔는지 알려주세요.
 
+
+## 0. 한 번에 하기 (토큰 두 개)
+
+브라우저로 하나씩 누르는 대신, 토큰 두 개만 있으면 1~4절이 한 번에 끝납니다.
+
+```bash
+SUPABASE_TOKEN=sbp_...  VERCEL_TOKEN=...  bash scripts/deploy.sh
+```
+
+| 토큰 | 발급 |
+|---|---|
+| `SUPABASE_TOKEN` | https://supabase.com/dashboard/account/tokens |
+| `VERCEL_TOKEN` | https://vercel.com/account/tokens |
+
+**비밀번호가 아니라 토큰입니다.** 언제든 같은 화면에서 회수할 수 있고,
+회수하면 그 즉시 무효가 됩니다.
+
+스크립트가 하는 일: Supabase 프로젝트 생성(서울) → 기동 대기 →
+`bundle.sql` 적용 → API 키 수집 → Vercel 환경변수 주입 → 프로덕션 배포.
+여러 번 돌려도 안전합니다.
+
+> 실행하는 곳에서 `api.supabase.com` 과 `api.vercel.com` 에 나갈 수 있어야
+> 합니다. 막혀 있으면 아래 1절부터 손으로 하시면 됩니다.
+
+끝나면 브라우저에서 두 가지만 남습니다 — 구글 로그인 설정(2절)과,
+로그인 한 번 한 뒤 `bundle.sql` 재실행(노션 데이터가 그때 붙습니다).
+
+---
+
 ---
 
 ## 1. Supabase 프로젝트 만들기 (10분)
