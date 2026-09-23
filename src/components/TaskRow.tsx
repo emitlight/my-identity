@@ -5,9 +5,11 @@ import { scheduleToday, toggleTask } from "@/lib/actions/tasks";
 import { RoleDot } from "@/components/ui";
 import type { Task } from "@/lib/types";
 
-/** 체크 표시는 배경 이미지로 그린다 — 상자 하나로 끝나서 어긋날 데가 없다 */
+/** 체크 표시는 배경 이미지로 그린다 — 상자 하나로 끝나서 어긋날 데가 없다.
+    획 색은 하드코딩이다. data: URI 안에서는 currentColor 가 상속되지 않는다.
+    상자 바탕이 늘 --key(노랑, 두 모드 다 밝음)라 어두운 획이면 맞는다. */
 export const CHECK =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 11'%3E%3Cpath d='M1 5.4L5.2 9.6 14 1' fill='none' stroke='%23141010' stroke-width='2.6'/%3E%3C/svg%3E\")";
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 11'%3E%3Cpath d='M1 5.4L5.2 9.6 14 1' fill='none' stroke='%232C2A26' stroke-width='2.6'/%3E%3C/svg%3E\")";
 
 export function boxStyle(done: boolean): React.CSSProperties | undefined {
   return done

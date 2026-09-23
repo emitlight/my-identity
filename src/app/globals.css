@@ -9,9 +9,9 @@
 
    가판대 잡지의 삼색. 크림 종이 · 잉크 블랙 · 팬톤 옐로/스카이.
 
-     --key       PANTONE 13-0647 Illuminating   #F5DF4D
-     --key-ink   PANTONE 18-4141 Directoire Blue #0061A0
-     --key-soft  PANTONE 15-4020 Cerulean 의 옅은 톤  #D6E4F0
+     --key       PANTONE 13-0647 Illuminating 의 파스텔 톤   #F6E08A
+     --key-ink   PANTONE 17-4123 Niagara 계열 (읽히는 파랑)   #2A6488
+     --key-soft  PANTONE 15-4020 Cerulean 의 옅은 톤          #CFE3F2
 
    노랑과 파랑이 한 벌로 일을 나눈다. 노랑은 **색면**이다 — 띠, 색판,
    잉크 위의 글자. 파랑은 **글자**다 — 종이 위의 숫자·러버릭·강조.
@@ -26,51 +26,53 @@
    그래서 중간 톤이 거의 없다: 종이 아니면 잉크, 그 사이는 rule 한 줄.
    ============================================================ */
 :root {
-  --paper:       #FFFCF7;
-  --surface:     #FFFCF7;
-  --surface-2:   #F7EFE4;
-  --ink:         #141010;
-  --muted:       #4A3B36;
-  --faint:       #77675E;
-  --line:        #E6D9CB;
-  --line-soft:   #F0E6DA;
+  --paper:       #FDFBF5;
+  --surface:     #FDFBF5;
+  --surface-2:   #F6F1E7;
+  /* 순흑 대신 따뜻한 차콜. 파스텔 옆에서 순흑은 혼자 소리를 지른다.
+     13.8:1 이라 읽기에는 전혀 모자라지 않다. */
+  --ink:         #2C2A26;
+  --muted:       #5C544C;
+  --faint:       #776D63;
+  --line:        #E7DFD2;
+  --line-soft:   #F2ECE2;
 
-  /* 키 컬러 — 색면은 노랑, 글자는 파랑 */
-  --key:         #F5DF4D;   /* 색면 · 잉크 위 글자 */
-  --key-ink:     #0061A0;   /* 종이 위 글자 · 숫자 */
-  --key-soft:    #D6E4F0;   /* 옅은 색면 */
+  /* 키 컬러 — 색면은 노랑, 글자는 파랑 (파스텔) */
+  --key:         #F6E08A;   /* 색면 · 잉크 위 글자 */
+  --key-ink:     #2A6488;   /* 종이 위 글자 · 숫자 */
+  --key-soft:    #CFE3F2;   /* 옅은 색면 */
 
   /* accent 는 대부분 '종이 위 글자'로 쓰인다. 노랑을 넣으면 1.3:1 이라
      안 읽히므로 읽히는 쪽(파랑)을 가리킨다. 노랑이 필요한 자리는
      --key 를 직접 쓴다. */
-  --accent:      #0061A0;
-  --accent-soft: #D6E4F0;
-  --on-accent:   #141010;   /* 노랑 색면 위 글자는 늘 잉크 */
+  --accent:      #2A6488;
+  --accent-soft: #CFE3F2;
+  --on-accent:   #2C2A26;   /* 노랑 색면 위 글자는 늘 잉크 */
 
   /* 잉크 색면 위에 얹는 키 컬러. ink 가 다크에서 흰색으로 뒤집히므로
      이 값도 같이 뒤집혀야 한다 — 흰 바탕의 노랑은 1.2:1 이다. */
-  --key-on-dark: #F5DF4D;
+  --key-on-dark: #F6E08A;
 
-  /* 경고는 키와 달라야 뜻이 생긴다. 노랑 옆에서 읽히는 벽돌빛 붉은색. */
-  --signal:      #C4362B;
-  --signal-soft: #FAE4E1;
+  /* 경고는 키와 달라야 뜻이 생긴다. 파스텔 옆에서 튀지 않는 흙빛 붉은색. */
+  --signal:      #A8503F;
+  --signal-soft: #F7E3DD;
 
-  --danger:      #C4362B;
-  --ok:          #1F7A4C;
+  --danger:      #A8503F;
+  --ok:          #4E8A6B;
 
   /* 잉크 색면 위의 글자.
      사진 위가 아니라 --ink 로 칠한 면 위에 얹는 색이므로, 다크 모드에서
      ink 가 크림색으로 뒤집히면 이 값도 같이 뒤집혀야 한다. 고정해두면
      크림 바탕에 크림 글자가 되어 통째로 사라진다. */
-  --on-dark:      #FFFCF7;
-  --on-dark-dim:  rgba(255,252,247,.58);
-  --on-dark-line: rgba(255,252,247,.26);
+  --on-dark:      #FDFBF5;
+  --on-dark-dim:  rgba(253,251,245,.60);
+  --on-dark-line: rgba(253,251,245,.26);
 
   /* 역할 기본색. 사용자가 바꾸면 roles.color 가 이를 덮는다. */
-  --role-1: #2B6CA3;
-  --role-2: #6B4FC4;
-  --role-3: #1F7A4C;
-  --role-4: #C2703F;
+  --role-1: #3F7FA8;
+  --role-2: #7E6CC0;
+  --role-3: #4E8A6B;
+  --role-4: #BE8258;
 }
 
 /* 밤의 가판대 — 크림을 감청으로 뒤집는다.
@@ -78,80 +80,80 @@
    노랑이 형광처럼 선다. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper:       #0F141A;
-    --surface:     #0F141A;
-    --surface-2:   #18202A;
-    --ink:         #F2F5F8;
-    --muted:       #A8B6C4;
-    --faint:       #7C8C9C;
-    --line:        #253140;
-    --line-soft:   #1B2530;
+    --paper:       #171C24;
+    --surface:     #171C24;
+    --surface-2:   #1F2632;
+    --ink:         #EDF1F5;
+    --muted:       #AEBAC6;
+    --faint:       #8494A2;
+    --line:        #2C3642;
+    --line-soft:   #222A34;
 
     /* 노랑은 그대로 둔다 — 감청 바탕에서 가장 잘 선다.
        종이 위 글자였던 짙은 파랑은 여기서 옅은 하늘로 뒤집힌다. */
-    --key:         #F5DF4D;
-    --key-ink:     #7FC1E8;
-    --key-soft:    #1B2C3C;
+    --key:         #F6E08A;
+    --key-ink:     #9ECDE8;
+    --key-soft:    #22303E;
 
-    --accent:      #7FC1E8;
-    --accent-soft: #1B2C3C;
-    --on-accent:   #141010;
-    --key-on-dark: #0B4A78;
+    --accent:      #9ECDE8;
+    --accent-soft: #22303E;
+    --on-accent:   #2C2A26;
+    --key-on-dark: #1E5B85;
 
-    --signal:      #FF8A7A;
-    --signal-soft: #2E1A18;
+    --signal:      #EE9384;
+    --signal-soft: #32211E;
 
-    --danger:      #FF8A7A;
-    --ok:          #5FC08D;
+    --danger:      #EE9384;
+    --ok:          #7FC5A2;
 
     /* ink 가 흰색이 되었으므로 그 위의 글자는 어두워야 한다 */
-    --on-dark:      #0F141A;
-    --on-dark-dim:  rgba(15,20,26,.62);
-    --on-dark-line: rgba(15,20,26,.22);
+    --on-dark:      #171C24;
+    --on-dark-dim:  rgba(23,28,36,.64);
+    --on-dark-line: rgba(23,28,36,.22);
 
-    --role-1: #6FA8D6;
-    --role-2: #A995EE;
-    --role-3: #5FC08D;
-    --role-4: #DE9463;
+    --role-1: #8FBEDF;
+    --role-2: #B7A8EE;
+    --role-3: #7FC5A2;
+    --role-4: #DFAE85;
   }
 }
 
 :root[data-theme="dark"] {
-  --paper:       #0F141A;
-  --surface:     #0F141A;
-  --surface-2:   #18202A;
-  --ink:         #F2F5F8;
-  --muted:       #A8B6C4;
-  --faint:       #7C8C9C;
-  --line:        #253140;
-  --line-soft:   #1B2530;
+  --paper:       #171C24;
+  --surface:     #171C24;
+  --surface-2:   #1F2632;
+  --ink:         #EDF1F5;
+  --muted:       #AEBAC6;
+  --faint:       #8494A2;
+  --line:        #2C3642;
+  --line-soft:   #222A34;
 
   /* 노랑은 그대로 둔다 — 감청 바탕에서 가장 잘 선다.
      종이 위 글자였던 짙은 파랑은 여기서 옅은 하늘로 뒤집힌다. */
-  --key:         #F5DF4D;
-  --key-ink:     #7FC1E8;
-  --key-soft:    #1B2C3C;
+  --key:         #F6E08A;
+  --key-ink:     #9ECDE8;
+  --key-soft:    #22303E;
 
-  --accent:      #7FC1E8;
-  --accent-soft: #1B2C3C;
-  --on-accent:   #141010;
-  --key-on-dark: #0B4A78;
+  --accent:      #9ECDE8;
+  --accent-soft: #22303E;
+  --on-accent:   #2C2A26;
+  --key-on-dark: #1E5B85;
 
-  --signal:      #FF8A7A;
-  --signal-soft: #2E1A18;
+  --signal:      #EE9384;
+  --signal-soft: #32211E;
 
-  --danger:      #FF8A7A;
-  --ok:          #5FC08D;
+  --danger:      #EE9384;
+  --ok:          #7FC5A2;
 
   /* ink 가 흰색이 되었으므로 그 위의 글자는 어두워야 한다 */
-  --on-dark:      #0F141A;
-  --on-dark-dim:  rgba(15,20,26,.62);
-  --on-dark-line: rgba(15,20,26,.22);
+  --on-dark:      #171C24;
+  --on-dark-dim:  rgba(23,28,36,.64);
+  --on-dark-line: rgba(23,28,36,.22);
 
-  --role-1: #6FA8D6;
-  --role-2: #A995EE;
-  --role-3: #5FC08D;
-  --role-4: #DE9463;
+  --role-1: #8FBEDF;
+  --role-2: #B7A8EE;
+  --role-3: #7FC5A2;
+  --role-4: #DFAE85;
 }
 
 /* @theme inline 이어야 토큰이 값으로 복사되지 않고 var() 참조로 남아
