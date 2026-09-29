@@ -6,6 +6,7 @@ const NAV = [
   { href: "/tasks", label: "할 일", key: "tasks" },
   { href: "/goals", label: "목표", key: "goals" },
   { href: "/collections", label: "컬렉션", key: "collections" },
+  { href: "/posts", label: "글", key: "posts" },
 ];
 
 const SECONDARY = [

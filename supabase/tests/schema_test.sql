@@ -321,3 +321,39 @@ begin
     case when (card->>'body') like '%5군데%' then 'PASS'
          else 'FAIL: ' || coalesce(card->>'body', 'null') end);
 end $$;
+
+\echo ''
+\echo '=== 글 ==='
+do $$
+declare me uuid := '11111111-1111-1111-1111-111111111111'; pid uuid; pub timestamptz;
+begin
+  insert into public.posts (user_id, title, body)
+  values (me, '대전에서 이틀', '성심당 앞에서 줄을 섰다.') returning id into pid;
+
+  raise notice '%', format('%-28s %s', '초안은 발행시각 없음',
+    case when (select published_at from public.posts where id = pid) is null
+         then 'PASS' else 'FAIL' end);
+
+  update public.posts set status = 'published' where id = pid;
+  select published_at into pub from public.posts where id = pid;
+  raise notice '%', format('%-28s %s', '발행하면 시각이 찍힌다',
+    case when pub is not null then 'PASS' else 'FAIL' end);
+
+  -- 다시 손대도 처음 발행 시각이 유지돼야 목록 정렬이 안 흔들린다
+  update public.posts set body = body || ' 40분.' where id = pid;
+  raise notice '%', format('%-28s %s', '수정해도 발행시각 유지',
+    case when (select published_at from public.posts where id = pid) = pub
+         then 'PASS' else 'FAIL' end);
+
+  update public.posts set status = 'draft' where id = pid;
+  raise notice '%', format('%-28s %s', '초안으로 되돌리면 지워짐',
+    case when (select published_at from public.posts where id = pid) is null
+         then 'PASS' else 'FAIL' end);
+
+  begin
+    insert into public.posts (user_id, title) values (me, '   ');
+    raise notice '%', format('%-28s %s', '빈 제목 차단', 'FAIL');
+  exception when check_violation then
+    raise notice '%', format('%-28s %s', '빈 제목 차단', 'PASS');
+  end;
+end $$;
