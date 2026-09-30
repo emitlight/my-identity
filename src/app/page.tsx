@@ -184,7 +184,11 @@ export default async function TodayPage() {
   /* ── 이번 호 ─────────────────────────────────────────── */
   // 컬렉션은 장치(지명판·책등·트랙·꼬리표)로 구별된다. 색은 옆칸과 겹치지
   // 않게 자리 순서대로 돌리기만 하면 된다.
-  const plates = snap.highlights.map((h, i) => ({ h, tone: toneAt(i) }));
+  const plates = snap.highlights.map((h, i) => ({
+    h,
+    tone: toneAt(i),
+    size: sizeAt(i, h),
+  }));
 
   const feed = [...snap.feed].sort(
     (a, b) => (a.total === 0 ? 1 : 0) - (b.total === 0 ? 1 : 0),
@@ -380,8 +384,9 @@ export default async function TodayPage() {
           <CardGrid
             surface="today"
             initial={slots}
-            cards={plates.map(({ h, tone }, i) => ({
+            cards={plates.map(({ h, tone, size }, i) => ({
               id: h.id,
+              size,
               node: (
                 <HighlightPlate
                   n={i + 1}
@@ -430,6 +435,36 @@ export default async function TodayPage() {
       ) : null}
     </AppShell>
   );
+}
+
+/* ============================================================
+   이번 호 — 카드 크기의 리듬
+
+   카드를 전부 같은 크기로 깔면 잡지 지면이 아니라 벽돌담이 된다.
+   머리기사 하나를 크게 세우고 그 다음부터 크기를 바꿔가며 앉힌다.
+
+   이 11개 주기는 12칸에 정확히 맞아떨어진다. 빈 칸이 남지 않으므로
+   격자에 구멍이 뚫린 것처럼 보이지 않는다. 8장까지만 오르는 지금은
+   앞의 8개(8×4 → 4×2 다섯 → 8×2 → 4×2)가 여덟 줄을 꽉 채운다.
+   ============================================================ */
+const RHYTHM: [number, number][] = [
+  [8, 4], [4, 2], [4, 2],  // 머리기사 하나, 오른쪽에 둘을 쌓는다
+  [4, 2], [4, 2], [4, 2],  // 한 줄에 셋
+  [8, 2], [4, 2],          // 넓은 것 하나에 작은 것 하나
+  [4, 4], [8, 2], [8, 2],  // 세로로 긴 것, 오른쪽에 넓은 것 둘
+];
+
+/**
+ * 큰 칸은 채울 것이 있는 카드에만 준다.
+ *
+ * 사진도 한 줄 설명도 없는 항목을 특집 칸에 올리면 큰 빈 상자가 된다.
+ * today_snapshot 이 이미 채워진 것부터 정렬해 주므로 이 제동은 대개
+ * 뒤쪽에서만 걸리고, 뒤쪽은 어차피 전부 작은 칸이라 배치가 흐트러지지 않는다.
+ */
+function sizeAt(i: number, h: HighlightRow): [number, number] {
+  const size = RHYTHM[i % RHYTHM.length];
+  const carries = !!(h.cover_url || h.summary || h.subtitle || h.region);
+  return carries || (size[0] <= 4 && size[1] <= 2) ? size : [4, 2];
 }
 
 /* ============================================================

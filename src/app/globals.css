@@ -361,3 +361,34 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .tile, .zoom { transition: none !important; transform: none !important; }
 }
+
+/* ── 격자 칸 안의 활자 ─────────────────────────────────────────
+   카드 크기를 다양하게 깔아놓고 제목 크기를 vw 로 두면, 특집 칸이든
+   작은 칸이든 제목이 똑같아서 큰 칸은 그냥 빈 상자가 된다. 제호에서
+   겪은 것과 같은 실수다 — 재는 기준이 화면이 아니라 담는 칸이어야 한다.
+
+   칸 크기는 서버가 아니라 격자가 정하고, 저장된 배치와 크기 버튼으로
+   계속 바뀐다. props 로는 따라갈 수 없고 컨테이너 쿼리라야 셋 다 한
+   번에 따라온다. 기준값은 4칸짜리(1440에서 440px)에서 지금 크기가
+   그대로 나오도록 잡았다. 판형마다 비율이 다르므로 판형별로 나눈다. */
+.card-cell { container-type: size; }
+
+@supports (font-size: 1cqw) {
+  /* 폭으로 키우되 높이로 막는다. 폭만 보면 8×2(900×204) 같은 납작한
+     칸에서 제목이 칸 밖으로 넘친다. cqh 쪽 계수는 넘치기 직전 값이 아니라
+     한 단계 아래로 잡아 여백을 남긴다 — 지면은 빡빡하면 안 읽힌다. */
+  .card-cell .head-locator { font-size: clamp(30px, min(12.3cqw, 38cqh), 108px); }
+  .card-cell .head-tracks  { font-size: clamp(20px, min( 9.5cqw, 30cqh),  84px); }
+  .card-cell .head-tag     { font-size: clamp(17px, min( 8.6cqw, 27cqh),  76px); }
+  .card-cell .head-spine   { font-size: clamp(12px, min( 4.3cqw, 14cqh),  38px); }
+  .card-cell .head-film    { font-size: clamp(11px, min( 4.3cqw, 14cqh),  38px); }
+  .card-cell .plate-num    { font-size: clamp(17px, min( 6.8cqw, 21cqh),  56px); }
+
+  /* 세로로 긴 칸은 폭이 좁아도 지면을 더 받은 것이다. 폭만 보면
+     4×4 가 4×2 와 똑같이 작아진다. */
+  @container (min-height: 300px) {
+    .card-cell .head-locator { font-size: clamp(30px, 15.5cqw, 108px); }
+    .card-cell .head-tracks  { font-size: clamp(20px, 12cqw,    84px); }
+    .card-cell .head-tag     { font-size: clamp(17px, 10.8cqw,  76px); }
+  }
+}

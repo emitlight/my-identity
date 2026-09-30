@@ -90,12 +90,19 @@ function reflow(list: Slot[]): Slot[] {
  * 맞춰둔 배치가 왼쪽 위로 쓸려 올라가고, 그러면 배치 기능이 있으나 마나다.
  * 새로 생긴 카드만 빈 자리에 넣는다.
  */
-function reconcile(ids: string[], saved: Slot[]): Slot[] {
+function reconcile(
+  ids: string[],
+  saved: Slot[],
+  size: Map<string, [number, number]>,
+): Slot[] {
   const known = new Map(saved.map((s) => [s.id, s]));
   const placed = ids.filter((id) => known.has(id)).map((id) => known.get(id)!);
   for (const id of ids) {
     if (known.has(id)) continue;
-    placed.push(firstFree(placed, { id, x: 0, y: 0, w: 4, h: 2 }));
+    // 전부 같은 크기로 넣으면 지면이 아니라 벽돌담이 된다. 부르는 쪽이
+    // 카드마다 기본 크기를 정해 보내고, 여기서는 그대로 앉히기만 한다.
+    const [w, h] = size.get(id) ?? [4, 2];
+    placed.push(firstFree(placed, { id, x: 0, y: 0, w, h }));
   }
   return placed;
 }
@@ -115,10 +122,15 @@ export function CardGrid({
 }: {
   surface: "today";
   initial: Slot[];
-  cards: { id: string; node: React.ReactNode }[];
+  /** size 는 저장된 배치가 없을 때만 쓰는 기본값이다 */
+  cards: { id: string; node: React.ReactNode; size?: [number, number] }[];
 }) {
   const ids = useMemo(() => cards.map((c) => c.id), [cards]);
-  const [slots, setSlots] = useState<Slot[]>(() => reconcile(ids, initial));
+  const sizes = useMemo(
+    () => new Map(cards.flatMap((c) => (c.size ? [[c.id, c.size] as const] : []))),
+    [cards],
+  );
+  const [slots, setSlots] = useState<Slot[]>(() => reconcile(ids, initial, sizes));
   const [drag, setDrag] = useState<{ id: string; dx: number; dy: number } | null>(null);
   const [editing, setEditing] = useState(false);
   const [width, setWidth] = useState(0);
@@ -127,7 +139,7 @@ export function CardGrid({
   const label = useId();
 
   // 카드 목록이 바뀌면(컬렉션 추가·삭제) 배치를 맞춘다
-  useEffect(() => { setSlots((s) => reconcile(ids, s)); }, [ids]);
+  useEffect(() => { setSlots((s) => reconcile(ids, s, sizes)); }, [ids, sizes]);
 
   useEffect(() => {
     const el = box.current;
@@ -264,7 +276,10 @@ export function CardGrid({
           return (
             <div
               key={s.id}
-              className={"absolute " + (held ? "z-10" : "transition-[left,top,width,height] duration-200")}
+              // card-cell 이 컨테이너 쿼리의 기준이 된다. 칸 크기는 서버가
+              // 아니라 격자가 정하고 드래그·크기 버튼으로 계속 바뀌므로,
+              // props 로는 못 내려보내고 CSS 로 따라가야 한다.
+              className={"card-cell absolute " + (held ? "z-10" : "transition-[left,top,width,height] duration-200")}
               style={p}
             >
               <div className={"relative h-full " + (held ? "opacity-90" : "")}>

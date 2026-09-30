@@ -353,7 +353,7 @@ export function PlateNum({ n, tone = "paper" }: { n: number | string; tone?: "pa
   return (
     <span
       className={
-        "num absolute left-0 top-0 z-[4] px-2.5 pb-1 pt-0.5 text-[clamp(18px,4vw,30px)] leading-[1.15] " +
+        "num plate-num absolute left-0 top-0 z-[4] px-2.5 pb-1 pt-0.5 text-[clamp(18px,4vw,30px)] leading-[1.15] " +
         (tone === "ink" ? "bg-ink text-[color:var(--on-dark)]" : "bg-paper text-ink")
       }
     >
@@ -378,7 +378,7 @@ export function FilmStrip({ title, tone = "ink" }: { title: string; tone?: Tone 
             (tone === "key" ? "bg-ink text-[color:var(--on-dark)]" : "bg-key text-[color:var(--on-accent)]")
           }
         >
-          <span className="krd line-clamp-2 text-center text-[clamp(11px,2.4vw,19px)] leading-[1.06]">
+          <span className="krd plate-head head-film line-clamp-2 text-center text-[clamp(11px,2.4vw,19px)] leading-[1.06]">
             {title}
           </span>
         </span>
@@ -424,7 +424,7 @@ export function Spines({ title, tone = "soft" }: { title: string; tone?: Tone })
     <div className="absolute inset-0 z-[2] flex items-end gap-2.5 px-5 pb-3.5 sm:gap-3 sm:px-7 sm:pb-4">
       <span className={`flex h-[78%] w-[clamp(42px,9.5vw,66px)] items-center justify-center px-1 py-3 ${spine}`}>
         <span
-          className="krb line-clamp-1 text-[clamp(12px,2.8vw,19px)] leading-none"
+          className="krb plate-head head-spine line-clamp-1 text-[clamp(12px,2.8vw,19px)] leading-none"
           style={{ writingMode: "vertical-rl" }}
         >
           {title}
@@ -454,7 +454,7 @@ export function Tracks({ title, tone = "ink" }: { title: string; tone?: Tone }) 
         ))}
       </span>
       <span aria-hidden className={`h-[2px] w-full ${RULE[tone]}`} />
-      <span className="krd text-[clamp(22px,5.4vw,42px)] leading-[.98]">{title}</span>
+      <span className="krd plate-head head-tracks text-[clamp(22px,5.4vw,42px)] leading-[.98]">{title}</span>
     </div>
   );
 }
@@ -477,7 +477,7 @@ export function TagPlate({ title, tone = "paper" }: { title: string; tone?: Tone
           aria-hidden
           className="size-3 shrink-0 rounded-full border-2 border-current sm:size-3.5"
         />
-        <span className="krd truncate text-[clamp(18px,4.6vw,38px)] leading-[1]">{title}</span>
+        <span className="krd plate-head head-tag truncate text-[clamp(18px,4.6vw,38px)] leading-[1]">{title}</span>
       </span>
     </div>
   );
@@ -498,7 +498,7 @@ export function Locator({
   return (
     <div className="absolute inset-0 z-[2] flex flex-col justify-center gap-2.5 px-5 pb-4 pt-11 sm:gap-3 sm:px-7 sm:pt-12">
       <span aria-hidden className={`h-[2px] w-full ${RULE[tone]}`} />
-      <span className="krd text-[clamp(32px,8.4vw,54px)] leading-[.96]">{title}</span>
+      <span className="krd plate-head head-locator text-[clamp(32px,8.4vw,54px)] leading-[.96]">{title}</span>
       {stamp ? (
         <span className={`kicker-kr truncate text-[10.5px] tracking-[.16em] ${DIM[tone]}`}>
           {stamp}
