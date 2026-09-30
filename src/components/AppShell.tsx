@@ -58,8 +58,13 @@ export async function AppShell({
            누구로 들어와 있는지는 늘 보여야 한다. 1인용이라도 계정이 둘
            이상일 수 있고, 로그인된 채로 "이게 누구지"가 되는 순간
            아무것도 믿을 수 없게 된다. 지면 위가 아니라 리본에 둔다 —
-           오늘 화면의 띠가 음수 마진으로 제호 아래를 덮기 때문이다. */}
-      <div className="bg-key text-[color:var(--on-accent)]">
+           오늘 화면의 띠가 음수 마진으로 제호 아래를 덮기 때문이다.
+
+           z-30 이 필요하다. 아래 제호는 line-height 가 .82 라 글자
+           조각이 자기 상자 밖으로 위아래 56px 씩 삐져나오고, 그 부분이
+           리본 전체를 덮어서 클릭과 호버를 가로챈다. 눈에는 안 보이니
+           원인을 찾기 어렵다. 쌓임 순서를 손으로 못박아 둔다. */}
+      <div className="relative z-30 bg-key text-[color:var(--on-accent)]">
         <div className="mx-auto flex h-10 w-full max-w-[1440px] items-center justify-between gap-4 px-5 lg:h-[46px] lg:px-10">
           <nav aria-label="주요 메뉴" className="flex shrink-0 items-center gap-1">
             {NAV.map((n) => (
@@ -108,7 +113,7 @@ export async function AppShell({
                 >
                   {who}
                 </span>
-                <SignOutButton className="!text-[color:var(--on-accent)] opacity-75 hover:opacity-100" />
+                <SignOutButton className="text-[color:var(--on-accent)] decoration-[color:var(--on-accent)]/45 hover:decoration-[color:var(--on-accent)]" />
               </>
             ) : null}
           </span>
@@ -116,14 +121,14 @@ export async function AppShell({
       </div>
 
       {/* ─────────── 제호 ─────────── */}
-      <div className="mx-auto w-full max-w-[1440px] px-5 pt-2 lg:px-10 lg:pt-2.5">
+      <div className="relative z-0 mx-auto w-full max-w-[1440px] px-5 pt-2 lg:px-10 lg:pt-2.5">
         <Link href="/" className="masthead-wrap block">
           <h1 className="masthead text-center">MY IDENTITY</h1>
         </Link>
       </div>
 
       {/* ─────────── 지면 ─────────── */}
-      <main className="mx-auto w-full max-w-[1440px] px-5 pb-28 lg:px-10 lg:pb-16">
+      <main className="relative z-10 mx-auto w-full max-w-[1440px] px-5 pb-28 lg:px-10 lg:pb-16">
         {children}
       </main>
 

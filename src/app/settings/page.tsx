@@ -34,7 +34,7 @@ export default async function SettingsPage() {
           <SectionLabel latin="Account">계정</SectionLabel>
           <div className="flex flex-col items-start gap-4 pt-4">
             <p className="krb text-[15px]">{user.email}</p>
-            <SignOutButton className="text-[11px]" />
+            <SignOutButton className="text-[11px] text-muted hover:text-ink" />
           </div>
         </section>
       </div>
