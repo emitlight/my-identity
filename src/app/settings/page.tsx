@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { PushSetup } from "@/components/PushSetup";
 import { SectionLabel } from "@/components/ui";
-import { SignOutButton } from "./SignOutButton";
+import { SignOutButton } from "@/components/SignOutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export default async function SettingsPage() {
           <SectionLabel latin="Account">계정</SectionLabel>
           <div className="flex flex-col items-start gap-4 pt-4">
             <p className="krb text-[15px]">{user.email}</p>
-            <SignOutButton />
+            <SignOutButton className="text-[11px]" />
           </div>
         </section>
       </div>

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { SignOutButton } from "@/components/SignOutButton";
 
 const NAV = [
   { href: "/", label: "오늘", key: "today" },
@@ -23,7 +25,7 @@ const SECONDARY = [
  * 300px 를 메뉴에 떼어주면 표제를 키울 자리가 남지 않는다. 메뉴는 위의
  * 띠로 올리고, 폰에서는 아래 탭이 대신한다.
  */
-export function AppShell({
+export async function AppShell({
   children,
   active,
   title,
@@ -39,22 +41,34 @@ export function AppShell({
 }) {
   const label = NAV.concat(SECONDARY).find((n) => n.key === active)?.label ?? title;
 
+  // 지금 누구로 들어와 있는지 모든 화면에서 보여준다. 1인용이라도 계정이
+  // 둘 이상 있을 수 있고, 로그인된 채로 "이게 누구지" 가 되는 순간
+  // 아무것도 믿을 수 없게 된다. 잡지의 판권면(콜로폰) 자리에 둔다.
+  const {
+    data: { user },
+  } = await (await createClient()).auth.getUser();
+  const who = user?.email ?? null;
+
   // 켜진 메뉴는 ink 바탕에 paper 글자다. key 을 쓰면 다크 모드에서
   // ink 가 크림색이 되면서 분홍 글자가 3:1 로 떨어져 안 읽힌다.
 
   return (
     <div className="min-h-dvh bg-paper">
-      {/* ─────────── 리본 ─────────── */}
+      {/* ─────────── 리본 ───────────
+           누구로 들어와 있는지는 늘 보여야 한다. 1인용이라도 계정이 둘
+           이상일 수 있고, 로그인된 채로 "이게 누구지"가 되는 순간
+           아무것도 믿을 수 없게 된다. 지면 위가 아니라 리본에 둔다 —
+           오늘 화면의 띠가 음수 마진으로 제호 아래를 덮기 때문이다. */}
       <div className="bg-key text-[color:var(--on-accent)]">
         <div className="mx-auto flex h-10 w-full max-w-[1440px] items-center justify-between gap-4 px-5 lg:h-[46px] lg:px-10">
-          <nav aria-label="주요 메뉴" className="hidden items-center gap-1 lg:flex">
+          <nav aria-label="주요 메뉴" className="flex shrink-0 items-center gap-1">
             {NAV.map((n) => (
               <Link
                 key={n.key}
                 href={n.href}
                 aria-current={active === n.key ? "page" : undefined}
                 className={
-                  "krb border-[1.5px] px-3 py-1 text-[12px] tracking-[.06em] transition-colors " +
+                  "krb hidden border-[1.5px] px-3 py-1 text-[12px] tracking-[.06em] transition-colors lg:block " +
                   (active === n.key
                     ? "border-transparent bg-ink text-paper"
                     : "border-transparent hover:border-ink")
@@ -63,38 +77,41 @@ export function AppShell({
                 {n.label}
               </Link>
             ))}
-          </nav>
-
-          {/* 폰에서는 보조 메뉴가 리본 왼쪽에 온다 */}
-          <div className="flex items-center gap-3 lg:hidden">
-            {SECONDARY.map((s) => (
-              <Link key={s.key} href={s.href} className="krb text-[12px] tracking-[.06em]">
-                {s.label}
-              </Link>
-            ))}
-          </div>
-
-          <span className="krb shrink-0 text-[11px] tracking-[.14em] lg:text-[12.5px]">
-            {dateline ?? subtitle ?? label}
-          </span>
-
-          <div className="hidden items-center gap-3 lg:flex">
-            {SECONDARY.map((s) => (
+            {SECONDARY.map((s2) => (
               <Link
-                key={s.key}
-                href={s.href}
-                aria-current={active === s.key ? "page" : undefined}
+                key={s2.key}
+                href={s2.href}
+                aria-current={active === s2.key ? "page" : undefined}
                 className={
-                  "krb border-[1.5px] px-3 py-1 text-[12px] tracking-[.06em] transition-colors " +
-                  (active === s.key
+                  "krb border-[1.5px] px-2.5 py-1 text-[12px] tracking-[.06em] transition-colors lg:px-3 " +
+                  (active === s2.key
                     ? "border-transparent bg-ink text-paper"
                     : "border-transparent hover:border-ink")
                 }
               >
-                {s.label}
+                {s2.label}
               </Link>
             ))}
-          </div>
+          </nav>
+
+          <span className="krb hidden shrink-0 text-[12.5px] tracking-[.14em] lg:block">
+            {dateline ?? subtitle ?? label}
+          </span>
+
+          <span className="flex min-w-0 items-center gap-2.5 lg:gap-4">
+            {who ? (
+              <>
+                <span className="kicker hidden shrink-0 opacity-70 lg:inline">Signed in</span>
+                <span
+                  title={who}
+                  className="krb min-w-0 truncate text-[11px] tracking-[.02em] lg:text-[12px]"
+                >
+                  {who}
+                </span>
+                <SignOutButton className="!text-[color:var(--on-accent)] opacity-75 hover:opacity-100" />
+              </>
+            ) : null}
+          </span>
         </div>
       </div>
 
