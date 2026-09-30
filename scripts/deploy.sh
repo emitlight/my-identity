@@ -18,7 +18,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 PROJECT_NAME=${PROJECT_NAME:-my-identity}
 REGION=${REGION:-ap-northeast-2}          # 서울
-EMAIL=${EMAIL:-hayoung.lee@softcamp.co.kr}
+EMAIL=${EMAIL:-leehy919@gmail.com}
 
 say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
 die() { printf '\n✗ %s\n' "$*" >&2; exit 1; }

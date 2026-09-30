@@ -1596,7 +1596,7 @@ create trigger posts_stamp_published
 
 do $$
 declare
-  MY_EMAIL text := 'hayoung.lee@softcamp.co.kr';   -- ← 본인 계정
+  MY_EMAIL text := 'leehy919@gmail.com';   -- ← 본인 계정
 
   uid uuid;
   r_softcamp uuid; r_law uuid; r_study uuid; r_fit uuid; r_life uuid;
@@ -1829,7 +1829,7 @@ end $$;
 
 do $$
 declare
-  MY_EMAIL text := 'hayoung.lee@softcamp.co.kr';   -- ← 본인 계정
+  MY_EMAIL text := 'leehy919@gmail.com';   -- ← 본인 계정
 
   uid uuid;
   r_softcamp uuid; r_study uuid; r_fit uuid; r_life uuid;
@@ -1989,7 +1989,7 @@ end $$;
 
 do $$
 declare
-  MY_EMAIL text := 'hayoung.lee@softcamp.co.kr';   -- ← 본인 계정
+  MY_EMAIL text := 'leehy919@gmail.com';   -- ← 본인 계정
 
   uid uuid;
   r_life uuid; r_fit uuid;
@@ -2117,7 +2117,7 @@ end $$;
 
 do $$
 declare
-  MY_EMAIL text := 'hayoung.lee@softcamp.co.kr';   -- ← 본인 계정
+  MY_EMAIL text := 'leehy919@gmail.com';   -- ← 본인 계정
   uid uuid;
   r_softcamp uuid;
   n_habit int := 0;

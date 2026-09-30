@@ -30,7 +30,7 @@ psql -q -c "insert into auth.users (id, email) values
 
 # 시드의 대상 계정만 테스트 계정으로 바꿔 실행
 for f in "$ROOT"/supabase/seed/*.sql; do
-  sed "s/hayoung.lee@softcamp.co.kr/seed@test.local/" "$f" > "$TMP/$(basename "$f")"
+  sed "s/leehy919@gmail.com/seed@test.local/" "$f" > "$TMP/$(basename "$f")"
 done
 
 echo "→ 1회차 실행"
