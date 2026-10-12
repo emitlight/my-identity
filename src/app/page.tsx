@@ -126,6 +126,20 @@ export default async function TodayPage() {
     .maybeSingle();
   const slots = (layout?.items ?? []) as Slot[];
 
+  // 오늘 발행된 한 편. 지면에 올리지 않으면 아무도 안 읽는다 —
+  // 서가까지 들어가야 보이는 글은 노션의 하위 페이지와 똑같아진다.
+  // 자동이든 직접 쓴 것이든 가리지 않는다. 읽는 쪽에서 보면 "오늘 읽을
+  // 한 편"일 뿐이고, 자동분만 띄우면 발행기가 처음 돌기 전까지 이 자리가
+  // 비어 있게 된다.
+  const { data: issueRows } = await supabase
+    .from("posts")
+    .select("id, kind, title, subtitle, lede, cover_url, reading_minutes, published_at")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(1);
+  const issue = issueRows?.[0] ?? null;
+  const issueIsToday = !!issue?.published_at && issue.published_at.slice(0, 10) === today;
+
   // 인박스에서 오늘로 끌어올 후보 — 개수만 보여주면 꺼낼 방법이 없다.
   const { data: inboxRows } = snap.inbox_count
     ? await supabase
@@ -207,6 +221,54 @@ export default async function TodayPage() {
           empty={snap.events.length ? "남은 일정이 없습니다" : "오늘은 일정이 없습니다"}
         />
       </Bleed>
+
+      {/* ═══ 오늘의 한 편 ═══ */}
+      {issue ? (
+        <Bleed className="border-b-[3px] border-ink">
+          <Link
+            href={`/posts/${issue.id}`}
+            className="tile group flex flex-wrap items-stretch bg-ink text-[color:var(--on-dark)]"
+          >
+            {issue.cover_url ? (
+              <span className="relative hidden w-[240px] shrink-0 overflow-hidden bg-key-soft lg:block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={issue.cover_url}
+                  alt=""
+                  className="zoom absolute inset-0 size-full object-cover"
+                />
+              </span>
+            ) : null}
+            <span className="min-w-0 flex-1 basis-[280px] px-5 py-5 lg:px-9 lg:py-7">
+              <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span className="kicker text-key-on-dark">
+                  {issueIsToday ? "Today's issue" : "Latest issue"}
+                </span>
+                <span className="kicker-kr text-[10.5px] tracking-[.2em] text-[color:var(--on-dark-dim)]">
+                  {issueIsToday ? "오늘의 한 편" : "가장 최근 호"}
+                </span>
+                {issue.reading_minutes ? (
+                  <span className="kicker text-[color:var(--on-dark-dim)]">
+                    {issue.reading_minutes}분
+                  </span>
+                ) : null}
+              </span>
+              <span className="krd mt-2.5 block text-[clamp(22px,5vw,40px)] leading-[1.08]">
+                {issue.title}
+              </span>
+              {issue.lede ? (
+                <span className="mt-2.5 block max-w-[44ch] text-[clamp(14px,2vw,17px)] leading-snug text-key-on-dark">
+                  {issue.lede}
+                </span>
+              ) : issue.subtitle ? (
+                <span className="mt-2.5 block max-w-[52ch] text-[14px] leading-relaxed text-[color:var(--on-dark-dim)]">
+                  {issue.subtitle}
+                </span>
+              ) : null}
+            </span>
+          </Link>
+        </Bleed>
+      ) : null}
 
       {/* ═══ 할 일 · 습관 · 인박스 ═══ */}
       <Bleed

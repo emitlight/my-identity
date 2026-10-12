@@ -12,6 +12,7 @@ const NAV = [
 ];
 
 const SECONDARY = [
+  { href: "/editor", label: "편집실", key: "editor" },
   { href: "/identity", label: "나", key: "identity" },
   { href: "/settings", label: "설정", key: "settings" },
 ];

@@ -1,0 +1,42 @@
+name: 오늘의 한 편
+
+# 매일 아침 06:18 KST. 정각을 피한 이유는 그 시각에 전 세계 크론이 몰려
+# 밀리기 때문이다. 일어나서 보면 이미 올라와 있어야 한다.
+#
+# Vercel 함수가 아니라 여기서 도는 이유: Hobby 플랜 함수는 60초에 끊기고,
+# 한 편을 제대로 쓰려면 그보다 오래 걸린다.
+on:
+  schedule:
+    - cron: "18 21 * * *" # 21:18 UTC = 06:18 KST (다음 날)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "저장하지 않고 글만 뽑아본다"
+        type: boolean
+        default: false
+
+concurrency:
+  group: daily-issue
+  cancel-in-progress: false
+
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: 한 편 쓰기
+        run: node --experimental-strip-types scripts/daily-issue.ts
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
+          ISSUE_DRY_RUN: ${{ inputs.dry_run && '1' || '' }}

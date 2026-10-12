@@ -4,7 +4,7 @@ import pw from "/home/user/my-identity/node_modules/playwright-core/index.js";
 const { chromium } = pw;
 const port = process.argv[2];
 const ROUTES = ["/", "/calendar", "/tasks", "/goals", "/collections", "/identity",
-                "/collections/countries", "/collections/bucket"];
+                "/collections/countries", "/collections/bucket", "/posts", "/editor"];
 
 const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium", args: ["--no-sandbox"] });
 let bad = 0;
