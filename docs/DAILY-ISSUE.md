@@ -100,7 +100,7 @@ supabase/seed/0005_first_issue.sql          # 창간호 (이미 쓰여 있음)
 
 | 이름 | 비고 |
 |---|---|
-| `ANTHROPIC_API_KEY` | **새로 필요하다.** console.anthropic.com 에서 발급 |
+| `GEMINI_API_KEY` | **새로 필요하다.** aistudio.google.com → Get API key. 카드 등록 없이 무료 |
 | `NEXT_PUBLIC_SUPABASE_URL` | 이미 쓰는 값 |
 | `SUPABASE_SERVICE_ROLE_KEY` | 이미 쓰는 값 |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | 선택 — 없으면 푸시만 건너뛴다 |
@@ -116,7 +116,7 @@ Actions 탭 → `오늘의 한 편` → `Run workflow`.
 로컬에서도 된다.
 
 ```bash
-ANTHROPIC_API_KEY=... \
+GEMINI_API_KEY=... \
 NEXT_PUBLIC_SUPABASE_URL=... \
 SUPABASE_SERVICE_ROLE_KEY=... \
 ISSUE_DRY_RUN=1 \
@@ -127,15 +127,16 @@ node --experimental-strip-types scripts/daily-issue.ts
 
 ## 5. 비용
 
-Claude Opus 5.5, effort `high`. 한 편에 입력 2~4천 토큰, 출력 3~5천 토큰쯤.
-입력 $4/MTok, 출력 $20/MTok 기준으로 **한 편에 대략 $0.1 안팎**, 한 달이면
-$3 정도다.
+**0원.** Google AI Studio 무료 등급의 `gemini-2.5-flash` 로 쓴다. 하루 한 편이면
+무료 한도에 한참 못 미친다. 처음엔 Claude Opus 로 설계했지만(한 편 ~$0.1)
+결제 수단을 쓸 수 없어 2026-10-12 에 바꿨다.
 
-프롬프트의 고정부(문체 규약 + 독자 정보)에는 `cache_control` 을 걸어뒀다.
-매일 같은 내용이므로 이틀째부터는 그만큼 싸진다.
+무료 등급에서는 입력이 구글 모델 개선에 쓰일 수 있다. 들어가는 것은 관심사
+주제와 위 독자 소개 정도라 감수한다.
 
-비싸다고 느껴지면 `scripts/daily-issue.ts` 의 `MODEL` 을 `claude-sonnet-5-5`
-로 바꾼다(입력 $2 / 출력 $10). 글의 밀도는 떨어진다.
+모델을 바꾸려면 코드를 고치지 않고 저장소 `Settings → Secrets and variables →
+Actions → Variables` 에 `GEMINI_MODEL` 을 넣는다(예: `gemini-2.5-pro`).
+구글이 무료 모델 이름을 바꿨을 때도 여기서 갈아끼운다.
 
 ---
 

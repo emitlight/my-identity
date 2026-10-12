@@ -10,23 +10,25 @@
  *
  * 필요한 환경변수:
  *   NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
- *   ANTHROPIC_API_KEY
+ *   GEMINI_API_KEY  — aistudio.google.com 무료 키
+ *   (선택) GEMINI_MODEL — 기본 gemini-2.5-flash
  *   (선택) NEXT_PUBLIC_VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / VAPID_SUBJECT
  *   (선택) ISSUE_DRY_RUN=1  — 쓰기만 하고 저장하지 않는다
  */
 
-import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
 
-const MODEL = "claude-opus-5-5";
+// 무료 등급 안에서 돈다. 하루 한 편이면 한도에 한참 못 미친다.
+// 구글이 무료 모델 이름을 바꾸면 코드 대신 GEMINI_MODEL 로 갈아끼운다.
+const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const TZ = "Asia/Seoul";
 
 /* ── 환경 ──────────────────────────────────────────────────── */
 
 const SUPABASE_URL = need("NEXT_PUBLIC_SUPABASE_URL");
 const SERVICE_KEY = need("SUPABASE_SERVICE_ROLE_KEY");
-const ANTHROPIC_KEY = need("ANTHROPIC_API_KEY");
+const GEMINI_KEY = need("GEMINI_API_KEY");
 const DRY = process.env.ISSUE_DRY_RUN === "1";
 
 function need(name: string): string {
@@ -41,7 +43,6 @@ function need(name: string): string {
 const db = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false },
 });
-const claude = new Anthropic({ apiKey: ANTHROPIC_KEY });
 
 /* ── 타입 ──────────────────────────────────────────────────── */
 
@@ -328,26 +329,7 @@ async function writeIssue(profile: Profile, today: string) {
     .filter(Boolean)
     .join("\n");
 
-  const stream = claude.messages.stream({
-    model: MODEL,
-    max_tokens: 16000,
-    output_config: { effort: "high" },
-    system: [
-      { type: "text", text: `${VOICE}\n\n---\n\n${READER}`, cache_control: { type: "ephemeral" } },
-    ],
-    messages: [{ role: "user", content: task }],
-  });
-
-  const message = await stream.finalMessage();
-
-  if (message.stop_reason === "refusal") {
-    throw new Error(`거절됨: ${message.stop_details?.explanation ?? "사유 없음"}`);
-  }
-
-  const raw = message.content
-    .filter((b): b is Anthropic.TextBlock => b.type === "text")
-    .map((b) => b.text)
-    .join("");
+  const { raw, usage } = await write(`${VOICE}\n\n---\n\n${READER}`, task);
 
   const draft = parseDraft(raw);
   if (!draft) throw new Error(`형식을 못 읽었습니다:\n${raw.slice(0, 400)}`);
@@ -412,12 +394,60 @@ async function writeIssue(profile: Profile, today: string) {
     topic_id: topic.id,
     post_id: post.id,
     ok: true,
-    tokens_in: message.usage.input_tokens,
-    tokens_out: message.usage.output_tokens,
+    tokens_in: usage.input,
+    tokens_out: usage.output,
   });
 
   await announce(profile.id, draft, post.id);
   console.log(`✓ 발행 완료 · /posts/${post.id}`);
+}
+
+/* ── 쓰기 (Gemini) ─────────────────────────────────────────── */
+
+interface GeminiResponse {
+  candidates?: {
+    content?: { parts?: { text?: string; thought?: boolean }[] };
+    finishReason?: string;
+  }[];
+  promptFeedback?: { blockReason?: string };
+  usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
+  error?: { message?: string };
+}
+
+async function write(system: string, task: string) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-goog-api-key": GEMINI_KEY },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: [{ role: "user", parts: [{ text: task }] }],
+        // 생각 토큰도 이 한도에서 빠진다. 넉넉히 둬야 본문이 잘리지 않는다.
+        generationConfig: { maxOutputTokens: 16000 },
+      }),
+    },
+  );
+  const json = (await res.json()) as GeminiResponse;
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${json.error?.message ?? "응답 없음"}`);
+  if (json.promptFeedback?.blockReason) throw new Error(`거절됨: ${json.promptFeedback.blockReason}`);
+
+  const cand = json.candidates?.[0];
+  if (cand?.finishReason && cand.finishReason !== "STOP") {
+    throw new Error(`중간에 멈췄습니다: ${cand.finishReason}`);
+  }
+  const raw = (cand?.content?.parts ?? [])
+    .filter((p) => !p.thought)
+    .map((p) => p.text ?? "")
+    .join("");
+
+  return {
+    raw,
+    usage: {
+      input: json.usageMetadata?.promptTokenCount ?? null,
+      output: json.usageMetadata?.candidatesTokenCount ?? null,
+    },
+  };
 }
 
 /* ── 알림 ──────────────────────────────────────────────────── */
